@@ -1,8 +1,12 @@
 {
-  "name": "functions",
+  "name": "algolia-firestore-indexing",
+  "description": "Index Cloud Firestore collection to Algolia",
   "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf lib",
+    "compile": "tsc",
     "lint": "eslint \"src/**/*\"",
-    "build": "tsc"
+    "prepare": "npm run build"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -15,6 +19,7 @@
     "@typescript-eslint/parser": "^4.18.0",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.22.0",
+    "rimraf": "^3.0.2",
     "typescript": "^3.8.0"
   },
   "private": true
