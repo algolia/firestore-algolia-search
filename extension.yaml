@@ -31,30 +31,38 @@ billingRequired: false
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
-  - name: createUpdateRecord
+  - name: executeIndexOperation
     type: firebaseextensions.v1beta.function
     description: >-
-      Firestore document-triggered function that creates or updates the document record in Algolia
+      Firestore document-triggered function that creates, updates, or deletes data in Algolia
     properties:
       # LOCATION is a user-configured parameter value specified by the user
       # during installation.
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}/{documentID}    
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}/{documentID}    
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
-  - param: COLLECTION
-    label: Collection Name
-    description: >-
-      Specify the Collection name to monitor for changes.
-    type: string
+  - param: COLLECTION_PATH
+    label: Collection path
+    description: >
+      Specify the Collection path to monitor for changes.
+    default: search
+    example: search
     required: true
-    immutable: true
+    
+  - param: FIELDS
+    label: Indexable Fields
+    description: >
+      A comma separated list of Cloud Firestore fields to index. Leave empty to index all fields.
+    default: ''
+    example: 'name,category,price,sales'
+    required: false  
 
-  - param: INDEX_NAME
+  - param: ALGOLIA_INDEX_NAME
     label: Algolia Index Name
     description: >-
       Specify the Algolia Index Name.
@@ -62,7 +70,7 @@ params:
     required: true
     immutable: true  
 
-  - param: APPLICATION_ID
+  - param: ALGOLIA_APP_ID
     label: Algolia Application Id
     description: >-
       Specify the Algolia Application Id.
@@ -70,10 +78,10 @@ params:
     required: true
     immutable: true   
 
-  - param: API_KEY
+  - param: ALGOLIA_API_KEY
     label: Algolia API Key
     description: >-
-      Specify the Algolia API Key that has modification permission to the index.
+      Create a new API Key that has addObject, deleteObject, listIndexes, deleteIndex, editSettings, and settings, permissions.  Avoid using the Admin API key if all possible.
     type: string
     required: true
     immutable: true  
