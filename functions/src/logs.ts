@@ -13,38 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { logger } from "firebase-functions";
-import config from "./config";
+import { logger } from 'firebase-functions';
+import config from './config';
 
 const obfuscatedConfig = {
   ...config,
-  algoliaAPIKey: "********",
+  algoliaAPIKey: '********',
 };
 
 export const init = () => {
-  logger.info("Initializing extension with configuration", obfuscatedConfig);
+  logger.info('Initializing extension with configuration', obfuscatedConfig);
 };
 
 export const start = () => {
-  logger.info("Started extension execution with configuration", obfuscatedConfig);
+  logger.info('Started extension execution with configuration', obfuscatedConfig);
 };
 
 export const error = (err: Error) => {
-  logger.error("Error when performing Algolia index", err);
+  logger.error('Error when performing Algolia index', err);
+};
+
+export const info = (...args: any) => {
+  logger.info(args);
 };
 
 export const createIndex = (id: string, data: object) => {
-  logger.info(`Creating new Algolia index for document ${id}`, data);
+  logger.info(`Creating new Algolia index for document ${ id }`, data);
 };
 
 export const updateIndex = (id: string, data: object) => {
-  logger.info(`Updating existing Algolia index for document ${id}`, data);
+  logger.info(`Updating existing Algolia index for document ${ id }`, data);
 };
 
 export const deleteIndex = (id: string) => {
-  logger.info(`Deleting existing Algolia index for document ${id}`);
+  logger.info(`Deleting existing Algolia index for document ${ id }`);
 };
 
 export const fieldNotExist = (field: string) => {
-  logger.warn(`The field "${field}" was specified in the extension config but was not found on collection data.`);
+  logger.warn(`The field "${ field }" was specified in the extension config but was not found on collection data.`);
 };

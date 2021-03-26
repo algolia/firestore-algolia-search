@@ -3,3 +3,5 @@
 
 # Typescript v1 declaration files
 typings/
+private
+lib/import

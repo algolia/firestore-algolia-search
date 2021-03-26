@@ -37,6 +37,7 @@ export default function extract(snapshot: DocumentSnapshot): object {
     };
   }
 
+
   for (let i = 0; i < fields.length; i++) {
     const field = fields[i].replace(trim, '');
     const value = snapshot.get(field);
