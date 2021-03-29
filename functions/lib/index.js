@@ -42,7 +42,7 @@ const getIndex = () => getClient().initIndex(config_1.default.algoliaIndexName);
 const requestOptions = {
     headers: {
         'User-Agent': 'Algolia Firebase Ext. v0.0.1; Algolia Search JS v4.*.*',
-    }
+    },
 };
 logs.init();
 const handleCreateDocument = async (snapshot) => {

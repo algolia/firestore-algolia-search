@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.error = exports.start = exports.init = void 0;
+exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.info = exports.error = exports.start = exports.init = void 0;
 /*
  * Copyright 2021 Algolia
  *
@@ -18,15 +18,18 @@ exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.crea
  */
 const firebase_functions_1 = require("firebase-functions");
 const config_1 = require("./config");
-const obfuscatedConfig = Object.assign(Object.assign({}, config_1.default), { algoliaAPIKey: "********" });
+const obfuscatedConfig = Object.assign(Object.assign({}, config_1.default), { algoliaAPIKey: '********' });
 exports.init = () => {
-    firebase_functions_1.logger.info("Initializing extension with configuration", obfuscatedConfig);
+    firebase_functions_1.logger.info('Initializing extension with configuration', obfuscatedConfig);
 };
 exports.start = () => {
-    firebase_functions_1.logger.info("Started extension execution with configuration", obfuscatedConfig);
+    firebase_functions_1.logger.info('Started extension execution with configuration', obfuscatedConfig);
 };
 exports.error = (err) => {
-    firebase_functions_1.logger.error("Error when performing Algolia index", err);
+    firebase_functions_1.logger.error('Error when performing Algolia index', err);
+};
+exports.info = (...args) => {
+    firebase_functions_1.logger.info(args);
 };
 exports.createIndex = (id, data) => {
     firebase_functions_1.logger.info(`Creating new Algolia index for document ${id}`, data);

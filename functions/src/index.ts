@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
+import * as functions from 'firebase-functions';
 import algoliaSearch from 'algoliasearch';
-import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
-import { Change } from "firebase-functions";
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import config from './config';
 import extract from './extract';
@@ -30,7 +29,7 @@ enum ChangeType {
 }
 
 export const getChangeType = (
-  change: Change<DocumentSnapshot>
+  change: functions.Change<DocumentSnapshot>
 ) => {
   if (!change.after.exists) {
     return ChangeType.DELETE;
@@ -48,7 +47,7 @@ const getIndex = () => getClient().initIndex(config.algoliaIndexName);
 const requestOptions = {
   headers: {
     'User-Agent': 'Algolia Firebase Ext. v0.0.1; Algolia Search JS v4.*.*',
-  }
+  },
 };
 
 logs.init();
@@ -60,7 +59,7 @@ const handleCreateDocument = async (
 
   try {
     logs.createIndex(snapshot.id, data);
-    await getIndex().saveObjects([data], requestOptions);
+    await getIndex().saveObjects([ data ], requestOptions);
   } catch (e) {
     logs.error(e);
   }
@@ -74,7 +73,7 @@ const handleUpdateDocument = async (
 
   try {
     logs.updateIndex(after.id, data);
-    await getIndex().saveObjects([data], requestOptions);
+    await getIndex().saveObjects([ data ], requestOptions);
   } catch (e) {
     logs.error(e);
   }
@@ -107,7 +106,7 @@ export const executeIndexOperation = functions.handler.firestore.document
         await handleUpdateDocument(change.before, change.after);
         break;
       default: {
-        throw new Error(`Invalid change type: ${changeType}`);
+        throw new Error(`Invalid change type: ${ changeType }`);
       }
     }
   });
