@@ -62,14 +62,14 @@ Run the import script using [`npx` (the Node Package Runner)](https://www.npmjs.
 - Execute the following command in the `functions` folder:
 
   ```
-  LOCATION=${param:LOCATION}\
-  ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
-  ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
-  ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
-  COLLECTION_PATH=${param:COLLECTION_PATH}\
-  FIELDS=${param:FIELDS}\
-  GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
-  npm run import
+    LOCATION=${param:LOCATION}\
+    ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
+    ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
+    ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
+    COLLECTION_PATH=${param:COLLECTION_PATH}\
+    FIELDS=${param:FIELDS}\
+    GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
+    npm run import
   ```
 **NOTE:** If the `FIELDS` param contains `{ unspecified parameter }` in the command above, please clear it out since this is an invalid value.
 
