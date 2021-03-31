@@ -37,9 +37,8 @@ export default function extract(snapshot: DocumentSnapshot): object {
     };
   }
 
-
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i].replace(trim, '');
+  fields.forEach(item => {
+    const field = item.replace(trim, '');
     const value = snapshot.get(field);
 
     if (value !== null) {
@@ -47,7 +46,7 @@ export default function extract(snapshot: DocumentSnapshot): object {
     } else {
       logs.fieldNotExist(field);
     }
-  }
+  });
 
   return payload;
 }

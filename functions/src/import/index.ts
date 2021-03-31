@@ -17,10 +17,13 @@
 
 import * as admin from 'firebase-admin';
 import algoliasearch from 'algoliasearch';
+import * as readline from 'readline';
 
 import config from '../config';
 import extract from '../extract';
 import * as logs from '../logs';
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 // configure algolia
 const algolia = algoliasearch(config.algoliaAppId, config.algoliaAPIKey);
@@ -45,35 +48,48 @@ const sentDataToAlgolia = (data: any[]) => {
     });
 };
 
+const getObjectSizeInBytes = (object: [] | {}) => {
+  const recordBuffer = Buffer.from(JSON.stringify(object));
+  return recordBuffer.byteLength;
+}
+
 const retrieveDataFromFirestore = async () => {
   let records: any[] = [];
   const querySnapshot = await database.collection(config.collectionPath).get();
-
-  // Use counter to limit how many records are stored in the array
-  let counter = 0;
+  const BATCH_MAX_SIZE = 10000000;
   querySnapshot.forEach((docSnapshot) => {
     // Capture the record and add to records array for later push to Algolia.
+    // TODO: check if the record is less than or equal to 10kb, if larger than
+    //  split the record using the Id
     records.push(extract(docSnapshot));
-    counter++;
 
-    // We are sending batch updates to Algolia.  We are using 5000 records as a limit.
-    if (counter === 5000) {
+    // We are sending batch updates to Algolia.  We need this to be less than 10 MB (10000000)
+    const size = getObjectSizeInBytes(records);
+    if (size >= BATCH_MAX_SIZE) {
+      logs.info('Sending bulk Records to Algolia');
       sentDataToAlgolia(records);
 
-      // reset index and records after sending
-      counter = 0;
+      // reset records after sending
       records = [];
     }
   });
 
   // Send rest of the records that are still in the records array
   if (records.length > 0) {
+    logs.info('Sending rest of the Records to Algolia');
     sentDataToAlgolia(records);
   }
 };
 
-retrieveDataFromFirestore()
-  .catch(error => {
-    logs.error(error);
-    process.exit(1);
-  });
+rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
+  const value = answer || 'n'
+  if ('y' === value.toLowerCase()) {
+    retrieveDataFromFirestore()
+      .catch(error => {
+        logs.error(error);
+        process.exit(1);
+      });
+  }
+  rl.close();
+});
+
