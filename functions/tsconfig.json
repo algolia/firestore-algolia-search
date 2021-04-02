@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
     "outDir": "lib",
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2017",
+    "target": "es2018",
     "resolveJsonModule": true
   },
   "compileOnSave": true,

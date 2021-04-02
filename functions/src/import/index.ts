@@ -22,6 +22,7 @@ import * as readline from 'readline';
 import config from '../config';
 import extract from '../extract';
 import * as logs from '../logs';
+import { getObjectSizeInBytes, buildRequestOptions } from '../util';
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 
@@ -39,7 +40,7 @@ const sentDataToAlgolia = (data: any[]) => {
   // Add or update new objects
   logs.info(`Preparing to send ${ data.length } record(s) to Algolia.`);
   index
-    .saveObjects(data)
+    .saveObjects(data, buildRequestOptions())
     .then(() => {
       logs.info('Document(s) imported into Algolia');
     })
@@ -48,22 +49,24 @@ const sentDataToAlgolia = (data: any[]) => {
     });
 };
 
-const getObjectSizeInBytes = (object: [] | {}) => {
-  const recordBuffer = Buffer.from(JSON.stringify(object));
-  return recordBuffer.byteLength;
-}
-
 const retrieveDataFromFirestore = async () => {
   let records: any[] = [];
   const querySnapshot = await database.collection(config.collectionPath).get();
-  const BATCH_MAX_SIZE = 10000000;
+  const BATCH_MAX_SIZE = 9437184;
+  const PAYLOAD_MAX_SIZE = 10240;
   querySnapshot.forEach((docSnapshot) => {
     // Capture the record and add to records array for later push to Algolia.
     // TODO: check if the record is less than or equal to 10kb, if larger than
     //  split the record using the Id
-    records.push(extract(docSnapshot));
+    // Add in config property to allow up to 100kb if plan allows it.
+    const payload = extract(docSnapshot);
+    if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
+      records.push(extract(docSnapshot));
+    } else {
+      logs.warn('Payload size too big, skipping ...', payload);
+    }
 
-    // We are sending batch updates to Algolia.  We need this to be less than 10 MB (10000000)
+    // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
     const size = getObjectSizeInBytes(records);
     if (size >= BATCH_MAX_SIZE) {
       logs.info('Sending bulk Records to Algolia');

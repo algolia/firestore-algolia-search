@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -13,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { logger } from 'firebase-functions';
 import config from './config';
 
-const obfuscatedConfig = {
+export const obfuscatedConfig = {
   ...config,
   algoliaAPIKey: '********',
 };
@@ -27,6 +29,10 @@ export const init = () => {
 
 export const start = () => {
   logger.info('Started extension execution with configuration', obfuscatedConfig);
+};
+
+export const warn = (...args: any) => {
+  logger.warn(args);
 };
 
 export const error = (err: Error) => {

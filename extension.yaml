@@ -14,8 +14,13 @@ description: >-
 
 license: Apache-2.0  # https://spdx.org/licenses/
 
+author:
+  authorName: Sajid Momin
+  url: https://github.com/smomin  # Author URL
+
+
 # Public URL for the source code of your extension
-sourceUrl: https://github.com/firebase/firebase-tools/tree/master/templates/extensions
+sourceUrl: https://github.com/algolia/algolia-firebase-extension
 
 # Specify whether a paid-tier billing plan is required to use your extension.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#billing-required-field
@@ -52,7 +57,9 @@ params:
     description: >
       Specify the Collection path to monitor for changes.
     default: ''
-    example: movies
+    example: store
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Must be a valid Cloud Firestore collection
     required: true
 
   - param: FIELDS
