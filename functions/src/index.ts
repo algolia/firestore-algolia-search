@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -21,34 +22,13 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import config from './config';
 import extract from './extract';
 import * as logs from './logs';
-
-enum ChangeType {
-  CREATE,
-  DELETE,
-  UPDATE,
-}
-
-export const getChangeType = (
-  change: functions.Change<DocumentSnapshot>
-) => {
-  if (!change.after.exists) {
-    return ChangeType.DELETE;
-  }
-  if (!change.before.exists) {
-    return ChangeType.CREATE;
-  }
-  return ChangeType.UPDATE;
-};
+import { buildRequestOptions, ChangeType, getChangeType } from './util';
 
 const getClient = () => algoliaSearch(config.algoliaAppId, config.algoliaAPIKey);
 const getIndex = () => getClient().initIndex(config.algoliaIndexName);
 
 // Adding header to better track users using this extension.
-const requestOptions = {
-  headers: {
-    'User-Agent': 'Algolia Firebase Ext. v0.0.1; Algolia Search JS v4.*.*',
-  },
-};
+export const requestOptions = buildRequestOptions();
 
 logs.init();
 
