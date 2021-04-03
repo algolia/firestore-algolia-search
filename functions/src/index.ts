@@ -35,9 +35,9 @@ logs.init();
 const handleCreateDocument = async (
   snapshot: DocumentSnapshot
 ) => {
-  const data = extract(snapshot);
-
   try {
+    const data = extract(snapshot);
+
     logs.createIndex(snapshot.id, data);
     await getIndex().saveObjects([ data ], requestOptions);
   } catch (e) {
@@ -49,9 +49,9 @@ const handleUpdateDocument = async (
   before: DocumentSnapshot,
   after: DocumentSnapshot
 ) => {
-  const data = extract(after);
-
   try {
+    const data = extract(after);
+
     logs.updateIndex(after.id, data);
     await getIndex().saveObjects([ data ], requestOptions);
   } catch (e) {

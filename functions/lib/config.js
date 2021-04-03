@@ -1,4 +1,5 @@
-"use strict";
+'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Copyright 2021 Algolia
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     algoliaAppId: process.env.ALGOLIA_APP_ID,
     algoliaAPIKey: process.env.ALGOLIA_API_KEY,
@@ -22,4 +22,3 @@ exports.default = {
     collectionPath: process.env.COLLECTION_PATH,
     fields: process.env.FIELDS,
 };
-//# sourceMappingURL=config.js.map

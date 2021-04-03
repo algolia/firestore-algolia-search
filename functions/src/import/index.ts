@@ -53,17 +53,13 @@ const retrieveDataFromFirestore = async () => {
   let records: any[] = [];
   const querySnapshot = await database.collection(config.collectionPath).get();
   const BATCH_MAX_SIZE = 9437184;
-  const PAYLOAD_MAX_SIZE = 10240;
   querySnapshot.forEach((docSnapshot) => {
     // Capture the record and add to records array for later push to Algolia.
-    // TODO: check if the record is less than or equal to 10kb, if larger than
-    //  split the record using the Id
     // Add in config property to allow up to 100kb if plan allows it.
-    const payload = extract(docSnapshot);
-    if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
+    try {
       records.push(extract(docSnapshot));
-    } else {
-      logs.warn('Payload size too big, skipping ...', payload);
+    } catch (e) {
+      logs.warn('Payload size too big, skipping ...', e);
     }
 
     // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)

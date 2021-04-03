@@ -2,6 +2,7 @@
 **/*.js.map
 
 # Typescript v1 declaration files
+__tests__
 typings/
 private
 lib/import

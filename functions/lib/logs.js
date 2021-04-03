@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.info = exports.error = exports.start = exports.init = void 0;
+exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.info = exports.error = exports.warn = exports.start = exports.init = exports.obfuscatedConfig = void 0;
 /*
  * Copyright 2021 Algolia
  *
@@ -18,12 +18,18 @@ exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.crea
  */
 const firebase_functions_1 = require("firebase-functions");
 const config_1 = require("./config");
-const obfuscatedConfig = Object.assign(Object.assign({}, config_1.default), { algoliaAPIKey: '********' });
+exports.obfuscatedConfig = {
+    ...config_1.default,
+    algoliaAPIKey: '********',
+};
 exports.init = () => {
-    firebase_functions_1.logger.info('Initializing extension with configuration', obfuscatedConfig);
+    firebase_functions_1.logger.info('Initializing extension with configuration', exports.obfuscatedConfig);
 };
 exports.start = () => {
-    firebase_functions_1.logger.info('Started extension execution with configuration', obfuscatedConfig);
+    firebase_functions_1.logger.info('Started extension execution with configuration', exports.obfuscatedConfig);
+};
+exports.warn = (...args) => {
+    firebase_functions_1.logger.warn(args);
 };
 exports.error = (err) => {
     firebase_functions_1.logger.error('Error when performing Algolia index', err);
@@ -43,4 +49,3 @@ exports.deleteIndex = (id) => {
 exports.fieldNotExist = (field) => {
     firebase_functions_1.logger.warn(`The field "${field}" was specified in the extension config but was not found on collection data.`);
 };
-//# sourceMappingURL=logs.js.map

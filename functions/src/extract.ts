@@ -19,11 +19,14 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import config from './config';
 import * as logs from './logs';
+import { getObjectSizeInBytes } from './util';
 
+const PAYLOAD_MAX_SIZE = 10240;
+const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 const getFields = () => config.fields ? config.fields.split(',') : [];
 
-export default function extract(snapshot: DocumentSnapshot): object {
+const getPayload = (snapshot: DocumentSnapshot) => {
   const payload: {
     [key: string]: boolean | string | number;
   } = {
@@ -38,6 +41,8 @@ export default function extract(snapshot: DocumentSnapshot): object {
     };
   }
 
+  // Fields have been defined by user.  Start pulling data from the document to create payload
+  // to send to Algolia.
   fields.forEach(item => {
     const field = item.replace(trim, '');
     const value = snapshot.get(field);
@@ -50,4 +55,14 @@ export default function extract(snapshot: DocumentSnapshot): object {
   });
 
   return payload;
+}
+
+export default function extract(snapshot: DocumentSnapshot): object {
+  // Check payload size and make sure its within limits before sending for indexing
+  const payload = getPayload(snapshot);
+  if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
+    return payload;
+  } else {
+    throw new Error(PAYLOAD_TOO_LARGE_ERR_MSG);
+  }
 }
