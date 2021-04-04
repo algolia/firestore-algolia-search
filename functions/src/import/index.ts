@@ -16,19 +16,15 @@
  */
 
 import * as admin from 'firebase-admin';
-import algoliasearch from 'algoliasearch';
 import * as readline from 'readline';
 
 import config from '../config';
 import extract from '../extract';
+import { index } from '../index';
 import * as logs from '../logs';
-import { getObjectSizeInBytes, buildRequestOptions } from '../util';
+import { getObjectSizeInBytes } from '../util';
 
 const rl = readline.createInterface(process.stdin, process.stdout);
-
-// configure algolia
-const algolia = algoliasearch(config.algoliaAppId, config.algoliaAPIKey);
-const index = algolia.initIndex(config.algoliaIndexName);// configure firebase
 
 // initialize the application using the Google Credentials in the GOOGLE_APPLICATION_CREDENTIALS environment variable.
 admin.initializeApp({
@@ -40,7 +36,7 @@ const sentDataToAlgolia = (data: any[]) => {
   // Add or update new objects
   logs.info(`Preparing to send ${ data.length } record(s) to Algolia.`);
   index
-    .saveObjects(data, buildRequestOptions())
+    .saveObjects(data)
     .then(() => {
       logs.info('Document(s) imported into Algolia');
     })

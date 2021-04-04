@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executeIndexOperation = exports.requestOptions = void 0;
+exports.executeIndexOperation = exports.index = void 0;
 /*
  * Copyright 2021 Algolia
  *
@@ -22,16 +22,19 @@ const config_1 = require("./config");
 const extract_1 = require("./extract");
 const logs = require("./logs");
 const util_1 = require("./util");
-const getClient = () => algoliasearch_1.default(config_1.default.algoliaAppId, config_1.default.algoliaAPIKey);
-const getIndex = () => getClient().initIndex(config_1.default.algoliaIndexName);
-// Adding header to better track users using this extension.
-exports.requestOptions = util_1.buildRequestOptions();
+const client = algoliasearch_1.default(config_1.default.algoliaAppId, config_1.default.algoliaAPIKey);
+exports.index = client.initIndex(config_1.default.algoliaIndexName);
+// TODO: Use proper approach to set UA. Below code is work around due to bug.
+exports.index.transporter.userAgent.add({
+    segment: 'firestore_integration',
+    version: '0.0.1',
+});
 logs.init();
 const handleCreateDocument = async (snapshot) => {
     try {
         const data = extract_1.default(snapshot);
         logs.createIndex(snapshot.id, data);
-        await getIndex().saveObjects([data], exports.requestOptions);
+        await exports.index.saveObjects([data]);
     }
     catch (e) {
         logs.error(e);
@@ -41,7 +44,7 @@ const handleUpdateDocument = async (before, after) => {
     try {
         const data = extract_1.default(after);
         logs.updateIndex(after.id, data);
-        await getIndex().saveObjects([data], exports.requestOptions);
+        await exports.index.saveObjects([data]);
     }
     catch (e) {
         logs.error(e);
@@ -50,7 +53,7 @@ const handleUpdateDocument = async (before, after) => {
 const handleDeleteDocument = async (deleted) => {
     try {
         logs.deleteIndex(deleted.id);
-        await getIndex().deleteObject(deleted.id, exports.requestOptions);
+        await exports.index.deleteObject(deleted.id);
     }
     catch (e) {
         logs.error(e);

@@ -22,13 +22,24 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import config from './config';
 import extract from './extract';
 import * as logs from './logs';
-import { buildRequestOptions, ChangeType, getChangeType } from './util';
+import { ChangeType, getChangeType } from './util';
 
-const getClient = () => algoliaSearch(config.algoliaAppId, config.algoliaAPIKey);
-const getIndex = () => getClient().initIndex(config.algoliaIndexName);
-
-// Adding header to better track users using this extension.
-export const requestOptions = buildRequestOptions();
+const client = algoliaSearch(
+  config.algoliaAppId,
+  config.algoliaAPIKey,
+  // {
+  //   userAgent: createUserAgent(version).add({
+  //     segment: 'firestore_integration',
+  //     version: '0.0.1',
+  //   }),
+  // },
+);
+export const index = client.initIndex(config.algoliaIndexName);
+// TODO: Use proper approach to set UA. Below code is work around due to bug.
+index.transporter.userAgent.add({
+  segment: 'firestore_integration',
+  version: '0.0.1',
+});
 
 logs.init();
 
@@ -39,7 +50,7 @@ const handleCreateDocument = async (
     const data = extract(snapshot);
 
     logs.createIndex(snapshot.id, data);
-    await getIndex().saveObjects([ data ], requestOptions);
+    await index.saveObjects([ data ]);
   } catch (e) {
     logs.error(e);
   }
@@ -53,7 +64,7 @@ const handleUpdateDocument = async (
     const data = extract(after);
 
     logs.updateIndex(after.id, data);
-    await getIndex().saveObjects([ data ], requestOptions);
+    await index.saveObjects([ data ]);
   } catch (e) {
     logs.error(e);
   }
@@ -64,7 +75,7 @@ const handleDeleteDocument = async (
 ) => {
   try {
     logs.deleteIndex(deleted.id);
-    await getIndex().deleteObject(deleted.id, requestOptions);
+    await index.deleteObject(deleted.id);
   } catch (e) {
     logs.error(e);
   }
