@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getObjectSizeInBytes = exports.buildRequestOptions = exports.getChangeType = exports.ChangeType = void 0;
+exports.getObjectSizeInBytes = exports.getChangeType = exports.ChangeType = void 0;
 var ChangeType;
 (function (ChangeType) {
     ChangeType[ChangeType["CREATE"] = 0] = "CREATE";
@@ -15,13 +15,6 @@ exports.getChangeType = (change) => {
         return ChangeType.CREATE;
     }
     return ChangeType.UPDATE;
-};
-exports.buildRequestOptions = () => {
-    return {
-        headers: {
-            'User-Agent': 'firestore_integration_(0.0.1)',
-        },
-    };
 };
 exports.getObjectSizeInBytes = (object) => {
     const recordBuffer = Buffer.from(JSON.stringify(object));

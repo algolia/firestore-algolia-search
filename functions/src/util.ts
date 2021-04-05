@@ -36,14 +36,6 @@ export const getChangeType = (
   return ChangeType.UPDATE;
 };
 
-export const buildRequestOptions = () => {
-  return {
-    headers: {
-      'User-Agent': 'firestore_integration_(0.0.1)',
-    },
-  };
-}
-
 export const getObjectSizeInBytes = (object: [] | {}) => {
   const recordBuffer = Buffer.from(JSON.stringify(object));
   return recordBuffer.byteLength;
