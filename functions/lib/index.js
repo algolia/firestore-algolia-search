@@ -23,12 +23,8 @@ const extract_1 = require("./extract");
 const logs = require("./logs");
 const util_1 = require("./util");
 const client = algoliasearch_1.default(config_1.default.algoliaAppId, config_1.default.algoliaAPIKey);
+client.addAlgoliaAgent('firestore_integration', '0.0.1');
 exports.index = client.initIndex(config_1.default.algoliaIndexName);
-// TODO: Use proper approach to set UA. Below code is work around due to bug.
-exports.index.transporter.userAgent.add({
-    segment: 'firestore_integration',
-    version: '0.0.1',
-});
 logs.init();
 const handleCreateDocument = async (snapshot) => {
     try {
