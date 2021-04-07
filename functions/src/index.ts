@@ -27,19 +27,11 @@ import { ChangeType, getChangeType } from './util';
 const client = algoliaSearch(
   config.algoliaAppId,
   config.algoliaAPIKey,
-  // {
-  //   userAgent: createUserAgent(version).add({
-  //     segment: 'firestore_integration',
-  //     version: '0.0.1',
-  //   }),
-  // },
 );
+
+client.addAlgoliaAgent('firestore_integration', '0.0.1');
+
 export const index = client.initIndex(config.algoliaIndexName);
-// TODO: Use proper approach to set UA. Below code is work around due to bug.
-index.transporter.userAgent.add({
-  segment: 'firestore_integration',
-  version: '0.0.1',
-});
 
 logs.init();
 
