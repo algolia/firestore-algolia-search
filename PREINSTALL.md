@@ -13,7 +13,7 @@ Before installing this extension, make sure that you've
 in your Firebase project.
 
 You must also have an Algolia account set up before installing this
-extension. You can do so on the [Algolia][https://www.algolia.com/] site.
+extension. You can do so on the [Algolia](https://www.algolia.com/) site.
 
 #### Billing
 
