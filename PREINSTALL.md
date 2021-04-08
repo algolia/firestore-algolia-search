@@ -1,4 +1,4 @@
-Use this extension to index your Cloud Firestore collection.  The extension is applied and configured on a collection.
+Use this extension to index your Cloud Firestore collection for full text search with Algolia.  The extension is applied and configured on a collection.
 
 This extension listens for changes to the specified collection. If a document is added, updated, or deleted, this
 extension will:
