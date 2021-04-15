@@ -4,6 +4,8 @@
 
 **Description**: Enable full text search of your Cloud Firestore data with Algolia.
 
+**Details**: Use this extension it to index your Cloud Firestore to [Algolia](https://www.algolia.com/doc/) and keep it synced. You can then [configure your relevance](/doc/guides/getting-started/how-algolia-works/in-depth/implementation-process/#configuring-relevance) using the [Algolia dashboard](https://www.algolia.com/dashboard) or [API clients](/doc/api-client/getting-started/install/javascript/). From there, you can use Algolia's [front-end libraries](/doc/guides/building-search-ui/what-is-instantsearch/js/) to incorporate search elements into your Firebase app's UI.
+
 ---
 
 We welcome [bug reports and feature requests](https://github.com/algolia/algolia-firebase-extension/issues/new) as well as pull requests in this GitHub repository.
