@@ -15,8 +15,13 @@ description: >-
 license: Apache-2.0  # https://spdx.org/licenses/
 
 author:
-  authorName: Sajid Momin
-  url: https://github.com/smomin  # Author URL
+  authorName: Algolia
+  url: https://algolia.com
+
+contributors:
+  - authorName: Sajid Momin
+    email: sajid.momin@algolia.com
+    url: https://github.com/smomin
 
 
 # Public URL for the source code of your extension
