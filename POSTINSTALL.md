@@ -20,8 +20,6 @@ This extension only sends the documents that have been changed -- it does not in
 
 The import script can read all existing documents in a Cloud Firestore collection and insert them into your Algolia `${param:ALGOLIA_INDEX_NAME}` index.
 
-The `npm run import` is for use with the official Firebase Extension [**Search with Algolia**](https://github.com/algolia/algolia-firebase-extension).
-
 ##### Important notes
 
 - You must run the import script over the entire collection **_after_** installing the Search with Algolia extension; otherwise you will have missing records in your Algolia `${param:ALGOLIA_INDEX_NAME}` index.
@@ -30,22 +28,9 @@ The `npm run import` is for use with the official Firebase Extension [**Search w
 
 #### Run the script
 
-The import script uses several values from your installation of the extension:
-- Cloud Functions Location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+The script will use the extension configuration before the import process starts.
 
-- Collection Path: What is the path to the collection that you want to index?
-
-- Fields: What are fields in the document do you want to index?
-
-**NOTE:** This configuration can be left empty if you want to index all the fields in this document.
-
-- Algolia Application ID: What is the Algolia application id that contains the index?
-
-- Algolia API Key: What is the Algolia API key with addObject, deleteObject, listIndexes, deleteIndex, editSettings, and settings permissions.
-
-- Algolia Index Name: What is the Algolia index name that will contain the collection document records.
-
-Run the import script using [`npx` (the Node Package Runner)](https://www.npmjs.com/package/npx) via `npm` (the Node Package Manager).
+Run the import script using `npm` (the Node Package Manager).
 
 1.  Make sure that you've installed the required tools to run the import script:
 
@@ -56,10 +41,8 @@ Run the import script using [`npx` (the Node Package Runner)](https://www.npmjs.
 
     Please follow the instructions to [generate a key for your service account](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
-1.  Clone [algolia-firebase-extension](https://github.com/algolia/algolia-firebase-extension) repo.
-1.  Run the import script via `npx`.
-
-- Execute the following command in the `functions` folder:
+1.  Clone [firestore-algolia-search](https://github.com/algolia/firestore-algolia-search) repo.
+1.  Execute the below command in the `functions` folder:
 
   ```
     LOCATION=${param:LOCATION}\
@@ -71,7 +54,6 @@ Run the import script using [`npx` (the Node Package Runner)](https://www.npmjs.
     GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
     npm run import
   ```
-**NOTE:** If the `FIELDS` param contains `{ unspecified parameter }` in the command above, please clear it out since this is an invalid value.
 
 ### Monitoring
 
