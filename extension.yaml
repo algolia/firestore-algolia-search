@@ -10,7 +10,7 @@ displayName: Search with Algolia
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-
-  Enable full text search of your Cloud Firestore data with Algolia.
+  Enables full text search of your Cloud Firestore data with Algolia.
 
 license: Apache-2.0  # https://spdx.org/licenses/
 
@@ -29,7 +29,7 @@ sourceUrl: https://github.com/algolia/algolia-firebase-extension
 
 # Specify whether a paid-tier billing plan is required to use your extension.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#billing-required-field
-billingRequired: false
+billingRequired: true
 
 # In an `apis` field, list any Google APIs (like Cloud Translation, BigQuery, etc.)
 # required for your extension to operate.
