@@ -13,6 +13,9 @@
     "pre-commit": "npm run lint"
   },
   "main": "lib/index.js",
+  "bin": {
+    "algoliafirestoreimport": "./import/index.js"
+  },
   "dependencies": {
     "@algolia/client-common": "^4.8.6",
     "@algolia/transporter": "^4.8.6",
