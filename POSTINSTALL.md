@@ -33,27 +33,26 @@ The script will use the extension configuration before the import process starts
 Run the import script using `npm` (the Node Package Manager).
 
 1.  Make sure that you've installed the required tools to run the import script:
+    - To access the `npm` command tools, you need to install [Node.js](https://www.nodejs.org/).
+    - If you use `npm` v5.1 or earlier, you need to explicitly install `npx`. Run `npm install --global npx`.
 
-- To access the `npm` command tools, you need to install [Node.js](https://www.nodejs.org/).
-- If you use `npm` v5.1 or earlier, you need to explicitly install `npx`. Run `npm install --global npx`.
-
-1.  Set up credentials. The import script uses Application Default Credentials to communicate with Firebase.
-
+1.  The import script uses Application Default Credentials to communicate with Firebase.
     Please follow the instructions to [generate a key for your service account](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
-1.  Clone [firestore-algolia-search](https://github.com/algolia/firestore-algolia-search) repo.
+1.  Clone [firestore-algolia-search](https://github.com/algolia/firestore-algolia-search) repo in order to execute the `npm` command.
 1.  Execute the below command in the `functions` folder:
-
-  ```
-    LOCATION=${param:LOCATION}\
-    ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
-    ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
-    ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
-    COLLECTION_PATH=${param:COLLECTION_PATH}\
-    FIELDS=${param:FIELDS}\
-    GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
-    npm run import
-  ```
+    - Update the path to the Google Application credentials.
+    - Clear out the `FIELDS` param if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
+      ```
+        LOCATION=${param:LOCATION}\
+        ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
+        ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
+        ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
+        COLLECTION_PATH=${param:COLLECTION_PATH}\
+        FIELDS=${param:FIELDS}\
+        GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
+        npm run import
+      ```
 
 ### Monitoring
 
