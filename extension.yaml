@@ -25,7 +25,7 @@ contributors:
 
 
 # Public URL for the source code of your extension
-sourceUrl: https://github.com/algolia/algolia-firebase-extension
+sourceUrl: https://github.com/algolia/firestore-algolia-search
 
 # Specify whether a paid-tier billing plan is required to use your extension.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#billing-required-field
@@ -44,7 +44,7 @@ resources:
   - name: executeIndexOperation
     type: firebaseextensions.v1beta.function
     description: >-
-      Firestore document-triggered function that creates, updates, or deletes data in Algolia
+      Firestore document-triggered function that creates, updates, or deletes data in Algolia.
     properties:
       # LOCATION is a user-configured parameter value specified by the user
       # during installation.
@@ -58,19 +58,21 @@ resources:
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
   - param: COLLECTION_PATH
-    label: Collection path
+    label: Collection Path
     description: >
-      Specify the Collection path to monitor for changes.
+      What is the path to the Cloud Firestore collection where the extension should monitor for changes?
     default: ''
     example: store
     validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
-    validationErrorMessage: Must be a valid Cloud Firestore collection
+    validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "path/to/collection".
     required: true
 
   - param: FIELDS
     label: Indexable Fields
     description: >
-      A comma separated list of Cloud Firestore fields to index. Leave empty to index all fields.
+      This can be comma separated list or left blank to index all fields.
+      For performance reasons, [record size is limited](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits).
+      If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
     default: ''
     example: 'name,category,price,sales'
     required: false
@@ -78,7 +80,9 @@ params:
   - param: ALGOLIA_INDEX_NAME
     label: Algolia Index Name
     description: >-
-      Specify the Algolia Index Name.
+      This is the name of the [Algolia index](https://www.algolia.com/doc/faq/basics/what-is-an-index/)
+      where the records will be persisted.
+      Refer to [naming your index](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#naming-your-index) for more information.
     type: string
     required: true
     immutable: true
@@ -86,7 +90,9 @@ params:
   - param: ALGOLIA_APP_ID
     label: Algolia Application Id
     description: >-
-      Specify the Algolia Application Id.
+      This is the Algolia application you want to index your data to.
+      You can find your credentials including application ID on your Algolia dashboard,
+      under the [API keys tab](https://www.algolia.com/api-keys).
     type: string
     required: true
     immutable: true
@@ -94,7 +100,9 @@ params:
   - param: ALGOLIA_API_KEY
     label: Algolia API Key
     description: >-
-      Create a new API Key that has addObject, deleteObject, listIndexes, deleteIndex, editSettings, and settings, permissions.  Avoid using the Admin API key if all possible.
+      We recommend [creating a new API key](https://www.algolia.com/doc/guides/security/api-keys/#creating-and-managing-api-keys)
+      with "addObject", "deleteObject", "listIndexes", "deleteIndex", "editSettings", and "settings" permissions.
+      **Do not use the Admin API key**.
     type: string
     required: true
     immutable: true
@@ -103,8 +111,9 @@ params:
     label: Cloud Functions location
     description: >-
       Where do you want to deploy the functions created for this extension?
-      For help selecting a location, refer to the [location selection
-      guide](https://firebase.google.com/docs/functions/locations).
+      You usually want a location close to your database.
+      For help selecting a location, refer to the
+      [location selection guide](https://firebase.google.com/docs/functions/locations).
     type: select
     options:
       - label: Iowa (us-central1)

@@ -1,10 +1,9 @@
-Use this extension to index your Cloud Firestore collection for full text search with Algolia.  The extension is applied and configured on a collection.
+Use this extension to index your Cloud Firestore data to Algolia and keep it synced.  The extension is applied and configured on a Firestore [collection](https://firebase.google.com/docs/firestore/data-model#collections).
 
-This extension listens for changes to the specified collection. If a document is added, updated, or deleted, this
-extension will:
+This extension listens for changes on the specified collection. If you add a [document](https://firebase.google.com/docs/firestore/data-model#documents), the extension indexes it as a [record in Algolia](https://www.algolia.com/doc/faq/basics/what-is-a-record/). The extension only indexes the fields defined in the extension configuration and uses the [document Id](https://firebase.google.com/docs/firestore/manage-data/add-data#add_a_document) as the Algolia [object Id](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#using-unique-object-identifiers).
 
-- Add/Update - document will be indexed into Algolia.  The fields defined in the extension configuration will be used to send to Algolia.  The document Id will be used as the object id in Algolia.
-- Delete - the Algolia record associate to document id will be removed.
+Anytime you update a document, the extension propagates the update to the corresponding Algolia record. If you delete a document, the extension removes the corresponding Algolia record.
+
 
 #### Additional setup
 
@@ -17,16 +16,19 @@ extension. You can do so on the [Algolia](https://www.algolia.com/) site.
 
 #### Billing
 
-To install an extension, your project must be on the
-[Blaze (pay as you go) plan][blaze-pricing].
+This extension uses the following Firebase services which may have associated charges:
 
-- You will be charged [around $0.01 per month][pricing-examples] for each
-  instance of this extension you install.
-- This extension uses other Firebase and Google Cloud Platform services,
-  which have associated charges if you exceed the service's free tier:
-    - Cloud Functions (Node.js 10+ runtime. [See FAQs][faq].)
-    - Cloud Firestore
+- Cloud Firestore
+- Cloud Functions
 
-[blaze-pricing]: https://firebase.google.com/pricing
-[pricing-examples]: https://cloud.google.com/functions/pricing#pricing_examples
-[faq]: https://firebase.google.com/support/faq#expandable-24
+This extension also uses the following third-party services:
+
+- Algolia ([pricing information](https://www.algolia.com/pricing))
+
+You are responsible for any costs associated with your use of these services.
+
+#### Note from Firebase
+
+To install this extension, your Firebase project must be on the Blaze (pay-as-you-go) plan. You will only be charged for the resources you use. Most Firebase services offer a free tier for low-volume use. [Learn more about Firebase billing.](https://firebase.google.com/pricing)
+
+You will be billed a small amount (typically less than $0.10) when you install or reconfigure this extension. See Cloud Functions under [Firebase Pricing](https://firebase.google.com/pricing) for a detailed explanation.
