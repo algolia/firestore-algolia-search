@@ -30,17 +30,16 @@ The import script can read all existing documents in a Cloud Firestore collectio
 
 The script will use the extension configuration before the import process starts.
 
-Run the import script using `npm` (the Node Package Manager).
+Run the import process using `npx`.
 
 1.  Make sure that you've installed the required tools to run the import script:
-    - To access the `npm` command tools, you need to install [Node.js](https://www.nodejs.org/).
+    - To access the `npx` command tools, you need to install [Node.js](https://www.nodejs.org/).
     - If you use `npm` v5.1 or earlier, you need to explicitly install `npx`. Run `npm install --global npx`.
 
 1.  The import script uses Application Default Credentials to communicate with Firebase.
     Please follow the instructions to [generate a key for your service account](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
-1.  Clone [firestore-algolia-search](https://github.com/algolia/firestore-algolia-search) repo in order to execute the `npm` command.
-1.  Execute the below command in the `functions` folder:
+1.  Execute the below command:
     - Update the path to the Google Application credentials.
     - Clear out the `FIELDS` param if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
       ```
@@ -51,7 +50,7 @@ Run the import script using `npm` (the Node Package Manager).
         COLLECTION_PATH=${param:COLLECTION_PATH}\
         FIELDS=${param:FIELDS}\
         GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
-        npm run import
+        npx firestore-algolia-search
       ```
 
 ### Monitoring
