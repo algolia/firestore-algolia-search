@@ -1,5 +1,6 @@
 {
   "name": "firestore-algolia-search",
+  "version": "0.1.2",
   "description": "Index Cloud Firestore collection to Algolia",
   "scripts": {
     "build": "npm run clean && npm test && npm run compile",
@@ -10,6 +11,7 @@
     "prepare": "npm run build",
     "test": "jest"
   },
+  "bin": "cli.js",
   "hooks": {
     "pre-commit": "npm run lint"
   },
@@ -43,7 +45,6 @@
     "ts-node": "^9.1.1",
     "typescript": "^3.8.0"
   },
-  "private": true,
   "engines": {
     "node": ">=15.0.0"
   }
