@@ -66,7 +66,7 @@ You will be billed a small amount (typically less than $0.10) when you install o
 - Collection Path: What is the path to the Cloud Firestore collection where the extension should monitor for changes?
 
 - Fields: What document fields should be indexed to provide the best search experience? For more information on which fields to index to Algolia, see the [Algolia documentation on records](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/#algolia-records).
-  This can be comma separated list or left blank to index all fields.
+  This can be a comma separated list or left blank to index all fields.
   For performance reasons, [record size is limited](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits).
   If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
 

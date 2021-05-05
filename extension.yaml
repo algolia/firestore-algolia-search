@@ -70,7 +70,7 @@ params:
   - param: FIELDS
     label: Indexable Fields
     description: >
-      This can be comma separated list or left blank to index all fields.
+      This can be a comma separated list or left blank to index all fields.
       For performance reasons, [record size is limited](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits).
       If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
     default: ''
