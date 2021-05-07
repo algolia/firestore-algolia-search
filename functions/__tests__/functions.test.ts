@@ -65,7 +65,7 @@ describe('extension', () => {
     expect(mockedAddAlgoliaAgent).toHaveBeenCalled();
     expect(mockedAddAlgoliaAgent).toHaveBeenCalledWith(
       'firestore_integration',
-      '0.1.2'
+      '0.1.3'
     );
     expect(mockedInitIndex).toHaveBeenCalled();
     expect(mockedInitIndex).toHaveBeenCalledWith(

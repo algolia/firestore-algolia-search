@@ -29,7 +29,7 @@ const client = algoliaSearch(
   config.algoliaAPIKey,
 );
 
-client.addAlgoliaAgent('firestore_integration', '0.1.2');
+client.addAlgoliaAgent('firestore_integration', '0.1.3');
 
 export const index = client.initIndex(config.algoliaIndexName);
 
