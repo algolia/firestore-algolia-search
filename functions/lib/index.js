@@ -23,7 +23,7 @@ const extract_1 = require("./extract");
 const logs = require("./logs");
 const util_1 = require("./util");
 const client = algoliasearch_1.default(config_1.default.algoliaAppId, config_1.default.algoliaAPIKey);
-client.addAlgoliaAgent('firestore_integration', '0.1.2');
+client.addAlgoliaAgent('firestore_integration', '0.1.3');
 exports.index = client.initIndex(config_1.default.algoliaIndexName);
 logs.init();
 const handleCreateDocument = async (snapshot) => {

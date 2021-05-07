@@ -15,16 +15,14 @@ This extension listens to the Cloud Firestore collection `${param:COLLECTION_PAT
 - Indexes the document and send all the fields or configured fields defined in the extension.
 - or, removes the record from Algolia index if the document is deleted.
 
-### _(Optional)_ Import existing documents
-This extension only sends the documents that have been changed -- it does not index existing documents into Algolia. In order to backfill your Algolia `${param:ALGOLIA_INDEX_NAME}` Index with all the documents in your collection, you can run the import script provided by this extension.
+### _(Optional)_ Import existing documents or Reindex after configuration changes
+This extension starts monitoring the `${param:COLLECTION_PATH}` collection after a successful installation. Any existing documents created before the extension installation can be back-filled into your Algolia `${param:ALGOLIA_INDEX_NAME}` Index using the import script.  Also, you will need to run the import script if you change the Indexable Fields, Index Name, Application Id, and/or API Key configuration.
 
-The import script can read all existing documents in a Cloud Firestore collection and insert them into your Algolia `${param:ALGOLIA_INDEX_NAME}` index.
+The import script will read all existing documents in the `${param:COLLECTION_PATH}` collection and insert them into the Algolia `${param:ALGOLIA_INDEX_NAME}` index.
 
 ##### Important notes
 
 - You must run the import script over the entire collection **_after_** installing the Search with Algolia extension; otherwise you will have missing records in your Algolia `${param:ALGOLIA_INDEX_NAME}` index.
-
-- The import script can take up to _O(collection size)_ time to finish.
 
 #### Run the script
 
