@@ -20,8 +20,8 @@
     "@algolia/client-common": "^4.8.6",
     "@algolia/transporter": "^4.8.6",
     "algoliasearch": "^4.8.6",
-    "firebase-admin": "^9.5.0",
-    "firebase-functions": "^3.13.2"
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
