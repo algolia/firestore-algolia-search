@@ -3,6 +3,7 @@ import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import { mocked } from 'ts-jest/utils';
 import { mockConsoleInfo } from './__mocks__/console';
+import {version} from '../src/version';
 
 jest.mock('algoliasearch');
 
@@ -65,7 +66,7 @@ describe('extension', () => {
     expect(mockedAddAlgoliaAgent).toHaveBeenCalled();
     expect(mockedAddAlgoliaAgent).toHaveBeenCalledWith(
       'firestore_integration',
-      '0.1.3'
+      version
     );
     expect(mockedInitIndex).toHaveBeenCalled();
     expect(mockedInitIndex).toHaveBeenCalledWith(

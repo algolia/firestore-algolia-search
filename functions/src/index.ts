@@ -23,13 +23,14 @@ import config from './config';
 import extract from './extract';
 import * as logs from './logs';
 import { ChangeType, getChangeType } from './util';
+import { version } from './version';
 
 const client = algoliaSearch(
   config.algoliaAppId,
   config.algoliaAPIKey,
 );
 
-client.addAlgoliaAgent('firestore_integration', '0.1.3');
+client.addAlgoliaAgent('firestore_integration', version);
 
 export const index = client.initIndex(config.algoliaIndexName);
 
