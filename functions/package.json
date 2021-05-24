@@ -9,7 +9,7 @@
     "import": "ts-node src/import/index.ts",
     "lint": "pretty-quick --staged && lint-staged",
     "prepare": "npm run build",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "bin": "cli.js",
   "hooks": {

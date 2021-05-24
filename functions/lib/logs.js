@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.info = exports.error = exports.warn = exports.start = exports.init = exports.obfuscatedConfig = void 0;
+exports.fieldNotExist = exports.deleteIndex = exports.updateIndex = exports.createIndex = exports.debug = exports.info = exports.error = exports.warn = exports.start = exports.init = exports.obfuscatedConfig = void 0;
 /*
  * Copyright 2021 Algolia
  *
@@ -36,6 +36,9 @@ exports.error = (err) => {
 };
 exports.info = (...args) => {
     firebase_functions_1.logger.info(args);
+};
+exports.debug = (...args) => {
+    firebase_functions_1.logger.debug(args);
 };
 exports.createIndex = (id, data) => {
     firebase_functions_1.logger.info(`Creating new Algolia index for document ${id}`, data);
