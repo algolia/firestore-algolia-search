@@ -19,6 +19,7 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import config from './config';
 import * as logs from './logs';
+import { dataProcessor, valueProcessor } from './processors';
 import { getObjectSizeInBytes } from './util';
 
 const PAYLOAD_MAX_SIZE = 10240;
@@ -36,7 +37,7 @@ const getPayload = (snapshot: DocumentSnapshot) => {
   const fields = getFields();
   if (fields.length === 0) {
     return {
-      ...snapshot.data(),
+      ...dataProcessor(snapshot.data()),
       ...payload,
     };
   }
@@ -44,13 +45,16 @@ const getPayload = (snapshot: DocumentSnapshot) => {
   // Fields have been defined by user.  Start pulling data from the document to create payload
   // to send to Algolia.
   fields.forEach(item => {
-    const field = item.replace(trim, '');
-    const value = snapshot.get(field);
+    let firebaseField = item.replace(trim, '');
+    const [field, value] = valueProcessor(firebaseField, snapshot.get(firebaseField));
 
-    if (value !== null) {
+    logs.debug('field', field);
+    logs.debug('value', value);
+
+    if (value) {
       payload[field] = value;
     } else {
-      logs.fieldNotExist(field);
+      logs.fieldNotExist(firebaseField);
     }
   });
 

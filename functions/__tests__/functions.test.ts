@@ -1,9 +1,11 @@
 import algoliasearch from 'algoliasearch';
+import { firestore } from 'firebase-admin/lib/firestore';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import { mocked } from 'ts-jest/utils';
 import { mockConsoleInfo } from './__mocks__/console';
 import {version} from '../src/version';
+import Timestamp = firestore.Timestamp;
 
 jest.mock('algoliasearch');
 
@@ -14,8 +16,64 @@ const defaultEnvironment = {
   ALGOLIA_API_KEY: '********',
   ALGOLIA_INDEX_NAME: 'algolia-index-name',
   COLLECTION_PATH: 'movies',
-  FIELDS: 'title'
+  FIELDS: 'title,awards,meta'
 };
+
+const releaseDate = new Date(1995, 12, 1);
+const document = {
+    "title": "The Shawshank Redemption",
+    "alternative_titles": [
+      "En verden udenfor",
+      "Cadena Perpetua",
+      "A remény rabjai",
+      "Um Sonho de Liberdade",
+      "The Shawshank Redemption - Stephen King"
+    ],
+    "year": 1994,
+    "meta": {
+      "releaseDate": Timestamp.fromDate(releaseDate),
+    },
+    "awards": [
+      new firestore.Firestore().doc("/awards/1"),
+    ],
+    "image": "https://image.tmdb.org/t/p/w154/9O7gLzmreU0nGkIB6K3BsJbzvNv.jpg",
+    "color": "#8C634B",
+    "score": 9.97764206054169,
+    "rating": 5,
+    "actors": [
+      "Tim Robbins",
+      "Morgan Freeman",
+      "Bob Gunton",
+      "William Sadler",
+      "Clancy Brown",
+      "Gil Bellows",
+      "Mark Rolston",
+      "James Whitmore",
+      "Jeffrey DeMunn",
+      "Larry Brandenburg",
+      "David Proval",
+      "Jude Ciccolella"
+    ],
+    "actor_facets": [
+      "https://image.tmdb.org/t/p/w45/tuZCyZVVbHcpvtCgriSp5RRPwMX.jpg|Tim Robbins",
+      "https://image.tmdb.org/t/p/w45/oGJQhOpT8S1M56tvSsbEBePV5O1.jpg|Morgan Freeman",
+      "https://image.tmdb.org/t/p/w45/b3NfI0IzPYI40eIEtO9O0XQiR8j.jpg|Bob Gunton",
+      "https://image.tmdb.org/t/p/w45/deRJUFbO8uqPSQT3B6Vgp4jiJir.jpg|William Sadler",
+      "https://image.tmdb.org/t/p/w45/pwiG1ljLoqfcmFH2zFp5NP2ML4B.jpg|Clancy Brown",
+      "https://image.tmdb.org/t/p/w45/f5An5NqejnTEflFmW7Vp18zVOvJ.jpg|Gil Bellows",
+      "https://image.tmdb.org/t/p/w45/bsh3cqDNwVvux4NdaY1Bj4S7mNS.jpg|Mark Rolston",
+      "https://image.tmdb.org/t/p/w45/r1xOgXFjqhn2fonn78rlXKPZGFw.jpg|James Whitmore",
+      "https://image.tmdb.org/t/p/w45/wMRlF3VRApPduQBAuNEVM4ncYcN.jpg|Jeffrey DeMunn",
+      "https://image.tmdb.org/t/p/w45/3TGsmGFwJps4dmVncOZIO3p6ToO.jpg|Larry Brandenburg",
+      "https://image.tmdb.org/t/p/w45/ujBzP61tYlwqWpB3oOxknl1XuEg.jpg|David Proval",
+      "https://image.tmdb.org/t/p/w45/6nuAG4DVlCc0h2rfrbpJhdmKudx.jpg|Jude Ciccolella"
+    ],
+    "genre": [
+      "Drama",
+      "Crime"
+    ],
+    "objectID": "439817390"
+  };
 
 export const mockExport = (document, data) => {
   const ref = require('../src/index').executeIndexOperation;
@@ -84,9 +142,7 @@ describe('extension', () => {
     });
 
     test('functions runs with a deletion', async () => {
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({
-        title: 'example title 1'
-      }, 'document/1');
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(document, 'document/1');
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
 
       const documentChange = functionsTest.makeChange(
@@ -110,11 +166,10 @@ describe('extension', () => {
     });
 
     test('functions runs with an update', async () => {
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({
-        title: 'example title 1'
-      }, 'document/1');
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(document, 'document/1');
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
-        title: 'example title 2'
+        ...document,
+        title: 'The Prison'
       }, 'document/1');
 
       const documentChange = functionsTest.makeChange(
@@ -133,7 +188,13 @@ describe('extension', () => {
       );
       const payload = {
         'objectID': afterSnapshot.id,
-        'title': afterSnapshot.data().title
+        'title': afterSnapshot.data().title,
+        'awards': [
+          'awards/1'
+        ],
+        'meta': {
+          'releaseDate':releaseDate
+        }
       }
       expect(mockConsoleInfo).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
@@ -144,9 +205,7 @@ describe('extension', () => {
 
     test('functions runs with a create', async () => {
       const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
-      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
-        title: 'example title 1'
-      }, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(document, 'document/1');
 
       const documentChange = functionsTest.makeChange(
         beforeSnapshot,
@@ -164,7 +223,13 @@ describe('extension', () => {
       );
       const payload = {
         'objectID': afterSnapshot.id,
-        'title': afterSnapshot.data().title
+        'title': afterSnapshot.data().title,
+        'awards': [
+          'awards/1'
+        ],
+        'meta': {
+          'releaseDate':releaseDate
+        }
       }
       expect(mockConsoleInfo).toBeCalledWith(
         `Creating new Algolia index for document ${ afterSnapshot.id }`,

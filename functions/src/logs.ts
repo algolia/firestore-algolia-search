@@ -43,6 +43,10 @@ export const info = (...args: any) => {
   logger.info(args);
 };
 
+export const debug = (...args: any) => {
+  logger.debug(args);
+};
+
 export const createIndex = (id: string, data: object) => {
   logger.info(`Creating new Algolia index for document ${ id }`, data);
 };
