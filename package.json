@@ -4,7 +4,7 @@
   "description": "",
   "license": "Apache-2.0",
   "scripts": {
-    "emulator:ext:start": "firebase ext:dev:emulators:start --import=data --test-params=test-params.env",
+    "emulator:ext:start": "firebase ext:dev:emulators:start --import=data --test-params=test-params.env --project=algolia",
     "release": "./scripts/version.sh"
   },
   "devDependencies": {

@@ -32,7 +32,7 @@ const sentDataToAlgolia = (data) => {
     // Add or update new objects
     logs.info(`Preparing to send ${data.length} record(s) to Algolia.`);
     index_1.index
-        .saveObjects(data)
+        .partialUpdateObjects(data, { createIfNotExists: true })
         .then(() => {
         logs.info('Document(s) imported into Algolia');
     })
@@ -48,7 +48,8 @@ const retrieveDataFromFirestore = async () => {
         // Capture the record and add to records array for later push to Algolia.
         // Add in config property to allow up to 100kb if plan allows it.
         try {
-            records.push(extract_1.default(docSnapshot));
+            const timestamp = Date.now();
+            records.push(extract_1.default(docSnapshot, timestamp));
         }
         catch (e) {
             logs.warn('Payload size too big, skipping ...', e);

@@ -16,8 +16,8 @@ exports.executeIndexOperation = exports.index = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const functions = require("firebase-functions");
 const algoliasearch_1 = require("algoliasearch");
+const functions = require("firebase-functions");
 const config_1 = require("./config");
 const extract_1 = require("./extract");
 const logs = require("./logs");
@@ -27,21 +27,24 @@ const client = algoliasearch_1.default(config_1.default.algoliaAppId, config_1.d
 client.addAlgoliaAgent('firestore_integration', version_1.version);
 exports.index = client.initIndex(config_1.default.algoliaIndexName);
 logs.init();
-const handleCreateDocument = async (snapshot) => {
+const handleCreateDocument = async (snapshot, timestamp) => {
     try {
-        const data = extract_1.default(snapshot);
+        const data = extract_1.default(snapshot, timestamp);
+        logs.debug({
+            ...data
+        });
         logs.createIndex(snapshot.id, data);
-        await exports.index.saveObjects([data]);
+        await exports.index.partialUpdateObject(data, { createIfNotExists: true });
     }
     catch (e) {
         logs.error(e);
     }
 };
-const handleUpdateDocument = async (before, after) => {
+const handleUpdateDocument = async (before, after, timestamp) => {
     try {
-        const data = extract_1.default(after);
+        const data = extract_1.default(after, timestamp);
         logs.updateIndex(after.id, data);
-        await exports.index.saveObjects([data]);
+        await exports.index.partialUpdateObject(data, { createIfNotExists: true });
     }
     catch (e) {
         logs.error(e);
@@ -57,18 +60,19 @@ const handleDeleteDocument = async (deleted) => {
     }
 };
 exports.executeIndexOperation = functions.handler.firestore.document
-    .onWrite(async (change) => {
+    .onWrite(async (change, context) => {
     logs.start();
+    const eventTimestamp = Date.parse(context.timestamp);
     const changeType = util_1.getChangeType(change);
     switch (changeType) {
         case util_1.ChangeType.CREATE:
-            await handleCreateDocument(change.after);
+            await handleCreateDocument(change.after, eventTimestamp);
             break;
         case util_1.ChangeType.DELETE:
             await handleDeleteDocument(change.before);
             break;
         case util_1.ChangeType.UPDATE:
-            await handleUpdateDocument(change.before, change.after);
+            await handleUpdateDocument(change.before, change.after, eventTimestamp);
             break;
         default: {
             throw new Error(`Invalid change type: ${changeType}`);
