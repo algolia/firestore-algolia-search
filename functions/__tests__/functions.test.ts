@@ -90,11 +90,17 @@ describe('extension', () => {
   const mockedAlgoliasearch = mocked(algoliasearch, true);
   const mockedAddAlgoliaAgent = jest.fn();
 
+  const mockedPartialUpdateObject = jest.fn();
   const mockedSaveObjects = jest.fn();
   const mockedDeleteObject = jest.fn();
-  const mockedInitIndex = jest.fn((): { deleteObject: jest.Mock<any, any>; saveObjects: jest.Mock<any, any> } => ({
+  const mockedInitIndex = jest.fn((): {
+    deleteObject: jest.Mock<any, any>;
+    saveObjects: jest.Mock<any, any>;
+    partialUpdateObject: jest.Mock<any, any>
+  } => ({
     saveObjects: mockedSaveObjects,
     deleteObject: mockedDeleteObject,
+    partialUpdateObject: mockedPartialUpdateObject
   }));
 
   // @ts-ignore
@@ -193,14 +199,18 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate.getTime()
+          'releaseDate': releaseDate.getTime()
+        },
+        'lastmodified': {
+          '_operation': 'IncrementSet',
+          'value': expect.any(Number)
         }
       }
       expect(mockConsoleInfo).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload
       );
-      expect(mockedSaveObjects).toBeCalledWith([payload]);
+      expect(mockedPartialUpdateObject).toBeCalledWith(payload, { createIfNotExists: true });
     });
 
     test('functions runs with a create', async () => {
@@ -228,7 +238,11 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate.getTime()
+          'releaseDate': releaseDate.getTime()
+        },
+        'lastmodified': {
+          '_operation': 'IncrementSet',
+          'value': expect.any(Number)
         }
       }
       expect(mockConsoleInfo).toBeCalledWith(
@@ -236,7 +250,7 @@ describe('extension', () => {
         payload
       );
 
-      expect(mockedSaveObjects).toBeCalledWith([payload]);
+      expect(mockedPartialUpdateObject).toBeCalledWith(payload,  { createIfNotExists: true });
     });
   });
 });

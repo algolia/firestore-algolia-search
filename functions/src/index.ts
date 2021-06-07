@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-import * as functions from 'firebase-functions';
 import algoliaSearch from 'algoliasearch';
+import { firestore } from 'firebase-admin/lib/firestore';
+import * as functions from 'firebase-functions';
+import { EventContext, Change } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import config from './config';
@@ -37,13 +39,18 @@ export const index = client.initIndex(config.algoliaIndexName);
 logs.init();
 
 const handleCreateDocument = async (
-  snapshot: DocumentSnapshot
+  snapshot: DocumentSnapshot,
+  timestamp: Number
 ) => {
   try {
-    const data = extract(snapshot);
+    const data = extract(snapshot, timestamp);
+
+    logs.debug({
+      ...data
+    });
 
     logs.createIndex(snapshot.id, data);
-    await index.saveObjects([ data ]);
+    await index.partialUpdateObject(data, { createIfNotExists: true });
   } catch (e) {
     logs.error(e);
   }
@@ -51,13 +58,14 @@ const handleCreateDocument = async (
 
 const handleUpdateDocument = async (
   before: DocumentSnapshot,
-  after: DocumentSnapshot
+  after: DocumentSnapshot,
+  timestamp: Number
 ) => {
   try {
-    const data = extract(after);
+    const data = extract(after, timestamp);
 
     logs.updateIndex(after.id, data);
-    await index.saveObjects([ data ]);
+    await index.partialUpdateObject(data, { createIfNotExists: true });
   } catch (e) {
     logs.error(e);
   }
@@ -75,19 +83,21 @@ const handleDeleteDocument = async (
 };
 
 export const executeIndexOperation = functions.handler.firestore.document
-  .onWrite(async (change): Promise<void> => {
+  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
     logs.start();
+
+    const eventTimestamp = Date.parse(context.timestamp);
 
     const changeType = getChangeType(change);
     switch (changeType) {
       case ChangeType.CREATE:
-        await handleCreateDocument(change.after);
+        await handleCreateDocument(change.after, eventTimestamp);
         break;
       case ChangeType.DELETE:
         await handleDeleteDocument(change.before);
         break;
       case ChangeType.UPDATE:
-        await handleUpdateDocument(change.before, change.after);
+        await handleUpdateDocument(change.before, change.after, eventTimestamp);
         break;
       default: {
         throw new Error(`Invalid change type: ${ changeType }`);

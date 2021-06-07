@@ -23,6 +23,7 @@ The import script will read all existing documents in the `${param:COLLECTION_PA
 ##### Important notes
 
 - You must run the import script over the entire collection **_after_** installing the Search with Algolia extension; otherwise you will have missing records in your Algolia `${param:ALGOLIA_INDEX_NAME}` index.
+- `lastmodified` attributed is added to all Algolia records to eliminate race condition issues related from the Cloud Function cold start.
 
 #### Run the script
 
