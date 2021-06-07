@@ -193,7 +193,7 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate
+          'releaseDate':releaseDate.getTime()
         }
       }
       expect(mockConsoleInfo).toBeCalledWith(
@@ -228,7 +228,7 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate
+          'releaseDate':releaseDate.getTime()
         }
       }
       expect(mockConsoleInfo).toBeCalledWith(
