@@ -56,7 +56,7 @@ const processArray = (arrayVal: Array<any>) => {
 }
 
 const processTimestamp = (timestampVal: Timestamp) => {
-  return timestampVal.toDate()
+  return timestampVal.toDate().getTime();
 }
 
 const processDocumentReference = (referenceVal: DocumentReference) => {
