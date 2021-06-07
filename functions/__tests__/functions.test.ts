@@ -199,7 +199,7 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate
+          'releaseDate': releaseDate.getTime()
         },
         'lastmodified': {
           '_operation': 'IncrementSet',
@@ -238,7 +238,7 @@ describe('extension', () => {
           'awards/1'
         ],
         'meta': {
-          'releaseDate':releaseDate
+          'releaseDate': releaseDate.getTime()
         },
         'lastmodified': {
           '_operation': 'IncrementSet',
