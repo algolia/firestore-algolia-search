@@ -7,12 +7,11 @@ const util_1 = require("./util");
 const PAYLOAD_MAX_SIZE = 10240;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-const getFields = () => config_1.default.fields ? config_1.default.fields.split(',') : [];
 const getPayload = (snapshot) => {
     const payload = {
         objectID: snapshot.id,
     };
-    const fields = getFields();
+    const fields = util_1.getFields(config_1.default);
     if (fields.length === 0) {
         return {
             ...processors_1.dataProcessor(snapshot.data()),

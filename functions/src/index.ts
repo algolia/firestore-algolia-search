@@ -16,7 +16,6 @@
  */
 
 import algoliaSearch from 'algoliasearch';
-import { firestore } from 'firebase-admin/lib/firestore';
 import * as functions from 'firebase-functions';
 import { EventContext, Change } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
@@ -24,7 +23,7 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import config from './config';
 import extract from './extract';
 import * as logs from './logs';
-import { ChangeType, getChangeType } from './util';
+import { ChangeType, getChangeType, areFieldsUpdated } from './util';
 import { version } from './version';
 
 const client = algoliaSearch(
@@ -62,10 +61,13 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const data = extract(after, timestamp);
+    if (areFieldsUpdated(config, before, after)) {
+      logs.debug('Detected a change, execute indexing');
 
-    logs.updateIndex(after.id, data);
-    await index.partialUpdateObject(data, { createIfNotExists: true });
+      const data = extract(after, timestamp);
+      logs.updateIndex(after.id, data);
+      await index.partialUpdateObject(data, { createIfNotExists: true });
+    }
   } catch (e) {
     logs.error(e);
   }

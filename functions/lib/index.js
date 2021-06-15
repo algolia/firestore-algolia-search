@@ -42,9 +42,12 @@ const handleCreateDocument = async (snapshot, timestamp) => {
 };
 const handleUpdateDocument = async (before, after, timestamp) => {
     try {
-        const data = extract_1.default(after, timestamp);
-        logs.updateIndex(after.id, data);
-        await exports.index.partialUpdateObject(data, { createIfNotExists: true });
+        if (util_1.areFieldsUpdated(config_1.default, before, after)) {
+            logs.debug('Detected a change, execute indexing');
+            const data = extract_1.default(after, timestamp);
+            logs.updateIndex(after.id, data);
+            await exports.index.partialUpdateObject(data, { createIfNotExists: true });
+        }
     }
     catch (e) {
         logs.error(e);

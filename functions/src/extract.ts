@@ -20,12 +20,11 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import config from './config';
 import * as logs from './logs';
 import { dataProcessor, valueProcessor } from './processors';
-import { getObjectSizeInBytes } from './util';
+import { getObjectSizeInBytes, getFields } from './util';
 
 const PAYLOAD_MAX_SIZE = 10240;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-const getFields = () => config.fields ? config.fields.split(',') : [];
 
 const getPayload = (snapshot: DocumentSnapshot) => {
   const payload: {
@@ -34,7 +33,7 @@ const getPayload = (snapshot: DocumentSnapshot) => {
     objectID: snapshot.id,
   };
 
-  const fields = getFields();
+  const fields = getFields(config);
   if (fields.length === 0) {
     return {
       ...dataProcessor(snapshot.data()),

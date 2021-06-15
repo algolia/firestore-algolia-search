@@ -17,6 +17,9 @@
 
 import * as functions from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import config from './config';
+import * as logs from './logs';
+import { valueProcessor } from './processors';
 
 export enum ChangeType {
   CREATE,
@@ -39,4 +42,31 @@ export const getChangeType = (
 export const getObjectSizeInBytes = (object: [] | {}) => {
   const recordBuffer = Buffer.from(JSON.stringify(object));
   return recordBuffer.byteLength;
+}
+
+
+export const getFields = (config) => config.fields ? config.fields.split(',') : [];
+
+export const areFieldsUpdated = (config, before: DocumentSnapshot, after: DocumentSnapshot) => {
+  const fields = getFields(config);
+
+  logs.debug(`fields: ${fields}`);
+  // If fields are not configured, then execute update record.
+  if (fields.lenth == 0) {
+    return true;
+  }
+
+  // If fields are configured, then check the before and after data for the specified fields.
+  //  If any changes detected, then execute update record.
+  for(let field of fields){
+    const [, beforeFieldValue] = valueProcessor(field, before.get(field));
+    const [, afterFieldValue] = valueProcessor(field, after.get(field));
+    logs.debug(`field: ${field}`);
+    logs.debug(`beforeFieldValue === afterFieldValue: ${JSON.stringify(beforeFieldValue)} === ${JSON.stringify(afterFieldValue)}`);
+    logs.debug(`beforeFieldValue === afterFieldValue: ${JSON.stringify(beforeFieldValue) === JSON.stringify(afterFieldValue)}`);
+    if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
+      return true;
+    }
+  }
+  return false;
 }
