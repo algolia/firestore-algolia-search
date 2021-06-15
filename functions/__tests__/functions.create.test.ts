@@ -60,25 +60,53 @@ describe('extension', () => {
     config = require('../src/config').default;
   });
 
-  test('functions are exported', () => {
-    const exportedFunctions = jest.requireActual('../src');
-    expect(exportedFunctions.executeIndexOperation).toBeInstanceOf(Function);
-  });
+  describe('functions.executeIndexOperation', () => {
+    let functionsConfig;
 
-  test('algolia search client, user agent, and index are initialized', () => {
-    expect(mockedAlgoliasearch).toHaveBeenCalled();
-    expect(mockedAlgoliasearch).toHaveBeenCalledWith(
-      defaultEnvironment.ALGOLIA_APP_ID,
-      defaultEnvironment.ALGOLIA_API_KEY,
-    );
-    expect(mockedAddAlgoliaAgent).toHaveBeenCalled();
-    expect(mockedAddAlgoliaAgent).toHaveBeenCalledWith(
-      'firestore_integration',
-      version
-    );
-    expect(mockedInitIndex).toHaveBeenCalled();
-    expect(mockedInitIndex).toHaveBeenCalledWith(
-      defaultEnvironment.ALGOLIA_INDEX_NAME
-    );
+    beforeEach(async () => {
+      jest.clearAllMocks();
+      functionsTest = functionsTestInit();
+      functionsConfig = config;
+    });
+
+    test('functions runs with a create', async () => {
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+
+      const documentChange = functionsTest.makeChange(
+        beforeSnapshot,
+        afterSnapshot
+      );
+
+      const data = {};
+      const callResult = await mockExport(documentChange, data);
+
+      expect(callResult).toBeUndefined();
+      expect(mockConsoleInfo).toBeCalledTimes(3);
+      expect(mockConsoleInfo).toBeCalledWith(
+        'Started extension execution with configuration',
+        functionsConfig
+      );
+      const payload = {
+        'objectID': afterSnapshot.id,
+        'title': afterSnapshot.data().title,
+        'awards': [
+          'awards/1'
+        ],
+        'meta': {
+          'releaseDate': testReleaseDate.getTime()
+        },
+        'lastmodified': {
+          '_operation': 'IncrementSet',
+          'value': expect.any(Number)
+        }
+      }
+      expect(mockConsoleInfo).toBeCalledWith(
+        `Creating new Algolia index for document ${ afterSnapshot.id }`,
+        payload
+      );
+
+      expect(mockedPartialUpdateObject).toBeCalledWith(payload,  { createIfNotExists: true });
+    });
   });
 });
