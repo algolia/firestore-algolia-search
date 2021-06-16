@@ -27,7 +27,7 @@ exports.areFieldsUpdated = (config, before, after) => {
     const fields = exports.getFields(config);
     logs.debug(`fields: ${fields}`);
     // If fields are not configured, then execute update record.
-    if (fields.lenth == 0) {
+    if (fields.length == 0) {
         return true;
     }
     // If fields are configured, then check the before and after data for the specified fields.
