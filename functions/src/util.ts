@@ -52,7 +52,7 @@ export const areFieldsUpdated = (config, before: DocumentSnapshot, after: Docume
 
   logs.debug(`fields: ${fields}`);
   // If fields are not configured, then execute update record.
-  if (fields.lenth == 0) {
+  if (fields.length == 0) {
     return true;
   }
 
