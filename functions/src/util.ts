@@ -17,7 +17,6 @@
 
 import * as functions from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
-import config from './config';
 import * as logs from './logs';
 import { valueProcessor } from './processors';
 
@@ -44,7 +43,6 @@ export const getObjectSizeInBytes = (object: [] | {}) => {
   return recordBuffer.byteLength;
 }
 
-
 export const getFields = (config) => config.fields ? config.fields.split(',') : [];
 
 export const areFieldsUpdated = (config, before: DocumentSnapshot, after: DocumentSnapshot) => {
@@ -69,4 +67,9 @@ export const areFieldsUpdated = (config, before: DocumentSnapshot, after: Docume
     }
   }
   return false;
+}
+
+export const isValidValue = (value) => {
+  return typeof value !== undefined
+    && value !== null;
 }

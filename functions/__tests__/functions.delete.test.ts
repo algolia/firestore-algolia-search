@@ -1,11 +1,9 @@
 import algoliasearch from 'algoliasearch';
-import { firestore } from 'firebase-admin/lib/firestore';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import { mocked } from 'ts-jest/utils';
 import { mockConsoleInfo } from './__mocks__/console';
-import {version} from '../src/version';
-import testDocument, { testReleaseDate } from './data/document';
+import testDocument from './data/document';
 
 jest.mock('algoliasearch');
 

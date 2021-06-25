@@ -1,10 +1,8 @@
 import algoliasearch from 'algoliasearch';
-import { firestore } from 'firebase-admin/lib/firestore';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import { mocked } from 'ts-jest/utils';
 import { mockConsoleInfo } from './__mocks__/console';
-import {version} from '../src/version';
 import testDocument, { testReleaseDate } from './data/document';
 
 jest.mock('algoliasearch');
@@ -16,7 +14,7 @@ const defaultEnvironment = {
   ALGOLIA_API_KEY: '********',
   ALGOLIA_INDEX_NAME: 'algolia-index-name',
   COLLECTION_PATH: 'movies',
-  FIELDS: 'title,awards,meta'
+  FIELDS: 'title,awards,meta,popular'
 };
 
 export const mockExport = (document, data) => {
@@ -99,6 +97,7 @@ describe('extension', () => {
         'meta': {
           'releaseDate': testReleaseDate.getTime()
         },
+        'popular': false,
         'lastmodified': {
           '_operation': 'IncrementSet',
           'value': expect.any(Number)
@@ -111,17 +110,11 @@ describe('extension', () => {
       expect(mockedPartialUpdateObject).toBeCalledWith(payload, { createIfNotExists: true });
     });
 
-    test('functions runs with an update with no fields configuration', async () => {
-      restoreEnv = mockedEnv({
-        ...defaultEnvironment,
-        fields: ''
-      });
-      config = require('../src/config').default;
-
+    test('functions runs with an update with a boolean data type set as true', async () => {
       const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
         ...testDocument,
-        title: 'The Prison'
+        popular: true
       }, 'document/1');
 
       const documentChange = functionsTest.makeChange(
@@ -147,54 +140,7 @@ describe('extension', () => {
         'meta': {
           'releaseDate': testReleaseDate.getTime()
         },
-        'lastmodified': {
-          '_operation': 'IncrementSet',
-          'value': expect.any(Number)
-        }
-      }
-      expect(mockConsoleInfo).toBeCalledWith(
-        `Updating existing Algolia index for document ${ afterSnapshot.id }`,
-        payload
-      );
-      expect(mockedPartialUpdateObject).toBeCalledWith(payload, { createIfNotExists: true });
-    });
-
-    test('functions runs with an update on non indexable field', async () => {
-      restoreEnv = mockedEnv({
-        ...defaultEnvironment,
-        fields: ''
-      });
-      config = require('../src/config').default;
-
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
-      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
-        ...testDocument,
-        title: 'The Prison'
-      }, 'document/1');
-
-      const documentChange = functionsTest.makeChange(
-        beforeSnapshot,
-        afterSnapshot
-      );
-
-      const data = {};
-      const callResult = await mockExport(documentChange, data);
-
-      expect(callResult).toBeUndefined();
-      expect(mockConsoleInfo).toBeCalledTimes(2);
-      expect(mockConsoleInfo).toBeCalledWith(
-        'Started extension execution with configuration',
-        functionsConfig
-      );
-      const payload = {
-        'objectID': afterSnapshot.id,
-        'title': afterSnapshot.data().title,
-        'awards': [
-          'awards/1'
-        ],
-        'meta': {
-          'releaseDate': testReleaseDate.getTime()
-        },
+        'popular': true,
         'lastmodified': {
           '_operation': 'IncrementSet',
           'value': expect.any(Number)

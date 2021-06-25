@@ -20,7 +20,7 @@ import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import config from './config';
 import * as logs from './logs';
 import { dataProcessor, valueProcessor } from './processors';
-import { getObjectSizeInBytes, getFields } from './util';
+import { getObjectSizeInBytes, getFields, isValidValue } from './util';
 
 const PAYLOAD_MAX_SIZE = 10240;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
@@ -50,7 +50,7 @@ const getPayload = (snapshot: DocumentSnapshot) => {
     logs.debug('field', field);
     logs.debug('value', value);
 
-    if (value) {
+    if (isValidValue(value)) {
       payload[field] = value;
     } else {
       logs.fieldNotExist(firebaseField);
