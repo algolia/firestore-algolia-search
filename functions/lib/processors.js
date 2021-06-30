@@ -17,6 +17,7 @@ exports.valueProcessor = exports.dataProcessor = void 0;
  * limitations under the License.
  */
 const firestore_1 = require("firebase-admin/lib/firestore");
+const util_1 = require("./util");
 var DocumentReference = firestore_1.firestore.DocumentReference;
 var GeoPoint = firestore_1.firestore.GeoPoint;
 var Timestamp = firestore_1.firestore.Timestamp;
@@ -24,7 +25,9 @@ const processObject = objectVal => {
     const payload = {};
     for (const [key, val] of Object.entries(objectVal)) {
         const [field, value] = processValue(key, val);
-        payload[field] = value;
+        if (util_1.isValidValue(value)) {
+            payload[field] = value;
+        }
     }
     return payload;
 };

@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.areFieldsUpdated = exports.getFields = exports.getObjectSizeInBytes = exports.getChangeType = exports.ChangeType = void 0;
+exports.isValidValue = exports.areFieldsUpdated = exports.getFields = exports.getObjectSizeInBytes = exports.getChangeType = exports.ChangeType = void 0;
 const logs = require("./logs");
 const processors_1 = require("./processors");
 var ChangeType;
@@ -43,4 +43,8 @@ exports.areFieldsUpdated = (config, before, after) => {
         }
     }
     return false;
+};
+exports.isValidValue = (value) => {
+    return typeof value !== undefined
+        && value !== null;
 };

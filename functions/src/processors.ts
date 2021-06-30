@@ -16,6 +16,7 @@
  */
 
 import { firestore } from 'firebase-admin/lib/firestore';
+import { isValidValue } from './util';
 import DocumentReference = firestore.DocumentReference;
 import GeoPoint = firestore.GeoPoint;
 import Timestamp = firestore.Timestamp;
@@ -24,7 +25,9 @@ const processObject = objectVal => {
   const payload = {};
   for (const [key, val] of Object.entries(objectVal)) {
     const [field, value] = processValue(key, val);
-    payload[field] = value;
+    if (isValidValue(value)) {
+      payload[field] = value;
+    }
   }
   return payload;
 }

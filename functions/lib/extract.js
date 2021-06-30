@@ -25,7 +25,7 @@ const getPayload = (snapshot) => {
         const [field, value] = processors_1.valueProcessor(firebaseField, snapshot.get(firebaseField));
         logs.debug('field', field);
         logs.debug('value', value);
-        if (value) {
+        if (util_1.isValidValue(value)) {
             payload[field] = value;
         }
         else {
