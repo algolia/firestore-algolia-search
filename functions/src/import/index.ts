@@ -45,16 +45,14 @@ const sentDataToAlgolia = (data: any[]) => {
     });
 };
 
-const retrieveDataFromFirestore = async () => {
+const BATCH_MAX_SIZE = 9437184;
+const processQuery = async querySnapshot => {
   let records: any[] = [];
-  const querySnapshot = await database.collection(config.collectionPath).get();
-  const BATCH_MAX_SIZE = 9437184;
+  const timestamp = Date.now();
   querySnapshot.forEach((docSnapshot) => {
-    // Capture the record and add to records array for later push to Algolia.
-    // Add in config property to allow up to 100kb if plan allows it.
     try {
-      const timestamp = Date.now();
-      records.push(extract(docSnapshot, timestamp));
+      let payload = extract(docSnapshot, timestamp);
+      records.push(payload);
     } catch (e) {
       logs.warn('Payload size too big, skipping ...', e);
     }
@@ -75,6 +73,18 @@ const retrieveDataFromFirestore = async () => {
     logs.info('Sending rest of the Records to Algolia');
     sentDataToAlgolia(records);
   }
+}
+
+const retrieveDataFromFirestore = async () => {
+  let collectionPath = config.collectionPath;
+  const collectionPathParts = collectionPath.split('/');
+  if (collectionPathParts.length > 0) {
+    collectionPath = collectionPathParts[collectionPathParts.length - 1];
+  }
+
+  const querySnapshot = await database.collectionGroup(collectionPath).get();
+  processQuery(querySnapshot)
+    .catch(console.error);
 };
 
 rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
