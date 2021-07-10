@@ -45,16 +45,15 @@ const sentDataToAlgolia = (data: any[]) => {
     });
 };
 
-const retrieveDataFromFirestore = async () => {
+const BATCH_MAX_SIZE = 9437184;
+const processQuery = async querySnapshot => {
   let records: any[] = [];
-  const querySnapshot = await database.collection(config.collectionPath).get();
-  const BATCH_MAX_SIZE = 9437184;
-  querySnapshot.forEach((docSnapshot) => {
-    // Capture the record and add to records array for later push to Algolia.
-    // Add in config property to allow up to 100kb if plan allows it.
+  const docChanges = querySnapshot.docChanges();
+  const timestamp = Date.now();
+  for (const docChange of docChanges) {
     try {
-      const timestamp = Date.now();
-      records.push(extract(docSnapshot, timestamp));
+      let payload = await extract(docChange.doc, timestamp);
+      records.push(payload);
     } catch (e) {
       logs.warn('Payload size too big, skipping ...', e);
     }
@@ -68,12 +67,28 @@ const retrieveDataFromFirestore = async () => {
       // reset records after sending
       records = [];
     }
-  });
+  }
 
   // Send rest of the records that are still in the records array
   if (records.length > 0) {
     logs.info('Sending rest of the Records to Algolia');
     sentDataToAlgolia(records);
+  }
+}
+
+const retrieveDataFromFirestore = async () => {
+  let collectionPath = config.collectionPath;
+  const collectionPathParts = collectionPath.split('/');
+  if (collectionPathParts.length === 0) {
+    const querySnapshot = await database
+      .collection(collectionPath).get();
+    processQuery(querySnapshot)
+      .catch(console.error);
+  } else {
+    collectionPath = collectionPathParts[collectionPathParts.length - 1];
+    const querySnapshot = await database.collectionGroup(collectionPath).get();
+    processQuery(querySnapshot)
+      .catch(console.error);
   }
 };
 

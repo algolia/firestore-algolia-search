@@ -35,9 +35,6 @@ exports.areFieldsUpdated = (config, before, after) => {
     for (let field of fields) {
         const [, beforeFieldValue] = processors_1.valueProcessor(field, before.get(field));
         const [, afterFieldValue] = processors_1.valueProcessor(field, after.get(field));
-        logs.debug(`field: ${field}`);
-        logs.debug(`beforeFieldValue === afterFieldValue: ${JSON.stringify(beforeFieldValue)} === ${JSON.stringify(afterFieldValue)}`);
-        logs.debug(`beforeFieldValue === afterFieldValue: ${JSON.stringify(beforeFieldValue) === JSON.stringify(afterFieldValue)}`);
         if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
             return true;
         }
