@@ -40,7 +40,7 @@ Run the import process using `npx`.
 
 1.  Execute the below command:
     - Update the path to the Google Application credentials.
-    - Clear out the `FIELDS` param if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
+    - Clear out the `FIELDS` or/and `TRANSFORM_FUNCTION` params if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
       ```
         LOCATION=${param:LOCATION}\
         ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
@@ -48,10 +48,11 @@ Run the import process using `npx`.
         ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
         COLLECTION_PATH=${param:COLLECTION_PATH}\
         FIELDS=${param:FIELDS}\
+        TRANSFORM_FUNCTION=${param:TRANSFORM_FUNCTION}\
         GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
         npx firestore-algolia-search
       ```
-
+      **NOTE**: In the above multiline command, make sure that the `\` is at the end of each line, except for the last.
 ### Monitoring
 
 As a best practice, you can [monitor the activity](https://firebase.google.com/docs/extensions/manage-installed-extensions#monitor) of your installed extension, including checks on its health, usage, and logs.

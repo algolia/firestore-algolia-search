@@ -85,6 +85,28 @@ You will be billed a small amount (typically less than $0.10) when you install o
   where the records will be persisted.
   Refer to [naming your index](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#naming-your-index) for more information.
 
+- Transform Function Name (experimental): What is the Firebase Cloud Function Name?
+  This is the name of the Firestore Cloud Function for transforming the data before transmitting to Algolia for indexing.
+  This function should be deployed to the same Firebase Project and Location as the Firestore/Algolia extension.
+  Refer to [Call functions for your app](https://firebase.google.com/docs/functions/callable).
+  Below is an example of a Transform function used for my testing:
+  ```javascript
+    import * as functions from "firebase-functions";
+
+    const doStuffToData = (payload: any) => {
+      return {
+      ...payload,
+      "hello": "world",
+      };
+    };
+
+    export const helloWorld = functions.https.onCall((payload) => {
+      const transformedData = doStuffToData(payload);
+      return transformedData;
+    });
+  ```
+  **Note**: The Transform Firebase Function should be set up to unauthenticated users at this time.
+
 **Cloud Functions:**
 
 - **executeIndexOperation:** Firestore document-triggered function that creates, updates, or deletes data in Algolia.

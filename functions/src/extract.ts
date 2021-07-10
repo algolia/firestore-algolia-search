@@ -23,7 +23,7 @@ import { dataProcessor, valueProcessor } from './processors';
 import transform from './transform';
 import { getObjectSizeInBytes, getFields, isValidValue } from './util';
 
-const PAYLOAD_MAX_SIZE = 10240;
+const PAYLOAD_MAX_SIZE = 102400;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
@@ -31,8 +31,6 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
   let payload: {
     [key: string]: boolean | string | number;
   } = {
-    // adding the objectId for use in Post processing.  The objectId is only meant to be read-only.
-    //  any changes will to objectId will not be used and will be restored in the return statement.
     objectID: snapshot.id
   };
 
@@ -59,10 +57,7 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
   }
 
   // adding the objectId in the return to make sure to restore to original if changed in the post processing.
-  return {
-    ...await transform(payload),
-    objectID: snapshot.id,
-  };
+  return transform(payload);
 }
 
 export default async function extract(snapshot: DocumentSnapshot, timestamp: Number): Promise<any> {

@@ -20,7 +20,6 @@ const config_1 = require("./config");
 const logs = require("./logs");
 exports.default = async (payload) => {
     if (config_1.default.transformFunction) {
-        logs.debug(`https://${config_1.default.location}-${config_1.default.projectId}.cloudfunctions.net/${config_1.default.transformFunction}`);
         try {
             const response = await node_fetch_1.default(`https://${config_1.default.location}-${config_1.default.projectId}.cloudfunctions.net/${config_1.default.transformFunction}`, {
                 method: 'post',
@@ -28,7 +27,6 @@ exports.default = async (payload) => {
                 headers: { 'Content-Type': 'application/json' },
             });
             const data = await (response === null || response === void 0 ? void 0 : response.json());
-            logs.debug('response?.json()', data.result);
             return data.result;
         }
         catch (e) {

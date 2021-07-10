@@ -5,13 +5,11 @@ const logs = require("./logs");
 const processors_1 = require("./processors");
 const transform_1 = require("./transform");
 const util_1 = require("./util");
-const PAYLOAD_MAX_SIZE = 10240;
+const PAYLOAD_MAX_SIZE = 102400;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 const getPayload = async (snapshot) => {
     let payload = {
-        // adding the objectId for use in Post processing.  The objectId is only meant to be read-only.
-        //  any changes will to objectId will not be used and will be restored in the return statement.
         objectID: snapshot.id
     };
     const fields = util_1.getFields(config_1.default);
@@ -36,10 +34,7 @@ const getPayload = async (snapshot) => {
         });
     }
     // adding the objectId in the return to make sure to restore to original if changed in the post processing.
-    return {
-        ...await transform_1.default(payload),
-        objectID: snapshot.id,
-    };
+    return transform_1.default(payload);
 };
 async function extract(snapshot, timestamp) {
     // Check payload size and make sure its within limits before sending for indexing

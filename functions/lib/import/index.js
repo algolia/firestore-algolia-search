@@ -40,16 +40,15 @@ const sentDataToAlgolia = (data) => {
         logs.error(error);
     });
 };
-const retrieveDataFromFirestore = async () => {
+const BATCH_MAX_SIZE = 9437184;
+const processQuery = async (querySnapshot) => {
     let records = [];
-    const querySnapshot = await database.collection(config_1.default.collectionPath).get();
-    const BATCH_MAX_SIZE = 9437184;
-    querySnapshot.forEach((docSnapshot) => {
-        // Capture the record and add to records array for later push to Algolia.
-        // Add in config property to allow up to 100kb if plan allows it.
+    const docs = querySnapshot.docs;
+    const timestamp = Date.now();
+    for (const doc of docs) {
         try {
-            const timestamp = Date.now();
-            records.push(extract_1.default(docSnapshot, timestamp));
+            const payload = await extract_1.default(doc, timestamp);
+            records.push(payload);
         }
         catch (e) {
             logs.warn('Payload size too big, skipping ...', e);
@@ -62,12 +61,18 @@ const retrieveDataFromFirestore = async () => {
             // reset records after sending
             records = [];
         }
-    });
+    }
     // Send rest of the records that are still in the records array
     if (records.length > 0) {
         logs.info('Sending rest of the Records to Algolia');
         sentDataToAlgolia(records);
     }
+};
+const retrieveDataFromFirestore = async () => {
+    const collectionPathParts = config_1.default.collectionPath.split('/');
+    const collectionPath = collectionPathParts[collectionPathParts.length - 1];
+    const querySnapshot = await database.collectionGroup(collectionPath).get();
+    processQuery(querySnapshot).catch(console.error);
 };
 rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function (answer) {
     const value = answer || 'n';

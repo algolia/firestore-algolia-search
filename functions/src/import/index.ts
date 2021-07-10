@@ -48,11 +48,11 @@ const sentDataToAlgolia = (data: any[]) => {
 const BATCH_MAX_SIZE = 9437184;
 const processQuery = async querySnapshot => {
   let records: any[] = [];
-  const docChanges = querySnapshot.docChanges();
+  const docs = querySnapshot.docs;
   const timestamp = Date.now();
-  for (const docChange of docChanges) {
+  for (const doc of docs) {
     try {
-      let payload = await extract(docChange.doc, timestamp);
+      const payload = await extract(doc, timestamp);
       records.push(payload);
     } catch (e) {
       logs.warn('Payload size too big, skipping ...', e);
@@ -77,19 +77,10 @@ const processQuery = async querySnapshot => {
 }
 
 const retrieveDataFromFirestore = async () => {
-  let collectionPath = config.collectionPath;
-  const collectionPathParts = collectionPath.split('/');
-  if (collectionPathParts.length === 0) {
-    const querySnapshot = await database
-      .collection(collectionPath).get();
-    processQuery(querySnapshot)
-      .catch(console.error);
-  } else {
-    collectionPath = collectionPathParts[collectionPathParts.length - 1];
-    const querySnapshot = await database.collectionGroup(collectionPath).get();
-    processQuery(querySnapshot)
-      .catch(console.error);
-  }
+  const collectionPathParts = config.collectionPath.split('/');
+  const collectionPath = collectionPathParts[collectionPathParts.length - 1];
+  const querySnapshot = await database.collectionGroup(collectionPath).get();
+  processQuery(querySnapshot).catch(console.error);
 };
 
 rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
