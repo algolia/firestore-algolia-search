@@ -22,7 +22,7 @@ import * as logs from './logs';
 import { dataProcessor, valueProcessor } from './processors';
 import { getObjectSizeInBytes, getFields, isValidValue } from './util';
 
-const PAYLOAD_MAX_SIZE = 10240;
+const PAYLOAD_MAX_SIZE = 102400;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 

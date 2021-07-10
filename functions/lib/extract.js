@@ -4,7 +4,7 @@ const config_1 = require("./config");
 const logs = require("./logs");
 const processors_1 = require("./processors");
 const util_1 = require("./util");
-const PAYLOAD_MAX_SIZE = 10240;
+const PAYLOAD_MAX_SIZE = 102400;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 const getPayload = (snapshot) => {
