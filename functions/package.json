@@ -1,6 +1,6 @@
 {
   "name": "firestore-algolia-search",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Index Cloud Firestore collection to Algolia",
   "scripts": {
     "build": "npm run clean && npm test && npm run compile",
