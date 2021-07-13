@@ -43,6 +43,7 @@ Run the import process using `npx`.
     - Clear out the `FIELDS` or/and `TRANSFORM_FUNCTION` params if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
       ```
         LOCATION=${param:LOCATION}\
+        PROJECT_ID=${param:PROJECT_ID}\
         ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
         ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
         ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
