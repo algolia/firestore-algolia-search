@@ -29,7 +29,7 @@ exports.index = client.initIndex(config_1.default.algoliaIndexName);
 logs.init();
 const handleCreateDocument = async (snapshot, timestamp) => {
     try {
-        const data = extract_1.default(snapshot, timestamp);
+        const data = await extract_1.default(snapshot, timestamp);
         logs.debug({
             ...data
         });
@@ -44,7 +44,7 @@ const handleUpdateDocument = async (before, after, timestamp) => {
     try {
         if (util_1.areFieldsUpdated(config_1.default, before, after)) {
             logs.debug('Detected a change, execute indexing');
-            const data = extract_1.default(after, timestamp);
+            const data = await extract_1.default(after, timestamp);
             logs.updateIndex(after.id, data);
             await exports.index.partialUpdateObject(data, { createIfNotExists: true });
         }

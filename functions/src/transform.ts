@@ -1,5 +1,4 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Copyright 2021 Algolia
  *
@@ -15,13 +14,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports.default = {
-    location: process.env.LOCATION,
-    algoliaAppId: process.env.ALGOLIA_APP_ID,
-    algoliaAPIKey: process.env.ALGOLIA_API_KEY,
-    algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
-    collectionPath: process.env.COLLECTION_PATH,
-    fields: process.env.FIELDS,
-    transformFunction: process.env.TRANSFORM_FUNCTION,
-    projectId: process.env.PROJECT_ID,
-};
+
+import fetch from 'node-fetch';
+import config from './config';
+import * as logs from './logs';
+
+export default async payload => {
+  if (config.transformFunction) {
+    try {
+      const response = await fetch(`https://${config.location}-${config.projectId}.cloudfunctions.net/${config.transformFunction}`, {
+        method: 'post',
+        body:    JSON.stringify({ data: payload }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response?.json();
+      return data.result;
+    } catch (e) {
+      logs.error(e);
+    }
+  }
+  return payload;
+}

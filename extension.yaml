@@ -110,6 +110,14 @@ params:
     type: string
     required: true
 
+  - param: TRANSFORM_FUNCTION
+    label: Transform Function Name (Experimental)
+    description: >-
+      Specify a Firebase Cloud Function for any data transformation before saving into Algolia.
+      Refer to [Call functions for your app](https://firebase.google.com/docs/functions/callable).
+    type: string
+    required: false
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
