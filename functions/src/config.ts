@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-export default {
+const config = {
   location: process.env.LOCATION,
   algoliaAppId: process.env.ALGOLIA_APP_ID,
   algoliaAPIKey: process.env.ALGOLIA_API_KEY,
@@ -25,3 +25,6 @@ export default {
   transformFunction: process.env.TRANSFORM_FUNCTION,
   projectId: process.env.PROJECT_ID,
 };
+
+export type Config = typeof config;
+export default config;
