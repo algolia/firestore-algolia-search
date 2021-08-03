@@ -17,6 +17,7 @@
 
 import * as functions from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { Config } from './config';
 import * as logs from './logs';
 import { valueProcessor } from './processors';
 
@@ -26,9 +27,7 @@ export enum ChangeType {
   UPDATE,
 }
 
-export const getChangeType = (
-  change: functions.Change<DocumentSnapshot>
-) => {
+export const getChangeType = (change: functions.Change<DocumentSnapshot>) => {
   if (!change.after.exists) {
     return ChangeType.DELETE;
   }
@@ -41,11 +40,16 @@ export const getChangeType = (
 export const getObjectSizeInBytes = (object: [] | {}) => {
   const recordBuffer = Buffer.from(JSON.stringify(object));
   return recordBuffer.byteLength;
-}
+};
 
-export const getFields = (config) => config.fields ? config.fields.split(',') : [];
+export const getFields = (config: Pick<Config, 'fields'>) =>
+  config.fields ? config.fields.split(/[ ,]+/) : [];
 
-export const areFieldsUpdated = (config, before: DocumentSnapshot, after: DocumentSnapshot) => {
+export const areFieldsUpdated = (
+  config: Config,
+  before: DocumentSnapshot,
+  after: DocumentSnapshot
+) => {
   const fields = getFields(config);
 
   logs.debug(`fields: ${fields}`);
@@ -56,7 +60,7 @@ export const areFieldsUpdated = (config, before: DocumentSnapshot, after: Docume
 
   // If fields are configured, then check the before and after data for the specified fields.
   //  If any changes detected, then execute update record.
-  for(let field of fields){
+  for (let field of fields) {
     const [, beforeFieldValue] = valueProcessor(field, before.get(field));
     const [, afterFieldValue] = valueProcessor(field, after.get(field));
     if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
@@ -64,9 +68,8 @@ export const areFieldsUpdated = (config, before: DocumentSnapshot, after: Docume
     }
   }
   return false;
-}
+};
 
 export const isValidValue = (value) => {
-  return typeof value !== undefined
-    && value !== null;
-}
+  return typeof value !== undefined && value !== null;
+};
