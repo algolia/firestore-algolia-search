@@ -22,7 +22,7 @@ exports.getObjectSizeInBytes = (object) => {
     const recordBuffer = Buffer.from(JSON.stringify(object));
     return recordBuffer.byteLength;
 };
-exports.getFields = (config) => config.fields ? config.fields.split(',') : [];
+exports.getFields = (config) => config.fields ? config.fields.split(/[ ,]+/) : [];
 exports.areFieldsUpdated = (config, before, after) => {
     const fields = exports.getFields(config);
     logs.debug(`fields: ${fields}`);
@@ -42,6 +42,5 @@ exports.areFieldsUpdated = (config, before, after) => {
     return false;
 };
 exports.isValidValue = (value) => {
-    return typeof value !== undefined
-        && value !== null;
+    return typeof value !== undefined && value !== null;
 };

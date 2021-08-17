@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports.default = {
+const config = {
     location: process.env.LOCATION,
     algoliaAppId: process.env.ALGOLIA_APP_ID,
     algoliaAPIKey: process.env.ALGOLIA_API_KEY,
@@ -25,3 +25,4 @@ exports.default = {
     transformFunction: process.env.TRANSFORM_FUNCTION,
     projectId: process.env.PROJECT_ID,
 };
+exports.default = config;
