@@ -70,7 +70,7 @@ describe('extension', () => {
       functionsConfig = config;
     });
 
-    test('functions runs with a create with transform function', async () => {
+    test('functions runs with a create and transform function', async () => {
       const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
       const responseData = {
@@ -118,6 +118,121 @@ describe('extension', () => {
       );
 
       expect(mockedPartialUpdateObject).toBeCalledWith(payload,  { createIfNotExists: true });
+    });
+
+    test('functions runs with a update and transform function', async () => {
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
+        ...testDocument,
+        title: 'The Prison'
+      }, 'document/1');
+
+      const responseData = {
+        'objectID': afterSnapshot.id,
+        'title': afterSnapshot.data().title,
+        'awards': [
+          'awards/1'
+        ],
+        'meta': {
+          'releaseDate': testReleaseDate.getTime()
+        },
+        "hello": "world"
+      }
+      const payload = {
+        ...responseData,
+        'lastmodified': {
+          '_operation': 'IncrementSet',
+          'value': expect.any(Number)
+        }
+      }
+
+      mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () => Promise.resolve({ result: responseData }),
+        } as Response)
+      );
+
+      const documentChange = functionsTest.makeChange(
+        beforeSnapshot,
+        afterSnapshot
+      );
+
+      const data = {};
+      const callResult = await mockExport(documentChange, data);
+
+      expect(callResult).toBeUndefined();
+      expect(mockConsoleInfo).toBeCalledTimes(2);
+      expect(mockConsoleInfo).toBeCalledWith(
+        'Started extension execution with configuration',
+        functionsConfig
+      );
+      expect(mockConsoleInfo).toBeCalledWith(
+        `Updating existing Algolia index for document ${ afterSnapshot.id }`,
+        payload
+      );
+      expect(mockedPartialUpdateObject).toBeCalledWith(payload,  { createIfNotExists: true });
+    });
+
+
+    test('functions runs with a create and transform function with empty return', async () => {
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+      const responseData = null;
+
+      mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () => Promise.resolve({ result: responseData }),
+        } as Response)
+      );
+
+      const documentChange = functionsTest.makeChange(
+        beforeSnapshot,
+        afterSnapshot
+      );
+
+      const data = {};
+      const callResult = await mockExport(documentChange, data);
+
+      expect(callResult).toBeUndefined();
+      expect(mockConsoleInfo).toBeCalledTimes(1);
+      expect(mockConsoleInfo).toBeCalledWith(
+        'Started extension execution with configuration',
+        functionsConfig
+      );
+
+      expect(mockedPartialUpdateObject).toBeCalledTimes(0)
+    });
+
+    test('functions runs with a update and transform function with empty return', async () => {
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
+        ...testDocument,
+        title: 'The Prison'
+      }, 'document/1');
+
+      const responseData = null;
+
+      mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () => Promise.resolve({ result: responseData }),
+        } as Response)
+      );
+
+      const documentChange = functionsTest.makeChange(
+        beforeSnapshot,
+        afterSnapshot
+      );
+
+      const data = {};
+      const callResult = await mockExport(documentChange, data);
+
+      expect(callResult).toBeUndefined();
+      expect(mockConsoleInfo).toBeCalledTimes(1);
+      expect(mockConsoleInfo).toBeCalledWith(
+        'Started extension execution with configuration',
+        functionsConfig
+      );
+      expect(mockedPartialUpdateObject).toBeCalledTimes(0)
     });
   });
 });
