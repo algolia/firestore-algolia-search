@@ -22,7 +22,7 @@ firebase ext:install algolia/firestore-algolia-search --project=<your-project-id
 
 ---
 
-**Details**:
+#### Details
 
 Use this extension to index your Cloud Firestore data to Algolia and keep it synced.  The extension is applied and configured on a Firestore [collection](https://firebase.google.com/docs/firestore/data-model#collections).
 
@@ -56,9 +56,9 @@ To install this extension, your Firebase project must be on the Blaze (pay-as-yo
 
 You will be billed a small amount (typically less than $0.10) when you install or reconfigure this extension. See Cloud Functions under [Firebase Pricing](https://firebase.google.com/pricing) for a detailed explanation.
 
-**Configuration Parameters:**
+#### Configuration Parameters
 
-- Cloud Functions Location: Where do you want to deploy the functions created for this extension?
+Cloud Functions Location: Where do you want to deploy the functions created for this extension?
   You usually want a location close to your database.
   For help selecting a location, refer to the
   [location selection guide](https://firebase.google.com/docs/functions/locations).
@@ -107,6 +107,6 @@ You will be billed a small amount (typically less than $0.10) when you install o
   ```
   **Note**: The Transform Firebase Function should be set up to unauthenticated users at this time.
 
-**Cloud Functions:**
+#### Cloud Functions
 
 - **executeIndexOperation:** Firestore document-triggered function that creates, updates, or deletes data in Algolia.
