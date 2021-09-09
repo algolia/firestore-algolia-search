@@ -24,7 +24,7 @@ firebase ext:install algolia/firestore-algolia-search --project=<your-project-id
 
 #### Details
 
-Use this extension to index your Cloud Firestore data to Algolia and keep it synced.  The extension is applied and configured on a Firestore [collection](https://firebase.google.com/docs/firestore/data-model#collections).
+Use this extension to index your Cloud Firestore data to Algolia and keep it synced.  The extension is applied and configured on a Firestore [collection](https://firebase.google.com/docs/firestore/data-model#collections) or [subcollection](https://firebase.google.com/docs/firestore/data-model#subcollections).
 
 This extension listens for changes on the specified collection. If you add a [document](https://firebase.google.com/docs/firestore/data-model#documents), the extension indexes it as a [record in Algolia](https://www.algolia.com/doc/faq/basics/what-is-a-record/). The extension only indexes the fields defined in the extension configuration and uses the [document Id](https://firebase.google.com/docs/firestore/manage-data/add-data#add_a_document) as the Algolia [object Id](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#using-unique-object-identifiers).
 
@@ -64,6 +64,7 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
   [location selection guide](https://firebase.google.com/docs/functions/locations).
 
 - Collection Path: What is the path to the Cloud Firestore collection where the extension should monitor for changes?
+  For subcollection, the syntax is `parent_collection/{parentId}/target_collection`. (please note, there is not depublication process on subcollections).
 
 - Fields: What document fields should be indexed to provide the best search experience? For more information on which fields to index to Algolia, see the [Algolia documentation on records](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/#algolia-records).
   This can be a comma separated list or left blank to index all fields.
