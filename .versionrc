@@ -1,0 +1,28 @@
+{
+  "bumpFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    },
+    {
+      "filename": "package-lock.json",
+      "type": "json"
+    },
+    {
+      "filename": "extension.yaml",
+      "updater": "standard-version-extension.js"
+    },
+    {
+      "filename": "functions/package.json",
+      "type": "json"
+    },
+    {
+      "filename": "functions/package-lock.json",
+      "type": "json"
+    },
+    {
+      "filename": "functions/src/version.ts",
+      "updater": "standard-version-function.js"
+    }
+  ]
+}
