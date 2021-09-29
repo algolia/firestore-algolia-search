@@ -40,13 +40,20 @@ async function extract(snapshot, timestamp) {
     // Check payload size and make sure its within limits before sending for indexing
     const payload = await getPayload(snapshot);
     if (util_1.getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
-        return {
-            ...payload,
-            lastmodified: {
-                _operation: 'IncrementSet',
-                value: timestamp,
-            },
-        };
+        if (timestamp === 0) {
+            return {
+                ...payload
+            };
+        }
+        else {
+            return {
+                ...payload,
+                lastmodified: {
+                    _operation: 'IncrementSet',
+                    value: timestamp,
+                },
+            };
+        }
     }
     else {
         throw new Error(PAYLOAD_TOO_LARGE_ERR_MSG);
