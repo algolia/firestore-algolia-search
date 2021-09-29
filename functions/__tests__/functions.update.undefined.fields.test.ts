@@ -173,12 +173,6 @@ describe('extension', () => {
         rating: 0
       }, 'document/1');
 
-      afterSnapshot.ref.get = function() {
-        return new Promise((resolve) => {
-          resolve(afterSnapshot);
-        });
-      }
-
       const documentChange = functionsTest.makeChange(
         beforeSnapshot,
         afterSnapshot
@@ -203,11 +197,7 @@ describe('extension', () => {
         'meta': {
           'releaseDate': testReleaseDate.getTime()
         },
-        'rating': 0,
-        'lastmodified': {
-          '_operation': 'IncrementSet',
-          'value': expect.any(Number)
-        }
+        'rating': 0
       }
       expect(mockConsoleInfo).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,

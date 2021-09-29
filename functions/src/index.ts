@@ -79,11 +79,8 @@ const handleUpdateDocument = async (
       }
       // if an attribute was removed, then use save object of the record.
       else {
-        // saveObject is not enabled with version so execute data retrieval from
-        // firestore again to prevent race condition due to cold start of cloud function.
-        const updatedAfterData = await after.ref.get();
-        const data = await extract(updatedAfterData, timestamp);
-        logs.updateIndex(updatedAfterData.id, data);
+        const data = await extract(after, 0);
+        logs.updateIndex(after.id, data);
         logs.debug("execute saveObject");
         await index.saveObject(data);
       }
