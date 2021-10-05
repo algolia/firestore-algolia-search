@@ -28,6 +28,9 @@ contributors:
     email: sajid.momin@algolia.com
     url: https://github.com/smomin
 
+externalServices:
+  - name: Algolia
+    pricingUri: https://algolia.com/pricing
 
 # Public URL for the source code of your extension
 sourceUrl: https://github.com/algolia/firestore-algolia-search/tree/main
