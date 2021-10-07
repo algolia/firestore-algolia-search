@@ -46,7 +46,7 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
     // to send to Algolia.
     fields.forEach(item => {
       let firebaseField = item.replace(trim, '');
-      const [ field, value ] = valueProcessor(firebaseField, snapshot.get(firebaseField));
+      const [field, value] = valueProcessor(firebaseField, snapshot.get(firebaseField));
 
       if (isValidValue(value)) {
         payload[field] = value;
@@ -66,11 +66,13 @@ export default async function extract(snapshot: DocumentSnapshot, timestamp: Num
   if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
     if (timestamp === 0) {
       return {
-        ...payload
+        ...payload,
+        firestorepath: snapshot.reference.path,
       };
     } else {
       return {
         ...payload,
+        firestorepath: snapshot.reference.path,
         lastmodified: {
           _operation: 'IncrementSet',
           value: timestamp,
