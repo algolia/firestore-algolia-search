@@ -42,12 +42,14 @@ async function extract(snapshot, timestamp) {
     if (util_1.getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
         if (timestamp === 0) {
             return {
-                ...payload
+                ...payload,
+                firestorepath: snapshot.ref.path,
             };
         }
         else {
             return {
                 ...payload,
+                firestorepath: snapshot.ref.path,
                 lastmodified: {
                     _operation: 'IncrementSet',
                     value: timestamp,

@@ -67,12 +67,12 @@ export default async function extract(snapshot: DocumentSnapshot, timestamp: Num
     if (timestamp === 0) {
       return {
         ...payload,
-        firestorepath: snapshot.reference.path,
+        firestorepath: snapshot.ref.path,
       };
     } else {
       return {
         ...payload,
-        firestorepath: snapshot.reference.path,
+        firestorepath: snapshot.ref.path,
         lastmodified: {
           _operation: 'IncrementSet',
           value: timestamp,
