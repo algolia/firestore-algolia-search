@@ -75,6 +75,7 @@ describe('extension', () => {
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
       const responseData = {
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'
