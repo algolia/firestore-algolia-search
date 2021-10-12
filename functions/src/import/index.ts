@@ -51,6 +51,11 @@ const processQuery = async querySnapshot => {
   const docs = querySnapshot.docs;
   const timestamp = Date.now();
   for (const doc of docs) {
+    // Skip over any docs pulled in from collectionGroup query that dont match config 
+    if (!doesPathMatchConfigCollectionPath(doc.ref.path)) {
+      continue;
+    }
+
     try {
       const payload = await extract(doc, timestamp);
       records.push(payload);
@@ -95,3 +100,19 @@ rl.question(`\nWARNING: The back fill process will index your entire collection 
   rl.close();
 });
 
+const doesPathMatchConfigCollectionPath = (path: string): boolean => {
+  const pathSegments = path.split('/');
+  const collectionPathSegments = config.collectionPath.split('/')
+
+  // Iterate over the config collection path by each subcollection only
+  for (let i = 0; i < collectionPathSegments.length; i+=2) {
+    const configSegment = collectionPathSegments[i];
+    const pathSegment = pathSegments[i];
+
+    if (pathSegment != configSegment) {
+      return false;
+    }
+  }
+  
+  return true;
+}
