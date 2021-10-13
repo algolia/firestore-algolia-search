@@ -10,7 +10,8 @@ const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 const getPayload = async (snapshot) => {
     let payload = {
-        objectID: snapshot.id
+        objectID: snapshot.id,
+        path: snapshot.ref.path
     };
     const fields = util_1.getFields(config_1.default);
     if (fields.length === 0) {

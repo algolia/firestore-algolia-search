@@ -94,6 +94,7 @@ describe('extension', () => {
       const payload = {
         ...testDocument,
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'
@@ -138,6 +139,7 @@ describe('extension', () => {
       const payload = {
         ...testDocument,
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'
@@ -190,6 +192,7 @@ describe('extension', () => {
       const payload = {
         ...modifiedDocument,
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'

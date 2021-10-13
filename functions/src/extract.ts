@@ -28,10 +28,11 @@ const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
 const trim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
-  let payload: {
+    let payload: {
     [key: string]: boolean | string | number;
   } = {
-    objectID: snapshot.id
+    objectID: snapshot.id,
+    path: snapshot.ref.path
   };
 
   const fields = getFields(config);

@@ -90,6 +90,7 @@ describe('extension', () => {
       );
       const payload = {
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'
@@ -133,6 +134,7 @@ describe('extension', () => {
       );
       const payload = {
         'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
         'title': afterSnapshot.data().title,
         'awards': [
           'awards/1'
