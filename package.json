@@ -18,6 +18,11 @@
     "stringify-package": "^1.0.1",
     "detect-newline": "^3.1.0"
   },
+  "standard-version": {
+    "scripts": {
+      "postcommit": "cd functions && npm install && git add . && git commit --amend --no-edit"
+    }
+  },
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
