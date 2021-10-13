@@ -104,8 +104,8 @@ const doesPathMatchConfigCollectionPath = (path: string): boolean => {
   const pathSegments = path.split('/');
   const collectionPathSegments = config.collectionPath.split('/')
 
-  // Iterate over the config collection path by each subcollection only
+  // Iterate over the collectionSegment, skip the document subsections
   return collectionPathSegments.every(
-    (configSegment, i) => configSegment === pathSegments[i]
+    (configSegment, i) => i % 2 != 0 ? true : configSegment === pathSegments[i]
   );
 }
