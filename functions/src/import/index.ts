@@ -51,6 +51,11 @@ const processQuery = async querySnapshot => {
   const docs = querySnapshot.docs;
   const timestamp = Date.now();
   for (const doc of docs) {
+    // Skip over any docs pulled in from collectionGroup query that dont match config
+    if (!doesPathMatchConfigCollectionPath(doc.ref.path)) {
+      continue;
+    }
+
     try {
       const payload = await extract(doc, timestamp);
       records.push(payload);
@@ -82,6 +87,18 @@ const retrieveDataFromFirestore = async () => {
   const querySnapshot = await database.collectionGroup(collectionPath).get();
   processQuery(querySnapshot).catch(console.error);
 };
+
+const doesPathMatchConfigCollectionPath = (path: string): boolean => {
+  const pathSegments = path.split('/');
+  const collectionPathSegments = config.collectionPath.split('/')
+  return collectionPathSegments.every(
+    (configSegment, i) => {
+      // check if the configured path segment matches the path segment retrieved from firebase
+      // if configured path has a placeholder pattern for document id, return true
+      return configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
+    }
+  );
+}
 
 rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
   const value = answer || 'n'
