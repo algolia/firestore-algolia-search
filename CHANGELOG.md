@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.8](https://github.com/algolia/firestore-algolia-search/compare/v0.5.2...v0.5.8) (2021-10-27)
+
+
+### Features
+
+* add document path to record ([db43169](https://github.com/algolia/firestore-algolia-search/commit/db43169be8fd846e335b5cf5737bf6d20e6c766e))
+* handle removed attributes ([321cb84](https://github.com/algolia/firestore-algolia-search/commit/321cb842246df903658c9ea209fb29927cf17e85))
+* **release:** add semver, commitlint, and changelog ([728eb2f](https://github.com/algolia/firestore-algolia-search/commit/728eb2fd44db5aabafb19886b12b7e622e75fe92))
+
+
+### Bug Fixes
+
+* check path for subcollection ([19b9022](https://github.com/algolia/firestore-algolia-search/commit/19b902282624f2a4e3db747943d6ee5400687748))
+* remove the data fetch ([23a5da7](https://github.com/algolia/firestore-algolia-search/commit/23a5da7489766ecdeba9f2c354cc4221aa2cc2fe))
+* security and versioning ([218e547](https://github.com/algolia/firestore-algolia-search/commit/218e547c2fc93657103e07d8a2d661c7826845a8))
+
 ### [0.5.7](https://github.com/algolia/firestore-algolia-search/compare/v0.5.2...v0.5.7) (2021-10-13)
 
 
