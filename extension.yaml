@@ -110,7 +110,7 @@ params:
       We recommend [creating a new API key](https://www.algolia.com/doc/guides/security/api-keys/#creating-and-managing-api-keys)
       with "addObject", "deleteObject", "listIndexes", "deleteIndex", "editSettings", and "settings" permissions.
       **Do not use the Admin API key**.
-    type: string
+    type: secret
     required: true
 
   - param: TRANSFORM_FUNCTION
