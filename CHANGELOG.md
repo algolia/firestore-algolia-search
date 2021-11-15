@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.9](https://github.com/algolia/firestore-algolia-search/compare/v0.5.8...v0.5.9) (2021-11-15)
+
+
+### Features
+
+* Changed API key to type 'secret' ([#81](https://github.com/algolia/firestore-algolia-search/issues/81)) ([9bbad73](https://github.com/algolia/firestore-algolia-search/commit/9bbad73805efc0938193af291e3b3ebe8aa36047))
+
 ### [0.5.8](https://github.com/algolia/firestore-algolia-search/compare/v0.5.2...v0.5.8) (2021-10-27)
 
 
