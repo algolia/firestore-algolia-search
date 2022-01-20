@@ -54,6 +54,7 @@ Run the import process using `npx`.
         npx firestore-algolia-search
       ```
       **NOTE**: In the above multiline command, make sure that the `\` is at the end of each line, except for the last.
+      **NOTE**: Make sure that there is no space inbetween the specified `FIELDS`. E.g. `name,category,views` ✅ | `name, category, views` ❌.
 ### Monitoring
 
 As a best practice, you can [monitor the activity](https://firebase.google.com/docs/extensions/manage-installed-extensions#monitor) of your installed extension, including checks on its health, usage, and logs.
