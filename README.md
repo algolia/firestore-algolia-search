@@ -89,6 +89,13 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
   where the records will be persisted.
   Refer to [naming your index](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#naming-your-index) for more information.
 
+- Algolia Merge Parent/Child: Are you merging the Parent collection with the Child collections or are you merging the Child collections with Parent collection?
+  If you are looking to merge Parent collection/Child collections into one Algolia record, set property to "yes".
+
+  **Note**: The Parent/Child merge feature makes additional calls to Firestore to get the latest data and a call to Algolia to get the record for stitching.  These calls will have a cost impact on both your Firebase and Algolia account.
+
+- Algolia Child Attribute Name (Child collection only): If this collection is a child collection and you are planning on merging it with the Parent collection, set this property with a name that will be used on the Algolia record.
+
 - Transform Function Name (experimental): What is the Firebase Cloud Function Name?
   This is the name of the Firestore Cloud Function for transforming the data before transmitting to Algolia for indexing.
   This function should be deployed to the same Firebase Project and Location as the Firestore/Algolia extension.
@@ -110,6 +117,8 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
     });
   ```
   **Note**: The Transform Firebase Function should be set up to unauthenticated users at this time.
+
+  Also, the ObjectId is sent to the transform function for look up.  Please avoid modifying the ObjectId.
 
 #### Cloud Functions
 

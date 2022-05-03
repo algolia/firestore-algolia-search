@@ -59,7 +59,7 @@ export const areFieldsUpdated = (
   }
 
   // If fields are configured, then check the before and after data for the specified fields.
-  //  If any changes detected, then execute update record.
+  //  If any changes are detected, then execute update record.
   for (let field of fields) {
     const [, beforeFieldValue] = valueProcessor(field, before.get(field));
     const [, afterFieldValue] = valueProcessor(field, after.get(field));

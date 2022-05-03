@@ -40,25 +40,28 @@ export const index = client.initIndex(config.algoliaIndexName);
 logs.init();
 
 const handleCreateDocument = async (
-  snapshot: DocumentSnapshot,
+  after: DocumentSnapshot,
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync === 'yes') {
-      const updatedSnapshot = await snapshot.ref.get();
+    if (config.algoliaMergeParentChild === 'yes') {
+      // Sync with data from Firestore to avoid race conditions
+      const updatedSnapshot = await after.ref.get();
+      await processParentChildRecord(null, updatedSnapshot, timestamp);
+    } else if (config.forceDataSync === 'yes') {
+      const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.createIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
       await index.saveObject(data);
     } else {
-      const data = await extract(snapshot, timestamp);
+      const data = await extract(after, timestamp);
 
       logs.debug({
         ...data
       });
 
-      logs.createIndex(snapshot.id, data);
+      logs.createIndex(after.id, data);
       await index.partialUpdateObject(data, { createIfNotExists: true });
     }
   } catch (e) {
@@ -72,8 +75,11 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync === 'yes') {
+    if (config.algoliaMergeParentChild === 'yes') {
+      // Sync with data from Firestore to avoid race conditions
+      const updatedSnapshot = await after.ref.get();
+      await processParentChildRecord(before, updatedSnapshot, timestamp);
+    } else if (config.forceDataSync === 'yes') {
       const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.updateIndex(updatedSnapshot.id, data);
@@ -111,6 +117,7 @@ const handleUpdateDocument = async (
 const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
+  logs.debug('Detected a delete change');
   try {
     logs.deleteIndex(deleted.id);
     await index.deleteObject(deleted.id);
@@ -118,6 +125,117 @@ const handleDeleteDocument = async (
     logs.error(e);
   }
 };
+
+const processParentChildRecord = async (
+  before: DocumentSnapshot,
+  after: DocumentSnapshot,
+  timestamp: Number
+) => {
+  // Get data from filtered fields defined.
+  const data = await extract(after, timestamp);
+
+  // capture any deleted fields from the firestore document
+  const undefinedAttrs = await async function() {
+    if (before) {
+      // If before does not exists or before exists but no data change was detected,
+      // then return with no further execution.
+      if (areFieldsUpdated(config, before, after)) {
+        logs.debug('Detected a change, execute indexing');
+        const beforeData: DocumentData = await before.data();
+        // loop through the after data snapshot to see if any properties were removed
+        return Object.keys(beforeData).filter(key => after.get(key) === undefined);
+      }
+    }
+    return [];
+  }();
+  logs.debug('undefinedAttrs are ', undefinedAttrs);
+
+  // if algolia attribute name is set, then this collection is being merged with a possible algolia record using this
+  // attribute name to set this data
+  if (config.algoliaChildAttributeName) {
+    // remove the objectID property since this data will be added to a parent algolia record.
+    delete data.objectID;
+
+    // TODO: research a better way to get the root document id.
+    const parentId = after.ref.parent.parent.id;
+    logs.debug('Parent id is ', parentId);
+
+    // Make a request to Algolia to get record
+    const algoliaRecord = await index.getObject(parentId);
+    logs.debug(algoliaRecord);
+
+    // if Algolia record exists then retrieve the array assigned to the attribute name
+    if (algoliaRecord) {
+      const attributeData = algoliaRecord[config.algoliaChildAttributeName];
+
+      // check if value exists
+      if (attributeData) {
+        const updatedAlgoliaRecord = attributeData.map(attrData => {
+          logs.debug('Checking for a match... ', attrData.objectID, data.objectID);
+
+          // check if the update data object Id matches the item from Algolia
+          if (attrData.objectID === data.objectID) {
+            const mergeData = {
+              ...attrData,
+              ...data
+            };
+
+            // loop through deleted fields and remove the fields from the data object before sending to Algolia.
+            undefinedAttrs.forEach(attr => {
+              delete mergeData[attr];
+            });
+            return mergeData;
+          } else {
+            return attrData;
+          }
+        });
+        logs.debug('saveObject: updatedAlgoliaRecord ', updatedAlgoliaRecord);
+        await index.saveObject(updatedAlgoliaRecord);
+      } else {
+        // loop through deleted fields and remove the fields from the data object before sending to Algolia.
+        undefinedAttrs.forEach(attr => {
+          delete data[attr];
+        });
+        // set array with data as the first element.
+        algoliaRecord[config.algoliaChildAttributeName] = [
+          data
+        ];
+
+        logs.debug('saveObject: algoliaRecord ', algoliaRecord);
+        await index.saveObject(algoliaRecord);
+      }
+    } else {
+      logs.warn('Algolia record does not exist for ', parentId);
+    }
+  } else {
+    // loop through deleted fields and remove the fields from the data object before sending to Algolia.
+    undefinedAttrs.forEach(attr => {
+      delete data[attr];
+    });
+
+    logs.debug({
+      data
+    });
+    logs.debug('saveObject: data ', data);
+    await index.saveObject(data);
+  }
+};
+
+// get updated document from Firestore
+// extract data
+// if sub collection attribute name
+//  get parent id
+// get Algolia record
+// if Algolia record
+//  if sub collection attribute name
+//    get object from algolia record using sub collection attribute name
+//    loop through algolia record and update fields from data
+//    loop through removed fields and remove from Algolia record
+//    set algolia record with data on the attribute set
+//  else
+//    loop through algolia record and update fields from data
+//    loop through removed fields and remove from Algolia record
+// save algolia record
 
 export const executeIndexOperation = functions.handler.firestore.document
   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {

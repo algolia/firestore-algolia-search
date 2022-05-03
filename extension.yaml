@@ -131,6 +131,28 @@ params:
     type: secret
     required: true
 
+  - param: ALGOLIA_MERGE_PARENT_CHILD
+    label: Algolia Merge Parent/Child
+    description: >-
+      If you are looking to merge Parent collection/Child collections into one Algolia record, set property to "yes".
+      The Parent/Child merge feature makes additional calls to Firestore to get the latest data and a call to Algolia to get the record for stitching.  These calls will have a cost impact on both your Firebase and Algolia account.
+
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: false
+
+  - param: ALGOLIA_CHILD_ATTRIBUTE_NAME
+    label: Algolia Child Attribute Name (for Child collection only)
+    description: >-
+      If this collection is a child collection and you are planning on merging it with the Parent collection, set this property with a name that will be used on the Algolia record.
+    type: string
+    required: false
+
   - param: TRANSFORM_FUNCTION
     label: Transform Function Name (Experimental)
     description: >-

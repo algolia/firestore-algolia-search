@@ -20,6 +20,8 @@ const config = {
   algoliaAppId: process.env.ALGOLIA_APP_ID,
   algoliaAPIKey: process.env.ALGOLIA_API_KEY,
   algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
+  algoliaMergeParentChild: process.env.ALGOLIA_MERGE_PARENT_CHILD,
+  algoliaChildAttributeName: process.env.ALGOLIA_CHILD_ATTRIBUTE_NAME,
   collectionPath: process.env.COLLECTION_PATH,
   fields: process.env.FIELDS,
   forceDataSync: process.env.FORCE_DATA_SYNC,
