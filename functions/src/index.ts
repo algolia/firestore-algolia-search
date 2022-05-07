@@ -44,14 +44,23 @@ const handleCreateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const data = await extract(snapshot, timestamp);
+    const forceDataSync = config.forceDataSync;
+    if (forceDataSync === 'yes') {
+      const updatedSnapshot = await snapshot.ref.get();
+      const data = await extract(updatedSnapshot, 0);
+      logs.createIndex(updatedSnapshot.id, data);
+      logs.info('force sync data: execute saveObject');
+      await index.saveObject(data);
+    } else {
+      const data = await extract(snapshot, timestamp);
 
-    logs.debug({
-      ...data
-    });
+      logs.debug({
+        ...data
+      });
 
-    logs.createIndex(snapshot.id, data);
-    await index.partialUpdateObject(data, { createIfNotExists: true });
+      logs.createIndex(snapshot.id, data);
+      await index.partialUpdateObject(data, { createIfNotExists: true });
+    }
   } catch (e) {
     logs.error(e);
   }
@@ -63,26 +72,35 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    if (areFieldsUpdated(config, before, after)) {
-      logs.debug('Detected a change, execute indexing');
+    const forceDataSync = config.forceDataSync;
+    if (forceDataSync === 'yes') {
+      const updatedSnapshot = await after.ref.get();
+      const data = await extract(updatedSnapshot, 0);
+      logs.updateIndex(updatedSnapshot.id, data);
+      logs.info('force sync data: execute saveObject');
+      await index.saveObject(data);
+    } else {
+      if (areFieldsUpdated(config, before, after)) {
+        logs.debug('Detected a change, execute indexing');
 
-      const beforeData: DocumentData = await before.data();
-      // loop through the after data snapshot to see if any properties were removed
-      const undefinedAttrs = Object.keys(beforeData).filter(key => after.get(key) === undefined);
+        const beforeData: DocumentData = await before.data();
+        // loop through the after data snapshot to see if any properties were removed
+        const undefinedAttrs = Object.keys(beforeData).filter(key => after.get(key) === undefined);
 
-      // if no attributes were removed, then use partial update of the record.
-      if (undefinedAttrs.length === 0) {
-        const data = await extract(after, timestamp);
-        logs.updateIndex(after.id, data);
-        logs.debug("execute partialUpdateObject");
-        await index.partialUpdateObject(data, { createIfNotExists: true });
-      }
-      // if an attribute was removed, then use save object of the record.
-      else {
-        const data = await extract(after, 0);
-        logs.updateIndex(after.id, data);
-        logs.debug("execute saveObject");
-        await index.saveObject(data);
+        // if no attributes were removed, then use partial update of the record.
+        if (undefinedAttrs.length === 0) {
+          const data = await extract(after, timestamp);
+          logs.updateIndex(after.id, data);
+          logs.debug('execute partialUpdateObject');
+          await index.partialUpdateObject(data, { createIfNotExists: true });
+        }
+        // if an attribute was removed, then use save object of the record.
+        else {
+          const data = await extract(after, 0);
+          logs.updateIndex(after.id, data);
+          logs.debug('execute saveObject');
+          await index.saveObject(data);
+        }
       }
     }
   } catch (e) {
@@ -106,7 +124,6 @@ export const executeIndexOperation = functions.handler.firestore.document
     logs.start();
 
     const eventTimestamp = Date.parse(context.timestamp);
-
     const changeType = getChangeType(change);
     switch (changeType) {
       case ChangeType.CREATE:

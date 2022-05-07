@@ -51,14 +51,14 @@ const processQuery = async (querySnapshot) => {
             continue;
         }
         try {
-            const payload = await extract_1.default(doc, timestamp);
+            const payload = await (0, extract_1.default)(doc, timestamp);
             records.push(payload);
         }
         catch (e) {
             logs.warn('Payload size too big, skipping ...', e);
         }
         // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
-        const size = util_1.getObjectSizeInBytes(records);
+        const size = (0, util_1.getObjectSizeInBytes)(records);
         if (size >= BATCH_MAX_SIZE) {
             logs.info('Sending bulk Records to Algolia');
             sentDataToAlgolia(records);

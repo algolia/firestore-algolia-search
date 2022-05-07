@@ -22,33 +22,43 @@ exports.obfuscatedConfig = {
     ...config_1.default,
     algoliaAPIKey: '********',
 };
-exports.init = () => {
+const init = () => {
     firebase_functions_1.logger.info('Initializing extension with configuration', exports.obfuscatedConfig);
 };
-exports.start = () => {
+exports.init = init;
+const start = () => {
     firebase_functions_1.logger.info('Started extension execution with configuration', exports.obfuscatedConfig);
 };
-exports.warn = (...args) => {
+exports.start = start;
+const warn = (...args) => {
     firebase_functions_1.logger.warn(args);
 };
-exports.error = (err) => {
+exports.warn = warn;
+const error = (err) => {
     firebase_functions_1.logger.error('Error when performing Algolia index', err);
 };
-exports.info = (...args) => {
+exports.error = error;
+const info = (...args) => {
     firebase_functions_1.logger.info(args);
 };
-exports.debug = (...args) => {
+exports.info = info;
+const debug = (...args) => {
     firebase_functions_1.logger.debug(args);
 };
-exports.createIndex = (id, data) => {
+exports.debug = debug;
+const createIndex = (id, data) => {
     firebase_functions_1.logger.info(`Creating new Algolia index for document ${id}`, data);
 };
-exports.updateIndex = (id, data) => {
+exports.createIndex = createIndex;
+const updateIndex = (id, data) => {
     firebase_functions_1.logger.info(`Updating existing Algolia index for document ${id}`, data);
 };
-exports.deleteIndex = (id) => {
+exports.updateIndex = updateIndex;
+const deleteIndex = (id) => {
     firebase_functions_1.logger.info(`Deleting existing Algolia index for document ${id}`);
 };
-exports.fieldNotExist = (field) => {
+exports.deleteIndex = deleteIndex;
+const fieldNotExist = (field) => {
     firebase_functions_1.logger.warn(`The field "${field}" was specified in the extension config but was not found on collection data.`);
 };
+exports.fieldNotExist = fieldNotExist;

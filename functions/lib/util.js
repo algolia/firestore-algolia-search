@@ -9,7 +9,7 @@ var ChangeType;
     ChangeType[ChangeType["DELETE"] = 1] = "DELETE";
     ChangeType[ChangeType["UPDATE"] = 2] = "UPDATE";
 })(ChangeType = exports.ChangeType || (exports.ChangeType = {}));
-exports.getChangeType = (change) => {
+const getChangeType = (change) => {
     if (!change.after.exists) {
         return ChangeType.DELETE;
     }
@@ -18,13 +18,16 @@ exports.getChangeType = (change) => {
     }
     return ChangeType.UPDATE;
 };
-exports.getObjectSizeInBytes = (object) => {
+exports.getChangeType = getChangeType;
+const getObjectSizeInBytes = (object) => {
     const recordBuffer = Buffer.from(JSON.stringify(object));
     return recordBuffer.byteLength;
 };
-exports.getFields = (config) => config.fields ? config.fields.split(/[ ,]+/) : [];
-exports.areFieldsUpdated = (config, before, after) => {
-    const fields = exports.getFields(config);
+exports.getObjectSizeInBytes = getObjectSizeInBytes;
+const getFields = (config) => config.fields ? config.fields.split(/[ ,]+/) : [];
+exports.getFields = getFields;
+const areFieldsUpdated = (config, before, after) => {
+    const fields = (0, exports.getFields)(config);
     logs.debug(`fields: ${fields}`);
     // If fields are not configured, then execute update record.
     if (fields.length == 0) {
@@ -33,14 +36,16 @@ exports.areFieldsUpdated = (config, before, after) => {
     // If fields are configured, then check the before and after data for the specified fields.
     //  If any changes detected, then execute update record.
     for (let field of fields) {
-        const [, beforeFieldValue] = processors_1.valueProcessor(field, before.get(field));
-        const [, afterFieldValue] = processors_1.valueProcessor(field, after.get(field));
+        const [, beforeFieldValue] = (0, processors_1.valueProcessor)(field, before.get(field));
+        const [, afterFieldValue] = (0, processors_1.valueProcessor)(field, after.get(field));
         if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
             return true;
         }
     }
     return false;
 };
-exports.isValidValue = (value) => {
+exports.areFieldsUpdated = areFieldsUpdated;
+const isValidValue = (value) => {
     return typeof value !== undefined && value !== null;
 };
+exports.isValidValue = isValidValue;

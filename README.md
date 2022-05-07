@@ -71,6 +71,9 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
   For performance reasons, [record size is limited](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits).
   If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
 
+- Force Data Sync: Are you facing data inconsistent issues possibly due to race conditions?
+  This setting will make sure the function is using the latest data from Firestore by making another read call before processing and sending to Algolia.
+
 - Algolia Application ID: What is the Algolia Application Id?
   This is the Algolia application you want to index your data to.
   You can find your credentials including application ID on your Algolia dashboard,

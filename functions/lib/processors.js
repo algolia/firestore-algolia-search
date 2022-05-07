@@ -25,7 +25,7 @@ const processObject = objectVal => {
     const payload = {};
     for (const [key, val] of Object.entries(objectVal)) {
         const [field, value] = processValue(key, val);
-        if (util_1.isValidValue(value)) {
+        if ((0, util_1.isValidValue)(value)) {
             payload[field] = value;
         }
     }
@@ -77,15 +77,17 @@ const processGeoPoint = (geoPointVal) => {
  *
  * @param data
  */
-exports.dataProcessor = data => {
+const dataProcessor = data => {
     return processObject(data);
 };
+exports.dataProcessor = dataProcessor;
 /**
  * The field processor will process the Firestore document field value.
  *
  * @param field
  * @param value
  */
-exports.valueProcessor = (field, value) => {
+const valueProcessor = (field, value) => {
     return processValue(field, value);
 };
+exports.valueProcessor = valueProcessor;

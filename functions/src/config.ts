@@ -22,6 +22,7 @@ const config = {
   algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
   collectionPath: process.env.COLLECTION_PATH,
   fields: process.env.FIELDS,
+  forceDataSync: process.env.FORCE_DATA_SYNC,
   transformFunction: process.env.TRANSFORM_FUNCTION,
   projectId: process.env.PROJECT_ID,
 };

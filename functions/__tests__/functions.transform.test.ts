@@ -2,7 +2,6 @@ import algoliasearch from 'algoliasearch';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import fetch, { Response } from 'node-fetch';
-import { mocked } from 'ts-jest/utils';
 import { mockConsoleInfo } from './__mocks__/console';
 import testDocument, { testReleaseDate } from './data/document';
 
@@ -32,7 +31,7 @@ let restoreEnv;
 let functionsTest = functionsTestInit();
 
 describe('extension', () => {
-  const mockedAlgoliasearch = mocked(algoliasearch, true);
+  const mockedAlgoliasearch = jest.mocked(algoliasearch, true);
   const mockedAddAlgoliaAgent = jest.fn();
 
   const mockedPartialUpdateObject = jest.fn();
@@ -93,7 +92,7 @@ describe('extension', () => {
         }
       }
 
-      mocked(fetch).mockImplementation(() =>
+      jest.mocked(fetch).mockImplementation(() =>
         Promise.resolve({
           json: () => Promise.resolve({ result: responseData }),
         } as Response)
