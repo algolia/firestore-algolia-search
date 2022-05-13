@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.10](https://github.com/algolia/firestore-algolia-search/compare/v0.5.9...v0.5.10) (2022-05-13)
+
+
+### Features
+
+* add data sync ([482b43f](https://github.com/algolia/firestore-algolia-search/commit/482b43f405e044d6c0b166d95a52ab1c119b8fe3))
+
 ### [0.5.9](https://github.com/algolia/firestore-algolia-search/compare/v0.5.8...v0.5.9) (2021-11-15)
 
 
