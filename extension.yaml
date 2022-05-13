@@ -45,6 +45,9 @@ billingRequired: true
 
 # In a `roles` field, list any IAM access roles required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#roles-field
+roles:
+  - role: datastore.user
+    reason: Allows this extension to access Cloud Firestore to read.
 
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
@@ -84,6 +87,21 @@ params:
       If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
     default: ''
     example: 'name,category,price,sales'
+    required: false
+
+  - param: FORCE_DATA_SYNC
+    label: Force Data Sync
+    description: >-
+      The extension uses approaches to mitigate race conditions but it might not be a 100% fool proof.  This setting
+      will make sure the function is using the latest data from Firestore by making another read call before processing
+      and sending to Algolia.  NOTE: This will be a add to your usage of Firestore.
+    type: select
+    options:
+      - label: No
+        value: no
+      - label: Yes
+        value: yes
+    default: no
     required: false
 
   - param: ALGOLIA_INDEX_NAME

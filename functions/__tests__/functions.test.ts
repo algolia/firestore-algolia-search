@@ -1,7 +1,6 @@
 import algoliasearch from 'algoliasearch';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
-import { mocked } from 'ts-jest/utils';
 import { version } from '../src/version';
 
 jest.mock('algoliasearch');
@@ -28,7 +27,7 @@ let restoreEnv;
 let functionsTest = functionsTestInit();
 
 describe('extension', () => {
-  const mockedAlgoliasearch = mocked(algoliasearch, true);
+  const mockedAlgoliasearch = jest.mocked(algoliasearch, true);
   const mockedAddAlgoliaAgent = jest.fn();
 
   const mockedPartialUpdateObject = jest.fn();
