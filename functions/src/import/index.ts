@@ -16,15 +16,12 @@
  */
 
 import * as admin from 'firebase-admin';
-import * as readline from 'readline';
 
 import config from '../config';
 import extract from '../extract';
 import { index } from '../index';
 import * as logs from '../logs';
 import { getObjectSizeInBytes } from '../util';
-
-const rl = readline.createInterface(process.stdin, process.stdout);
 
 // initialize the application using the Google Credentials in the GOOGLE_APPLICATION_CREDENTIALS environment variable.
 admin.initializeApp({
@@ -39,6 +36,7 @@ const sentDataToAlgolia = (data: any[]) => {
     .partialUpdateObjects(data, { createIfNotExists: true })
     .then(() => {
       logs.info('Document(s) imported into Algolia');
+      process.exit(1);
     })
     .catch(error => {
       logs.error(error);
@@ -98,17 +96,11 @@ const doesPathMatchConfigCollectionPath = (path: string): boolean => {
       return configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
     }
   );
-}
+};
 
-rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
-  const value = answer || 'n'
-  if ('y' === value.toLowerCase()) {
-    retrieveDataFromFirestore()
-      .catch(error => {
-        logs.error(error);
-        process.exit(1);
-      });
-  }
-  rl.close();
-});
+retrieveDataFromFirestore()
+  .catch(error => {
+    logs.error(error);
+    process.exit(1);
+  });
 
