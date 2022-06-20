@@ -6,7 +6,7 @@
     "build": "npm run clean && npm test && npm run compile",
     "clean": "rimraf lib",
     "compile": "tsc",
-    "import": "ts-node src/import/index.ts",
+    "import": "node cli.js",
     "lint": "pretty-quick --staged && lint-staged",
     "prepare": "npm run build",
     "test": "jest --coverage"
