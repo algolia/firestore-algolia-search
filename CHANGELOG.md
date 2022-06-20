@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.13](https://github.com/algolia/firestore-algolia-search/compare/v0.5.12...v0.5.13) (2022-06-20)
+
+
+### Features
+
+* add commandline inputs for import process ([703827f](https://github.com/algolia/firestore-algolia-search/commit/703827f01321b472efa591e4c0d99e200c146805))
+
 ### [0.5.12](https://github.com/algolia/firestore-algolia-search/compare/v0.5.11...v0.5.12) (2022-06-06)
 
 
