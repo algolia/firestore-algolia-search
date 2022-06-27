@@ -16,13 +16,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * limitations under the License.
  */
 const admin = require("firebase-admin");
-const readline = require("readline");
 const config_1 = require("../config");
 const extract_1 = require("../extract");
 const index_1 = require("../index");
 const logs = require("../logs");
 const util_1 = require("../util");
-const rl = readline.createInterface(process.stdin, process.stdout);
 // initialize the application using the Google Credentials in the GOOGLE_APPLICATION_CREDENTIALS environment variable.
 admin.initializeApp({
     credential: admin.credential.applicationDefault(),
@@ -35,6 +33,7 @@ const sentDataToAlgolia = (data) => {
         .partialUpdateObjects(data, { createIfNotExists: true })
         .then(() => {
         logs.info('Document(s) imported into Algolia');
+        process.exit(1);
     })
         .catch(error => {
         logs.error(error);
@@ -87,14 +86,8 @@ const doesPathMatchConfigCollectionPath = (path) => {
         return configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i];
     });
 };
-rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function (answer) {
-    const value = answer || 'n';
-    if ('y' === value.toLowerCase()) {
-        retrieveDataFromFirestore()
-            .catch(error => {
-            logs.error(error);
-            process.exit(1);
-        });
-    }
-    rl.close();
+retrieveDataFromFirestore()
+    .catch(error => {
+    logs.error(error);
+    process.exit(1);
 });

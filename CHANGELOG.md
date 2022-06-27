@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.13](https://github.com/algolia/firestore-algolia-search/compare/v0.5.12...v0.5.13) (2022-06-20)
+
+
+### Features
+
+* add commandline inputs for import process ([703827f](https://github.com/algolia/firestore-algolia-search/commit/703827f01321b472efa591e4c0d99e200c146805))
+
+### [0.5.12](https://github.com/algolia/firestore-algolia-search/compare/v0.5.11...v0.5.12) (2022-06-06)
+
+
+### Bug Fixes
+
+* moving all dev to dependencies ([01d8f66](https://github.com/algolia/firestore-algolia-search/commit/01d8f665797a19acc821aac3522951837ac5ebeb))
+
+### [0.5.11](https://github.com/algolia/firestore-algolia-search/compare/v0.5.10...v0.5.11) (2022-06-06)
+
+
+### Bug Fixes
+
+* move rimraf from dev to dependencies ([44a747a](https://github.com/algolia/firestore-algolia-search/commit/44a747a796709dc84ecab5805bb406611a17a678))
+
 ### [0.5.10](https://github.com/algolia/firestore-algolia-search/compare/v0.5.9...v0.5.10) (2022-05-13)
 
 

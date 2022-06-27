@@ -42,6 +42,7 @@ Run the import process using `npx`.
     - Update the path to the Google Application credentials.
     - Clear out the `FIELDS` or/and `TRANSFORM_FUNCTION` params if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
       ```
+<<<<<<< HEAD
         LOCATION=${param:LOCATION}\
         PROJECT_ID=${param:PROJECT_ID}\
         ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
@@ -54,8 +55,22 @@ Run the import process using `npx`.
         TRANSFORM_FUNCTION=${param:TRANSFORM_FUNCTION}\
         GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
         npx firestore-algolia-search
+=======
+      npx firestore-algolia-search
       ```
-      **NOTE**: In the above multiline command, make sure that the `\` is at the end of each line, except for the last.
+      Below are the questions that will be asked:
+      ```
+      What is the Region? ${param:LOCATION}
+      What is the Project Id? ${param:PROJECT_ID}
+      What is the Algolia App Id? ${param:ALGOLIA_APP_ID}
+      What is the Algolia Api Key? ${param:ALGOLIA_API_KEY}
+      What is the Algolia Index Name? ${param:ALGOLIA_INDEX_NAME}
+      What is the Collection Path? ${param:COLLECTION_PATH}
+      What are the Fields to extract? ${param:FIELDS}
+      What is the Transform Function? ${param:TRANSFORM_FUNCTION}
+      What is the path to the Google Application Credential File? </path/to/service/account/key>
+>>>>>>> main
+      ```
       **NOTE**: Make sure that there is no space inbetween the specified `FIELDS`. E.g. `name,category,views` ✅ | `name, category, views` ❌.
 ### Monitoring
 
