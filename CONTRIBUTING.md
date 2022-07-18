@@ -5,7 +5,7 @@
 ### Installation
 Install the Firebase tools in order to maintain this extension.
 ```
-npm install -g firebase-tools
+npm install -g firebase-tools@10.9.2
 ```
 
 ### Authentication
