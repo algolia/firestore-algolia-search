@@ -161,14 +161,13 @@ describe('extension', () => {
     });
 
     test('functions runs with an update with removed value', async () => {
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
-
       const modifiedDocument = {
         ...testDocument
       };
       // Remove attribute to simulate firebase attribute removal
       delete modifiedDocument.popular;
 
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
       const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot({
         ...modifiedDocument,
         rating: 0
@@ -201,6 +200,53 @@ describe('extension', () => {
         },
         'rating': 0
       }
+      expect(mockConsoleInfo).toBeCalledWith(
+        `Updating existing Algolia index for document ${ afterSnapshot.id }`,
+        payload
+      );
+      expect(mockedSaveObject).toBeCalledWith(payload);
+    });
+
+    test('functions runs with an update with null value', async () => {
+
+      // setting popular to null value
+      const modifiedDocument = {
+        ...testDocument,
+        popular: null
+      };
+
+      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(modifiedDocument, 'document/1');
+
+      const documentChange = functionsTest.makeChange(
+        beforeSnapshot,
+        afterSnapshot
+      );
+
+      const data = {};
+      const callResult = await mockExport(documentChange, data);
+
+      expect(callResult).toBeUndefined();
+      expect(mockConsoleInfo).toBeCalledTimes(2);
+      expect(mockConsoleInfo).toBeCalledWith(
+        'Started extension execution with configuration',
+        functionsConfig
+      );
+      const payload = {
+        ...modifiedDocument,
+        'objectID': afterSnapshot.id,
+        'path': afterSnapshot.ref.path,
+        'title': afterSnapshot.data().title,
+        'awards': [
+          'awards/1'
+        ],
+        'meta': {
+          'releaseDate': testReleaseDate.getTime()
+        }
+      }
+      // removing this attribute in the expected payload.
+      delete payload.popular;
+
       expect(mockConsoleInfo).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload
