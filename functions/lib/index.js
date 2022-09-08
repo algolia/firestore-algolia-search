@@ -65,7 +65,8 @@ const handleUpdateDocument = async (before, after, timestamp) => {
                 logs.debug('Detected a change, execute indexing');
                 const beforeData = await before.data();
                 // loop through the after data snapshot to see if any properties were removed
-                const undefinedAttrs = Object.keys(beforeData).filter(key => after.get(key) === undefined);
+                const undefinedAttrs = Object.keys(beforeData).filter(key => after.get(key) === undefined || after.get(key) === null);
+                logs.debug('undefinedAttrs', undefinedAttrs);
                 // if no attributes were removed, then use partial update of the record.
                 if (undefinedAttrs.length === 0) {
                     const data = await (0, extract_1.default)(after, timestamp);
@@ -76,6 +77,8 @@ const handleUpdateDocument = async (before, after, timestamp) => {
                 // if an attribute was removed, then use save object of the record.
                 else {
                     const data = await (0, extract_1.default)(after, 0);
+                    // delete null value attributes before saving.
+                    undefinedAttrs.forEach(attr => delete data[attr]);
                     logs.updateIndex(after.id, data);
                     logs.debug('execute saveObject');
                     await exports.index.saveObject(data);
