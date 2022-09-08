@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.14](https://github.com/algolia/firestore-algolia-search/compare/v0.5.13...v0.5.14) (2022-09-08)
+
+
+### Bug Fixes
+
+* remove null attributes from index record ([e297e27](https://github.com/algolia/firestore-algolia-search/commit/e297e27e28c8cda6cc6dd274f2bafbbc775781c7))
+
 ### [0.5.13](https://github.com/algolia/firestore-algolia-search/compare/v0.5.12...v0.5.13) (2022-06-20)
 
 
