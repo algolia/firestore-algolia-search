@@ -28,6 +28,7 @@ import { ChangeType, getChangeType, areFieldsUpdated } from './util';
 import { version } from './version';
 import DocumentData = firestore.DocumentData;
 
+const isTesting = config.projectId === 'fake-project';
 const client = algoliaSearch(
   config.algoliaAppId,
   config.algoliaAPIKey,
@@ -40,15 +41,15 @@ export const index = client.initIndex(config.algoliaIndexName);
 logs.init();
 
 const handleCreateDocument = async (
-  snapshot: DocumentSnapshot,
+  afterSnapshot: DocumentSnapshot,
   timestamp: Number
 ) => {
   try {
     const forceDataSync = config.forceDataSync;
+    const snapshot = isTesting ? afterSnapshot : await afterSnapshot.ref.get();
     if (forceDataSync === 'yes') {
-      const updatedSnapshot = await snapshot.ref.get();
-      const data = await extract(updatedSnapshot, 0);
-      logs.createIndex(updatedSnapshot.id, data);
+      const data = await extract(snapshot, 0);
+      logs.createIndex(snapshot.id, data);
       logs.info('force sync data: execute saveObject');
       await index.saveObject(data);
     } else {
@@ -67,16 +68,17 @@ const handleCreateDocument = async (
 };
 
 const handleUpdateDocument = async (
-  before: DocumentSnapshot,
-  after: DocumentSnapshot,
+  beforeSnapshot: DocumentSnapshot,
+  afterSnapshot: DocumentSnapshot,
   timestamp: Number
 ) => {
   try {
     const forceDataSync = config.forceDataSync;
+    const before = beforeSnapshot;
+    const after = isTesting ? afterSnapshot : await afterSnapshot.ref.get();
     if (forceDataSync === 'yes') {
-      const updatedSnapshot = await after.ref.get();
-      const data = await extract(updatedSnapshot, 0);
-      logs.updateIndex(updatedSnapshot.id, data);
+      const data = await extract(after, 0);
+      logs.updateIndex(after.id, data);
       logs.info('force sync data: execute saveObject');
       await index.saveObject(data);
     } else {
