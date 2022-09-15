@@ -122,9 +122,9 @@ export const parseConfig = async (options: any) => {
 
   process.env.PROJECT_ID = projectId;
   process.env.COLLECTION_PATH = collectionPath;
-  process.env.FIELDS = fields;
+  if (fields) process.env.FIELDS = fields;
   process.env.ALGOLIA_APP_ID = algoliaAppId;
   process.env.ALGOLIA_API_KEY = algoliaApiKey;
   process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
-  process.env.TRANSFORM_FUNCTION = transformFunction;
+  if (transformFunction) process.env.TRANSFORM_FUNCTION = transformFunction;
 };

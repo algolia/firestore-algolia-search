@@ -26,17 +26,24 @@ admin.initializeApp({
     credential: admin.credential.applicationDefault(),
 });
 const database = admin.firestore();
-const sentDataToAlgolia = (data) => {
+const sentDataToAlgolia = async (data) => {
     // Add or update new objects
     logs.info(`Preparing to send ${data.length} record(s) to Algolia.`);
-    index_1.index
-        .partialUpdateObjects(data, { createIfNotExists: true })
-        .then(() => {
+    try {
+        await index_1.index.partialUpdateObjects(data, { createIfNotExists: true });
         logs.info("Document(s) imported into Algolia");
-        process.exit(1);
-    })
-        .catch((error) => {
+    }
+    catch (error) {
         logs.error(error);
+    }
+};
+const doesPathMatchConfigCollectionPath = (path) => {
+    const pathSegments = path.split("/");
+    const collectionPathSegments = config_1.default.collectionPath.split("/");
+    return collectionPathSegments.every((configSegment, i) => {
+        // check if the configured path segment matches the path segment retrieved from firebase
+        // if configured path has a placeholder pattern for document id, return true
+        return (configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]);
     });
 };
 const BATCH_MAX_SIZE = 9437184;
@@ -50,14 +57,14 @@ const processQuery = async (querySnapshot) => {
             continue;
         }
         try {
-            const payload = await (0, extract_1.default)(doc, timestamp);
+            const payload = await extract_1.default(doc, timestamp);
             records.push(payload);
         }
         catch (e) {
             logs.warn("Payload size too big, skipping ...", e);
         }
         // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
-        const size = (0, util_1.getObjectSizeInBytes)(records);
+        const size = util_1.getObjectSizeInBytes(records);
         if (size >= BATCH_MAX_SIZE) {
             logs.info("Sending bulk Records to Algolia");
             sentDataToAlgolia(records);
@@ -76,15 +83,6 @@ const retrieveDataFromFirestore = async () => {
     const collectionPath = collectionPathParts[collectionPathParts.length - 1];
     const querySnapshot = await database.collectionGroup(collectionPath).get();
     processQuery(querySnapshot).catch(console.error);
-};
-const doesPathMatchConfigCollectionPath = (path) => {
-    const pathSegments = path.split("/");
-    const collectionPathSegments = config_1.default.collectionPath.split("/");
-    return collectionPathSegments.every((configSegment, i) => {
-        // check if the configured path segment matches the path segment retrieved from firebase
-        // if configured path has a placeholder pattern for document id, return true
-        return (configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]);
-    });
 };
 retrieveDataFromFirestore().catch((error) => {
     logs.error(error);

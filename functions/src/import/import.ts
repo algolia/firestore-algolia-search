@@ -29,21 +29,31 @@ admin.initializeApp({
 });
 const database = admin.firestore();
 
-const sentDataToAlgolia = (data: any[]) => {
+const sentDataToAlgolia = async (data: any[]) => {
   // Add or update new objects
   logs.info(`Preparing to send ${data.length} record(s) to Algolia.`);
-  index
-    .partialUpdateObjects(data, { createIfNotExists: true })
-    .then(() => {
-      logs.info("Document(s) imported into Algolia");
-      process.exit(1);
-    })
-    .catch((error) => {
-      logs.error(error);
-    });
+  try {
+    await index.partialUpdateObjects(data, { createIfNotExists: true });
+    logs.info("Document(s) imported into Algolia");
+  } catch (error) {
+    logs.error(error);
+  }
+};
+
+const doesPathMatchConfigCollectionPath = (path: string): boolean => {
+  const pathSegments = path.split("/");
+  const collectionPathSegments = config.collectionPath.split("/");
+  return collectionPathSegments.every((configSegment, i) => {
+    // check if the configured path segment matches the path segment retrieved from firebase
+    // if configured path has a placeholder pattern for document id, return true
+    return (
+      configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
+    );
+  });
 };
 
 const BATCH_MAX_SIZE = 9437184;
+
 const processQuery = async (querySnapshot) => {
   let records: any[] = [];
   const docs = querySnapshot.docs;
@@ -84,18 +94,6 @@ const retrieveDataFromFirestore = async () => {
   const collectionPath = collectionPathParts[collectionPathParts.length - 1];
   const querySnapshot = await database.collectionGroup(collectionPath).get();
   processQuery(querySnapshot).catch(console.error);
-};
-
-const doesPathMatchConfigCollectionPath = (path: string): boolean => {
-  const pathSegments = path.split("/");
-  const collectionPathSegments = config.collectionPath.split("/");
-  return collectionPathSegments.every((configSegment, i) => {
-    // check if the configured path segment matches the path segment retrieved from firebase
-    // if configured path has a placeholder pattern for document id, return true
-    return (
-      configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
-    );
-  });
 };
 
 retrieveDataFromFirestore().catch((error) => {
