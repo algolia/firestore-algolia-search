@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseConfig = exports.DEFAULT_BATCH_SIZE = void 0;
 const commander_1 = require("commander");
 const inquirer_1 = require("inquirer");
-exports.DEFAULT_BATCH_SIZE = 100;
+exports.DEFAULT_BATCH_SIZE = 200;
 const FIRESTORE_VALID_CHARACTERS = /^[^\/]+$/;
 const PROJECT_ID_MAX_CHARS = 6144;
 const FIRESTORE_COLLECTION_NAME_MAX_CHARS = 6144;
@@ -53,6 +53,11 @@ const questions = [
         type: "input",
     },
     {
+        message: "Specify a Firebase Cloud Function for any data transformation before saving into Algolia.",
+        name: "transformFunction",
+        type: "input",
+    },
+    {
         message: "How many documents should be processed at once?",
         name: "batchSize",
         type: "input",
@@ -75,7 +80,7 @@ const questions = [
     },
 ];
 const parseConfig = async (options) => {
-    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, batchSize, multiThreaded, } = options.nonInteractive ? options : await inquirer_1.prompt(questions);
+    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, transformFunction, batchSize, multiThreaded, } = options.nonInteractive ? options : await inquirer_1.prompt(questions);
     if (!projectId ||
         !collectionPath ||
         !algoliaAppId ||
@@ -89,5 +94,6 @@ const parseConfig = async (options) => {
     process.env.ALGOLIA_APP_ID = algoliaAppId;
     process.env.ALGOLIA_API_KEY = algoliaApiKey;
     process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
+    process.env.TRANSFORM_FUNCTION = transformFunction;
 };
 exports.parseConfig = parseConfig;

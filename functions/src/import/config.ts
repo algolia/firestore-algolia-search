@@ -1,7 +1,7 @@
 import { program } from "commander";
 import { prompt, Question } from "inquirer";
 
-export const DEFAULT_BATCH_SIZE = 100;
+export const DEFAULT_BATCH_SIZE = 200;
 
 const FIRESTORE_VALID_CHARACTERS = /^[^\/]+$/;
 const PROJECT_ID_MAX_CHARS = 6144;
@@ -72,6 +72,12 @@ const questions: Question[] = [
     type: "input",
   },
   {
+    message:
+      "Specify a Firebase Cloud Function for any data transformation before saving into Algolia.",
+    name: "transformFunction",
+    type: "input",
+  },
+  {
     message: "How many documents should be processed at once?",
     name: "batchSize",
     type: "input",
@@ -99,6 +105,7 @@ export const parseConfig = async (options: any) => {
     algoliaAppId,
     algoliaApiKey,
     algoliaIndexName,
+    transformFunction,
     batchSize,
     multiThreaded,
   } = options.nonInteractive ? options : await prompt(questions);
@@ -119,4 +126,5 @@ export const parseConfig = async (options: any) => {
   process.env.ALGOLIA_APP_ID = algoliaAppId;
   process.env.ALGOLIA_API_KEY = algoliaApiKey;
   process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
+  process.env.TRANSFORM_FUNCTION = transformFunction;
 };
