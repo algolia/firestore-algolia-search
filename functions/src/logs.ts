@@ -59,6 +59,11 @@ export const deleteIndex = (id: string) => {
   logger.info(`Deleting existing Algolia index for document ${ id }`);
 };
 
+// added logger for multiple records deteting
+export const deleteIndices = (ids: string[]) => {
+  logger.info(`Deleting existing Algolia indices for documents ${ JSON.stringify(ids)}`);
+};
+
 export const fieldNotExist = (field: string) => {
   logger.warn(`The field "${ field }" was specified in the extension config but was not found on collection data.`);
 };

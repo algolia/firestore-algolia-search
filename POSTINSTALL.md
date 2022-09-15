@@ -54,6 +54,10 @@ Run the import process using `npx`.
       What is the Collection Path? ${param:COLLECTION_PATH}
       What are the Fields to extract? ${param:FIELDS}
       What is the Transform Function? ${param:TRANSFORM_FUNCTION}
+      Want to split documents (y/n)
+      What is the name of the boolean key for conditional splitting? ${param:SPLIT_KEY}
+      What is the Ids Generating Function? ${param:IDS_GEN_FUNCTION}
+      What is the Splitting Function? ${param:SPLIT_FUNCTION}
       What is the path to the Google Application Credential File? </path/to/service/account/key>
       ```
       **NOTE**: Make sure that there is no space inbetween the specified `FIELDS`. E.g. `name,category,views` ✅ | `name, category, views` ❌.

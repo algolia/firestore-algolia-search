@@ -37,6 +37,7 @@ export default {
     "David Proval",
     "Jude Ciccolella"
   ],
+  "actorSplitting": true,
   "actor_facets": [
     "https://image.tmdb.org/t/p/w45/tuZCyZVVbHcpvtCgriSp5RRPwMX.jpg|Tim Robbins",
     "https://image.tmdb.org/t/p/w45/oGJQhOpT8S1M56tvSsbEBePV5O1.jpg|Morgan Freeman",

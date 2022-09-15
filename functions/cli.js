@@ -39,12 +39,32 @@ rl.question(`\nWARNING: The back fill process will index your entire collection 
                   process.env.FIELDS = fields;
                   rl.question('What is the Transform Function? ', function (transformFunction) {
                     process.env.TRANSFORM_FUNCTION = transformFunction;
-                    rl.question('What is the path to the Google Application Credential File? ', function (googleApplicationCredential) {
-                      if (!googleApplicationCredential) {
-                        rl.close();
-                      }
-                      process.env.GOOGLE_APPLICATION_CREDENTIALS = googleApplicationCredential;
-                      require('./lib/import/index');
+
+                    // Here the promot for registering splitting env variables
+                    // Not so sure about this step
+
+                    rl.question('Want to split documents (y/n) ', function (split) {
+                      if (split.toLowerCase() === 'y' || split.toLowerCase() === 'yes')
+                        rl.question('What is the name of the boolean key for conditional splitting? ', function (splitKey) {
+                          process.env.splitKey = splitKey;
+                            rl.question('What is the Ids Generating Function? ', function (idsGeneratorFunction) {
+                              process.env.idsGeneratorFunction = idsGeneratorFunction;
+                              rl.question('What is the Splitting Function? ', function (splitFunction) {
+                                process.env.splitFunction = splitFunction;
+
+                                // Last question nested
+                                rl.question('What is the path to the Google Application Credential File? ', function (googleApplicationCredential) {
+                                  if (!googleApplicationCredential) {
+                                    rl.close();
+                                  }
+                                  process.env.GOOGLE_APPLICATION_CREDENTIALS = googleApplicationCredential;
+                                  require('./lib/import/index');
+                                });
+
+                              })
+                            })
+                        });
+                        
                     });
                   });
                 });

@@ -24,6 +24,12 @@ const config = {
   fields: process.env.FIELDS,
   forceDataSync: process.env.FORCE_DATA_SYNC,
   transformFunction: process.env.TRANSFORM_FUNCTION,
+  // firebase function for document splitting
+  splitFunction: process.env.SPLIT_FUNCTION,
+  // firebase function for ids generating (must recieve a doc and return a ObjectID Array)
+  idsGeneratorFunction: process.env.IDS_GEN_FUNCTION,
+  // document field key (must be boolean) to check if one document must be splitted
+  splitKey: process.env.SPLIT_KEY,
   projectId: process.env.PROJECT_ID,
 };
 

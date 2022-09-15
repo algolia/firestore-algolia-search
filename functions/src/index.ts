@@ -28,6 +28,9 @@ import { ChangeType, getChangeType, areFieldsUpdated } from './util';
 import { version } from './version';
 import DocumentData = firestore.DocumentData;
 
+// import the IDs Generation Function Caller
+import idsgen from './idsgen';
+
 const client = algoliaSearch(
   config.algoliaAppId,
   config.algoliaAPIKey,
@@ -50,16 +53,30 @@ const handleCreateDocument = async (
       const data = await extract(updatedSnapshot, 0);
       logs.createIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
-      await index.saveObject(data);
+
+      // If extract returns is an Array plural function is called insted singular
+      if (Array.isArray(data)) {
+        await index.saveObjects(data);
+      } else {
+        await index.saveObject(data);
+      }
+
     } else {
       const data = await extract(snapshot, timestamp);
 
       logs.debug({
         ...data
       });
-
+      
       logs.createIndex(snapshot.id, data);
-      await index.partialUpdateObject(data, { createIfNotExists: true });
+
+      // If extract returns is an Array plural function is called insted singular
+      if (Array.isArray(data)) {
+        await index.partialUpdateObjects(data, { createIfNotExists: true });
+      } else {
+        await index.partialUpdateObject(data, { createIfNotExists: true });
+      }
+
     }
   } catch (e) {
     logs.error(e);
@@ -78,7 +95,14 @@ const handleUpdateDocument = async (
       const data = await extract(updatedSnapshot, 0);
       logs.updateIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
-      await index.saveObject(data);
+
+      // If extract returns is an Array plural function is called insted singular
+      if (Array.isArray(data)) {
+        await index.saveObjects(data);
+      } else {
+        await index.saveObject(data);
+      }
+
     } else {
       if (areFieldsUpdated(config, before, after)) {
         logs.debug('Detected a change, execute indexing');
@@ -92,7 +116,14 @@ const handleUpdateDocument = async (
           const data = await extract(after, timestamp);
           logs.updateIndex(after.id, data);
           logs.debug('execute partialUpdateObject');
-          await index.partialUpdateObject(data, { createIfNotExists: true });
+
+          // If extract returns is an Array plural function is called insted singular
+          if (Array.isArray(data)) {
+            await index.partialUpdateObjects(data, { createIfNotExists: true });
+          } else {
+            await index.partialUpdateObject(data, { createIfNotExists: true });
+          }
+
         }
         // if an attribute was removed, then use save object of the record.
         else {
@@ -103,7 +134,14 @@ const handleUpdateDocument = async (
 
           logs.updateIndex(after.id, data);
           logs.debug('execute saveObject');
-          await index.saveObject(data);
+
+          // If extract returns is an Array plural function is called insted singular
+          if (Array.isArray(data)) {
+            await index.saveObjects(data);
+          } else {
+            await index.saveObject(data);
+          }
+
         }
       }
     }
@@ -116,8 +154,22 @@ const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
   try {
-    logs.deleteIndex(deleted.id);
-    await index.deleteObject(deleted.id);
+    // Catch document id and data
+    const id = deleted.id
+    const document = deleted.data()
+
+    // check if document is splitted
+    if (document[config.splitKey]) {
+      // generate the id list for deleting algolia records
+      const ids: string[] = await idsgen(document)
+      logs.deleteIndices(ids);
+      await index.deleteObjects(ids);
+    } else {
+      // Delete the firebase document id in algolia index
+      logs.deleteIndex(id);
+      await index.deleteObject(id);
+    }
+
   } catch (e) {
     logs.error(e);
   }
