@@ -80,7 +80,7 @@ const questions = [
     },
 ];
 const parseConfig = async (options) => {
-    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, transformFunction, batchSize, multiThreaded, } = options.nonInteractive ? options : await inquirer_1.prompt(questions);
+    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, transformFunction, batchSize, multiThreaded, } = options.nonInteractive ? options : await (0, inquirer_1.prompt)(questions);
     if (!projectId ||
         !collectionPath ||
         !algoliaAppId ||

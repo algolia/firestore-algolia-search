@@ -21,6 +21,6 @@ commander_1.program
     .action(run)
     .parseAsync(process.argv);
 async function run(options) {
-    await config_1.parseConfig(options);
+    await (0, config_1.parseConfig)(options);
     require("./import");
 }
