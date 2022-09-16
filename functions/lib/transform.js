@@ -21,7 +21,7 @@ const logs = require("./logs");
 exports.default = async (payload) => {
     if (config_1.default.transformFunction) {
         try {
-            const response = await node_fetch_1.default(`https://${config_1.default.location}-${config_1.default.projectId}.cloudfunctions.net/${config_1.default.transformFunction}`, {
+            const response = await (0, node_fetch_1.default)(`https://${config_1.default.location}-${config_1.default.projectId}.cloudfunctions.net/${config_1.default.transformFunction}`, {
                 method: 'post',
                 body: JSON.stringify({ data: payload }),
                 headers: { 'Content-Type': 'application/json' },

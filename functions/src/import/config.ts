@@ -127,4 +127,6 @@ export const parseConfig = async (options: any) => {
   process.env.ALGOLIA_API_KEY = algoliaApiKey;
   process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
   if (transformFunction) process.env.TRANSFORM_FUNCTION = transformFunction;
+  process.env.BATCH_SIZE = batchSize;
+  process.env.MULTI_THREADED = multiThreaded;
 };

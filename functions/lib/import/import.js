@@ -58,14 +58,14 @@ const processQuery = async (querySnapshot) => {
             continue;
         }
         try {
-            const payload = await extract_1.default(doc, timestamp);
+            const payload = await (0, extract_1.default)(doc, timestamp);
             records.push(payload);
         }
         catch (e) {
             logs.warn("Payload size too big, skipping ...", e);
         }
         // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
-        const size = util_1.getObjectSizeInBytes(records);
+        const size = (0, util_1.getObjectSizeInBytes)(records);
         if (size >= BATCH_MAX_SIZE) {
             logs.info("Sending bulk Records to Algolia");
             sentDataToAlgolia(records);
@@ -89,14 +89,15 @@ const retrieveDataFromFirestore = async () => {
     const collectionPathParts = config_1.default.collectionPath.split("/");
     const collectionGroupPath = collectionPathParts[collectionPathParts.length - 1];
     let cursor;
-    let cursorPositionFile = __dirname +
-        `/from-${projectId}_${collectionPath}-to-${algoliaAppId}_${algoliaIndexName}`;
+    let cursorPositionFile = `${__dirname}/from-${projectId}_to-${algoliaAppId}_${algoliaIndexName}`;
     if (await exists(cursorPositionFile)) {
         let cursorDocumentId = (await read(cursorPositionFile)).toString();
         cursor = await db.doc(cursorDocumentId).get();
         console.log(`Resuming import of Cloud Firestore Collection ${collectionPath} from document ${cursorDocumentId}.`);
     }
-    let query = db.collectionGroup(collectionGroupPath).limit(200);
+    const batchSize = parseInt(process.env.BATCH_SIZE, 10) || 200;
+    let query = db.collectionGroup(collectionGroupPath).limit(batchSize);
+    let totalRowsImported = 0;
     do {
         if (cursor) {
             await write(cursorPositionFile, cursor.ref.path);
@@ -114,6 +115,7 @@ const retrieveDataFromFirestore = async () => {
         catch (error) {
             console.error(error);
         }
+        totalRowsImported += docs.length;
     } while (true);
     try {
         await unlink(cursorPositionFile);
@@ -121,8 +123,16 @@ const retrieveDataFromFirestore = async () => {
     catch (e) {
         console.log(`Error unlinking journal file ${cursorPositionFile} after successful import: ${e.toString()}`);
     }
+    return totalRowsImported;
 };
-retrieveDataFromFirestore().catch((error) => {
-    logs.error(error);
+retrieveDataFromFirestore()
+    .then((rowCount) => {
+    console.log("---------------------------------------------------------");
+    console.log(`Finished importing ${rowCount} Firestore rows to Algolia.`);
+    console.log("---------------------------------------------------------");
+    process.exit();
+})
+    .catch((error) => {
+    console.error(`Error importing Collection to Algolia: ${error.toString()}`);
     process.exit(1);
 });

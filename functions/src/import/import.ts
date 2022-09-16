@@ -103,9 +103,7 @@ const retrieveDataFromFirestore = async () => {
 
   let cursor;
 
-  let cursorPositionFile =
-    __dirname +
-    `/from-${projectId}_${collectionPath}-to-${algoliaAppId}_${algoliaIndexName}`;
+  let cursorPositionFile = `${__dirname}/from-${projectId}_to-${algoliaAppId}_${algoliaIndexName}`;
 
   if (await exists(cursorPositionFile)) {
     let cursorDocumentId = (await read(cursorPositionFile)).toString();
@@ -115,7 +113,10 @@ const retrieveDataFromFirestore = async () => {
     );
   }
 
-  let query = db.collectionGroup(collectionGroupPath).limit(200);
+  const batchSize = parseInt(process.env.BATCH_SIZE, 10) || 200;
+
+  let query = db.collectionGroup(collectionGroupPath).limit(batchSize);
+  let totalRowsImported = 0;
 
   do {
     if (cursor) {
@@ -134,6 +135,8 @@ const retrieveDataFromFirestore = async () => {
     } catch (error) {
       console.error(error);
     }
+
+    totalRowsImported += docs.length;
   } while (true);
 
   try {
@@ -143,9 +146,18 @@ const retrieveDataFromFirestore = async () => {
       `Error unlinking journal file ${cursorPositionFile} after successful import: ${e.toString()}`
     );
   }
+
+  return totalRowsImported;
 };
 
-retrieveDataFromFirestore().catch((error) => {
-  logs.error(error);
-  process.exit(1);
-});
+retrieveDataFromFirestore()
+  .then((rowCount) => {
+    console.log("---------------------------------------------------------");
+    console.log(`Finished importing ${rowCount} Firestore rows to Algolia.`);
+    console.log("---------------------------------------------------------");
+    process.exit();
+  })
+  .catch((error) => {
+    console.error(`Error importing Collection to Algolia: ${error.toString()}`);
+    process.exit(1);
+  });

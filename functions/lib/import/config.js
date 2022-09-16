@@ -80,7 +80,7 @@ const questions = [
     },
 ];
 const parseConfig = async (options) => {
-    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, transformFunction, batchSize, multiThreaded, } = options.nonInteractive ? options : await inquirer_1.prompt(questions);
+    const { projectId, collectionPath, fields, algoliaAppId, algoliaApiKey, algoliaIndexName, transformFunction, batchSize, multiThreaded, } = options.nonInteractive ? options : await (0, inquirer_1.prompt)(questions);
     if (!projectId ||
         !collectionPath ||
         !algoliaAppId ||
@@ -97,5 +97,7 @@ const parseConfig = async (options) => {
     process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
     if (transformFunction)
         process.env.TRANSFORM_FUNCTION = transformFunction;
+    process.env.BATCH_SIZE = batchSize;
+    process.env.MULTI_THREADED = multiThreaded;
 };
 exports.parseConfig = parseConfig;
