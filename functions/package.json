@@ -6,12 +6,12 @@
     "build": "npm run clean && npm test && npm run compile",
     "clean": "rimraf lib",
     "compile": "tsc",
-    "import": "node lib/import/index.js",
+    "import": "node lib/import/cli.js",
     "lint": "pretty-quick --staged && lint-staged",
     "prepare": "npm run build",
     "test": "jest --coverage"
   },
-  "bin": "lib/import/index.js",
+  "bin": "lib/import/cli.js",
   "hooks": {
     "pre-commit": "npm run lint"
   },

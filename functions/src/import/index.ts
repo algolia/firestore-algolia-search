@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
  * Copyright 2021 Algolia
  *
@@ -16,173 +14,147 @@
  * limitations under the License.
  */
 
-import { program } from "commander";
-import { prompt, Question } from "inquirer";
+import * as admin from "firebase-admin";
+import * as fs from "fs";
+import * as util from "util";
+import config from "../config";
+import extract from "../extract";
+import { index } from "../index";
+import * as logs from "../logs";
+import { getObjectSizeInBytes } from "../util";
 
-const DEFAULT_BATCH_SIZE = 200;
+const exists = util.promisify(fs.exists);
+const write = util.promisify(fs.writeFile);
+const read = util.promisify(fs.readFile);
+const unlink = util.promisify(fs.unlink);
 
-const packageJson = require("../../package.json");
-
-program
-  .name(packageJson.name)
-  .version(packageJson.version)
-  .description(packageJson.description)
-  .option(
-    "--non-interactive",
-    "Parse all input from command line flags instead of prompting the caller.",
-    false
-  )
-  .option("-P --project-id <project-id>", "Firebase project ID.")
-  .option(
-    "-C --collection-path <collection-path>",
-    "Path to the Cloud Firestore collection where the extension should monitor for changes."
-  )
-  .option(
-    "-F --fields <fields>",
-    "Fields to index, a comma separated list or left blank to index all fields."
-  )
-  .option(
-    "-A --algolia-app-id <algolia-app-id>",
-    "Algolia application you want to index your data to."
-  )
-  .option(
-    "-K --algolia-api-key <algolia-api-key>",
-    "Algolia API key that has write access to the Algolia application."
-  )
-  .option(
-    "-I --algolia-index-name <algolia-index-name>",
-    "Algolia index name where the records will be persisted."
-  )
-  .option(
-    "-T --transform-function <transform-function>",
-    "Firebase Cloud Function for any data transformation before saving into Algolia."
-  )
-  .option(
-    "--batch-size <number>",
-    "The number of documents to process in each batch.",
-    `${DEFAULT_BATCH_SIZE}`
-  )
-  .action(run)
-  .parseAsync(process.argv);
-
-const FIRESTORE_VALID_CHARACTERS = /^[^\/]+$/;
-const PROJECT_ID_MAX_CHARS = 6144;
-const FIRESTORE_COLLECTION_NAME_MAX_CHARS = 6144;
-
-const validateInput = (
-  value: string,
-  name: string,
-  regex: RegExp,
-  sizeLimit: number
-) => {
-  if (!value || value === "" || value.trim() === "") {
-    return `Please supply a ${name}`;
+const sentDataToAlgolia = async (data: any[]) => {
+  // Add or update new objects
+  logs.info(`Preparing to send ${data.length} record(s) to Algolia.`);
+  try {
+    await index.partialUpdateObjects(data, { createIfNotExists: true });
+    logs.info("Document(s) imported into Algolia");
+  } catch (error) {
+    logs.error(error);
   }
-  if (value.length >= sizeLimit) {
-    return `${name} must be at most ${sizeLimit} characters long`;
-  }
-  if (!value.match(regex)) {
-    return `The ${name} must only contain letters or spaces`;
-  }
-  return true;
 };
 
-const questions: Question[] = [
-  {
-    message: "What is your Firebase project ID.",
-    name: "projectId",
-    type: "input",
-    validate: (value) =>
-      validateInput(
-        value,
-        "Firebase project ID",
-        FIRESTORE_VALID_CHARACTERS,
-        PROJECT_ID_MAX_CHARS
-      ),
-  },
-  {
-    message:
-      "What is the path to the Cloud Firestore collection where the extension should monitor for changes?",
-    name: "collectionPath",
-    type: "input",
-    validate: (value) =>
-      validateInput(
-        value,
-        "Cloud Firestore collection",
-        FIRESTORE_VALID_CHARACTERS,
-        FIRESTORE_COLLECTION_NAME_MAX_CHARS
-      ),
-  },
-  {
-    message: "What are the fields that you want to index?",
-    name: "fields",
-    type: "input",
-  },
-  {
-    message: "What is your Algolia application ID?",
-    name: "algoliaAppId",
-    type: "input",
-  },
-  {
-    message: "What is your Algolia API key?",
-    name: "algoliaApiKey",
-    type: "input",
-  },
-  {
-    message: "What is your Algolia index name?",
-    name: "algoliaIndexName",
-    type: "input",
-  },
-  {
-    message:
-      "Specify a Firebase Cloud Function for any data transformation before saving into Algolia.",
-    name: "transformFunction",
-    type: "input",
-  },
-  {
-    message: "How many documents should be processed at once?",
-    name: "batchSize",
-    type: "input",
-    default: DEFAULT_BATCH_SIZE,
-    validate: (value) => {
-      const parsed = parseInt(value, 10);
-      if (isNaN(parsed)) return "Please supply a valid number";
-      else if (parsed < 1) return "Please supply a number greater than 0";
-      else return true;
-    },
-  },
-];
+const doesPathMatchConfigCollectionPath = (path: string): boolean => {
+  const pathSegments = path.split("/");
+  const collectionPathSegments = config.collectionPath.split("/");
+  return collectionPathSegments.every((configSegment, i) => {
+    // check if the configured path segment matches the path segment retrieved from firebase
+    // if configured path has a placeholder pattern for document id, return true
+    return (
+      configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
+    );
+  });
+};
 
-async function run(options: any) {
-  const {
-    projectId,
-    collectionPath,
-    fields,
-    algoliaAppId,
-    algoliaApiKey,
-    algoliaIndexName,
-    transformFunction,
-    batchSize,
-  } = options.nonInteractive ? options : await prompt(questions);
+const BATCH_MAX_SIZE = 9437184;
 
-  if (
-    !projectId ||
-    !collectionPath ||
-    !algoliaAppId ||
-    !algoliaApiKey ||
-    !algoliaIndexName
-  ) {
-    program.help();
+const processQuery = async (querySnapshot) => {
+  let records: any[] = [];
+  const docs = querySnapshot.docs;
+  const timestamp = Date.now();
+  for (const doc of docs) {
+    // Skip over any docs pulled in from collectionGroup query that dont match config
+    if (!doesPathMatchConfigCollectionPath(doc.ref.path)) {
+      continue;
+    }
+
+    try {
+      const payload = await extract(doc, timestamp);
+      records.push(payload);
+    } catch (e) {
+      logs.warn("Payload size too big, skipping ...", e);
+    }
+
+    // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
+    const size = getObjectSizeInBytes(records);
+    if (size >= BATCH_MAX_SIZE) {
+      logs.info("Sending bulk Records to Algolia");
+      sentDataToAlgolia(records);
+
+      // reset records after sending
+      records = [];
+    }
   }
 
-  process.env.PROJECT_ID = projectId;
-  process.env.COLLECTION_PATH = collectionPath;
-  if (fields) process.env.FIELDS = fields;
-  process.env.ALGOLIA_APP_ID = algoliaAppId;
-  process.env.ALGOLIA_API_KEY = algoliaApiKey;
-  process.env.ALGOLIA_INDEX_NAME = algoliaIndexName;
-  if (transformFunction) process.env.TRANSFORM_FUNCTION = transformFunction;
-  process.env.BATCH_SIZE = batchSize;
+  // Send rest of the records that are still in the records array
+  if (records.length > 0) {
+    logs.info("Sending rest of the Records to Algolia");
+    sentDataToAlgolia(records);
+  }
+};
 
-  require("./run");
-}
+const run = async () => {
+  const app = admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    databaseURL: `https://${config.projectId}.firebaseio.com`,
+  });
+  const db = app.firestore();
+
+  const collectionPathParts = config.collectionPath.split("/");
+  const collectionPath = collectionPathParts[collectionPathParts.length - 1];
+
+  let cursor;
+
+  let cursorPositionFile = `${__dirname}/from-${config.projectId}_to-${config.algoliaAppId}_${config.algoliaIndexName}`;
+  if (await exists(cursorPositionFile)) {
+    let cursorDocumentId = (await read(cursorPositionFile)).toString();
+    cursor = await db.doc(cursorDocumentId).get();
+    logs.info(
+      `Resuming import of Cloud Firestore Collection ${config.collectionPath} from document ${cursorDocumentId}.`
+    );
+  }
+
+  const batchSize = parseInt(process.env.BATCH_SIZE, 10) || 200;
+
+  let query = db.collectionGroup(collectionPath).limit(batchSize);
+  let totalRowsImported = 0;
+
+  do {
+    if (cursor) {
+      await write(cursorPositionFile, cursor.ref.path);
+      query = query.startAfter(cursor);
+    }
+
+    const snapshot = await query.get();
+    const docs = snapshot.docs;
+    if (docs.length === 0) {
+      break;
+    }
+    cursor = docs[docs.length - 1];
+
+    try {
+      await processQuery(snapshot);
+    } catch (error) {
+      logs.error(error);
+    }
+
+    totalRowsImported += docs.length;
+  } while (true);
+
+  try {
+    await unlink(cursorPositionFile);
+  } catch (e) {
+    logs.warn(
+      `Error unlinking journal file ${cursorPositionFile} after successful import: ${e.toString()}`
+    );
+  }
+
+  return totalRowsImported;
+};
+
+run()
+  .then((rowCount) => {
+    console.log("---------------------------------------------------------");
+    console.log(`Finished importing ${rowCount} Firestore rows to Algolia.`);
+    console.log("---------------------------------------------------------");
+    process.exit();
+  })
+  .catch((error) => {
+    console.error(`Error importing Collection to Algolia: ${error.toString()}`);
+    process.exit(1);
+  });
