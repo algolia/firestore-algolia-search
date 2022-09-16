@@ -13,10 +13,10 @@ const getPayload = async (snapshot) => {
         objectID: snapshot.id,
         path: snapshot.ref.path
     };
-    const fields = (0, util_1.getFields)(config_1.default);
+    const fields = util_1.getFields(config_1.default);
     if (fields.length === 0) {
         payload = {
-            ...(0, processors_1.dataProcessor)(snapshot.data()),
+            ...processors_1.dataProcessor(snapshot.data()),
             ...payload
         };
     }
@@ -25,8 +25,8 @@ const getPayload = async (snapshot) => {
         // to send to Algolia.
         fields.forEach(item => {
             let firebaseField = item.replace(trim, '');
-            const [field, value] = (0, processors_1.valueProcessor)(firebaseField, snapshot.get(firebaseField));
-            if ((0, util_1.isValidValue)(value)) {
+            const [field, value] = processors_1.valueProcessor(firebaseField, snapshot.get(firebaseField));
+            if (util_1.isValidValue(value)) {
                 payload[field] = value;
             }
             else {
@@ -35,12 +35,12 @@ const getPayload = async (snapshot) => {
         });
     }
     // adding the objectId in the return to make sure to restore to original if changed in the post processing.
-    return (0, transform_1.default)(payload);
+    return transform_1.default(payload);
 };
 async function extract(snapshot, timestamp) {
     // Check payload size and make sure its within limits before sending for indexing
     const payload = await getPayload(snapshot);
-    if ((0, util_1.getObjectSizeInBytes)(payload) < PAYLOAD_MAX_SIZE) {
+    if (util_1.getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
         if (timestamp === 0) {
             return {
                 ...payload

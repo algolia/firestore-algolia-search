@@ -25,7 +25,7 @@ const processObject = objectVal => {
     const payload = {};
     for (const [key, val] of Object.entries(objectVal)) {
         const [field, value] = processValue(key, val);
-        if ((0, util_1.isValidValue)(value)) {
+        if (util_1.isValidValue(value)) {
             payload[field] = value;
         }
     }

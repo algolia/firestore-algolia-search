@@ -27,7 +27,7 @@ exports.getObjectSizeInBytes = getObjectSizeInBytes;
 const getFields = (config) => config.fields ? config.fields.split(/[ ,]+/) : [];
 exports.getFields = getFields;
 const areFieldsUpdated = (config, before, after) => {
-    const fields = (0, exports.getFields)(config);
+    const fields = exports.getFields(config);
     logs.debug(`fields: ${fields}`);
     // If fields are not configured, then execute update record.
     if (fields.length == 0) {
@@ -36,8 +36,8 @@ const areFieldsUpdated = (config, before, after) => {
     // If fields are configured, then check the before and after data for the specified fields.
     //  If any changes detected, then execute update record.
     for (let field of fields) {
-        const [, beforeFieldValue] = (0, processors_1.valueProcessor)(field, before.get(field));
-        const [, afterFieldValue] = (0, processors_1.valueProcessor)(field, after.get(field));
+        const [, beforeFieldValue] = processors_1.valueProcessor(field, before.get(field));
+        const [, afterFieldValue] = processors_1.valueProcessor(field, after.get(field));
         if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
             return true;
         }

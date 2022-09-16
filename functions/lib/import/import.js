@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Copyright 2021 Algolia
  *
@@ -15,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 const admin = require("firebase-admin");
 const config_1 = require("../config");
 const extract_1 = require("../extract");
@@ -57,14 +57,14 @@ const processQuery = async (querySnapshot) => {
             continue;
         }
         try {
-            const payload = await (0, extract_1.default)(doc, timestamp);
+            const payload = await extract_1.default(doc, timestamp);
             records.push(payload);
         }
         catch (e) {
             logs.warn("Payload size too big, skipping ...", e);
         }
         // We are sending batch updates to Algolia.  We need this to be less than 9 MB (9437184)
-        const size = (0, util_1.getObjectSizeInBytes)(records);
+        const size = util_1.getObjectSizeInBytes(records);
         if (size >= BATCH_MAX_SIZE) {
             logs.info("Sending bulk Records to Algolia");
             sentDataToAlgolia(records);
@@ -81,8 +81,25 @@ const processQuery = async (querySnapshot) => {
 const retrieveDataFromFirestore = async () => {
     const collectionPathParts = config_1.default.collectionPath.split("/");
     const collectionPath = collectionPathParts[collectionPathParts.length - 1];
-    const querySnapshot = await database.collectionGroup(collectionPath).get();
-    processQuery(querySnapshot).catch(console.error);
+    let query = database.collectionGroup(collectionPath).limit(200);
+    let cursor;
+    do {
+        if (cursor) {
+            query = query.startAfter(cursor);
+        }
+        const snapshot = await query.get();
+        const docs = snapshot.docs;
+        if (docs.length === 0) {
+            break;
+        }
+        cursor = docs[docs.length - 1];
+        try {
+            await processQuery(snapshot);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    } while (true);
 };
 retrieveDataFromFirestore().catch((error) => {
     logs.error(error);

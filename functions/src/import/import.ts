@@ -1,4 +1,3 @@
-"use strict";
 /*
  * Copyright 2021 Algolia
  *
@@ -92,8 +91,27 @@ const processQuery = async (querySnapshot) => {
 const retrieveDataFromFirestore = async () => {
   const collectionPathParts = config.collectionPath.split("/");
   const collectionPath = collectionPathParts[collectionPathParts.length - 1];
-  const querySnapshot = await database.collectionGroup(collectionPath).get();
-  processQuery(querySnapshot).catch(console.error);
+
+  let query = database.collectionGroup(collectionPath).limit(200);
+  let cursor: admin.firestore.QueryDocumentSnapshot | undefined;
+
+  do {
+    if (cursor) {
+      query = query.startAfter(cursor);
+    }
+    const snapshot = await query.get();
+    const docs = snapshot.docs;
+    if (docs.length === 0) {
+      break;
+    }
+    cursor = docs[docs.length - 1];
+
+    try {
+      await processQuery(snapshot);
+    } catch (error) {
+      console.error(error);
+    }
+  } while (true);
 };
 
 retrieveDataFromFirestore().catch((error) => {
