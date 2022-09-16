@@ -16,16 +16,17 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const admin = require("firebase-admin");
+const fs = require("fs");
+const util = require("util");
 const config_1 = require("../config");
 const extract_1 = require("../extract");
 const index_1 = require("../index");
 const logs = require("../logs");
 const util_1 = require("../util");
-// initialize the application using the Google Credentials in the GOOGLE_APPLICATION_CREDENTIALS environment variable.
-admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-});
-const database = admin.firestore();
+const exists = util.promisify(fs.exists);
+const write = util.promisify(fs.writeFile);
+const read = util.promisify(fs.readFile);
+const unlink = util.promisify(fs.unlink);
 const sentDataToAlgolia = async (data) => {
     // Add or update new objects
     logs.info(`Preparing to send ${data.length} record(s) to Algolia.`);
@@ -79,12 +80,26 @@ const processQuery = async (querySnapshot) => {
     }
 };
 const retrieveDataFromFirestore = async () => {
+    const { projectId, collectionPath, algoliaAppId, algoliaIndexName } = config_1.default;
+    const app = admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        databaseURL: `https://${projectId}.firebaseio.com`,
+    });
+    const db = app.firestore();
     const collectionPathParts = config_1.default.collectionPath.split("/");
-    const collectionPath = collectionPathParts[collectionPathParts.length - 1];
-    let query = database.collectionGroup(collectionPath).limit(200);
+    const collectionGroupPath = collectionPathParts[collectionPathParts.length - 1];
     let cursor;
+    let cursorPositionFile = __dirname +
+        `/from-${projectId}_${collectionPath}-to-${algoliaAppId}_${algoliaIndexName}`;
+    if (await exists(cursorPositionFile)) {
+        let cursorDocumentId = (await read(cursorPositionFile)).toString();
+        cursor = await db.doc(cursorDocumentId).get();
+        console.log(`Resuming import of Cloud Firestore Collection ${collectionPath} from document ${cursorDocumentId}.`);
+    }
+    let query = db.collectionGroup(collectionGroupPath).limit(200);
     do {
         if (cursor) {
+            await write(cursorPositionFile, cursor.ref.path);
             query = query.startAfter(cursor);
         }
         const snapshot = await query.get();
@@ -100,6 +115,12 @@ const retrieveDataFromFirestore = async () => {
             console.error(error);
         }
     } while (true);
+    try {
+        await unlink(cursorPositionFile);
+    }
+    catch (e) {
+        console.log(`Error unlinking journal file ${cursorPositionFile} after successful import: ${e.toString()}`);
+    }
 };
 retrieveDataFromFirestore().catch((error) => {
     logs.error(error);

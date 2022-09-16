@@ -15,18 +15,18 @@
  */
 
 import * as admin from "firebase-admin";
-
+import * as fs from "fs";
+import * as util from "util";
 import config from "../config";
 import extract from "../extract";
 import { index } from "../index";
 import * as logs from "../logs";
 import { getObjectSizeInBytes } from "../util";
 
-// initialize the application using the Google Credentials in the GOOGLE_APPLICATION_CREDENTIALS environment variable.
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-});
-const database = admin.firestore();
+const exists = util.promisify(fs.exists);
+const write = util.promisify(fs.writeFile);
+const read = util.promisify(fs.readFile);
+const unlink = util.promisify(fs.unlink);
 
 const sentDataToAlgolia = async (data: any[]) => {
   // Add or update new objects
@@ -89,14 +89,37 @@ const processQuery = async (querySnapshot) => {
 };
 
 const retrieveDataFromFirestore = async () => {
-  const collectionPathParts = config.collectionPath.split("/");
-  const collectionPath = collectionPathParts[collectionPathParts.length - 1];
+  const { projectId, collectionPath, algoliaAppId, algoliaIndexName } = config;
 
-  let query = database.collectionGroup(collectionPath).limit(200);
-  let cursor: admin.firestore.QueryDocumentSnapshot | undefined;
+  const app = admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    databaseURL: `https://${projectId}.firebaseio.com`,
+  });
+  const db = app.firestore();
+
+  const collectionPathParts = config.collectionPath.split("/");
+  const collectionGroupPath =
+    collectionPathParts[collectionPathParts.length - 1];
+
+  let cursor;
+
+  let cursorPositionFile =
+    __dirname +
+    `/from-${projectId}_${collectionPath}-to-${algoliaAppId}_${algoliaIndexName}`;
+
+  if (await exists(cursorPositionFile)) {
+    let cursorDocumentId = (await read(cursorPositionFile)).toString();
+    cursor = await db.doc(cursorDocumentId).get();
+    console.log(
+      `Resuming import of Cloud Firestore Collection ${collectionPath} from document ${cursorDocumentId}.`
+    );
+  }
+
+  let query = db.collectionGroup(collectionGroupPath).limit(200);
 
   do {
     if (cursor) {
+      await write(cursorPositionFile, cursor.ref.path);
       query = query.startAfter(cursor);
     }
     const snapshot = await query.get();
@@ -112,6 +135,14 @@ const retrieveDataFromFirestore = async () => {
       console.error(error);
     }
   } while (true);
+
+  try {
+    await unlink(cursorPositionFile);
+  } catch (e) {
+    console.log(
+      `Error unlinking journal file ${cursorPositionFile} after successful import: ${e.toString()}`
+    );
+  }
 };
 
 retrieveDataFromFirestore().catch((error) => {
