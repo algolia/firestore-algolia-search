@@ -33,7 +33,7 @@ const sentDataToAlgolia = (data) => {
         .partialUpdateObjects(data, { createIfNotExists: true })
         .then(() => {
         logs.info('Document(s) imported into Algolia');
-        process.exit(1);
+        //process.exit(1);
     })
         .catch(error => {
         logs.error(error);
@@ -74,8 +74,13 @@ const processQuery = async (querySnapshot) => {
 const retrieveDataFromFirestore = async () => {
     const collectionPathParts = config_1.default.collectionPath.split('/');
     const collectionPath = collectionPathParts[collectionPathParts.length - 1];
-    const querySnapshot = await database.collectionGroup(collectionPath).get();
-    processQuery(querySnapshot).catch(console.error);
+    try {
+        const querySnapshot = await database.collectionGroup(collectionPath).get();
+        await processQuery(querySnapshot);
+    }
+    catch (e) {
+        console.error('Error occurred during retrieveDataFromFirestore process ', e);
+    }
 };
 const doesPathMatchConfigCollectionPath = (path) => {
     const pathSegments = path.split('/');
