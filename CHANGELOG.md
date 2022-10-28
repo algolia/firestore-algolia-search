@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.15](https://github.com/algolia/firestore-algolia-search/compare/v0.5.14...v0.5.15) (2022-10-28)
+
+
+### Bug Fixes
+
+* add compliled import ([481bb7a](https://github.com/algolia/firestore-algolia-search/commit/481bb7adbd314723c386f38daef1878e58a08cc0))
+* remove exit function to allow async to complete ([c7f207c](https://github.com/algolia/firestore-algolia-search/commit/c7f207c936f71cfe65b2ce21bbea720416aeab61))
+
 ### [0.5.14](https://github.com/algolia/firestore-algolia-search/compare/v0.5.13...v0.5.14) (2022-09-08)
 
 
