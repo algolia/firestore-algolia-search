@@ -41,22 +41,39 @@ Run the import process using `npx`.
 1.  Execute the below command:
     - Update the path to the Google Application credentials.
     - Clear out the `FIELDS` or/and `TRANSFORM_FUNCTION` params if it contains `{ unspecified parameter }` in the command below since it's an invalid value.
-      ```
-      npx firestore-algolia-search
-      ```
-      Below are the questions that will be asked:
-      ```
-      What is the Region? ${param:LOCATION}
-      What is the Project Id? ${param:PROJECT_ID}
-      What is the Algolia App Id? ${param:ALGOLIA_APP_ID}
-      What is the Algolia Api Key? ${param:ALGOLIA_API_KEY}
-      What is the Algolia Index Name? ${param:ALGOLIA_INDEX_NAME}
-      What is the Collection Path? ${param:COLLECTION_PATH}
-      What are the Fields to extract? ${param:FIELDS}
-      What is the Transform Function? ${param:TRANSFORM_FUNCTION}
-      What is the path to the Google Application Credential File? </path/to/service/account/key>
-      ```
-      **NOTE**: Make sure that there is no space inbetween the specified `FIELDS`. E.g. `name,category,views` ✅ | `name, category, views` ❌.
+    - Make sure that there is no space in-between the specified `FIELDS`. E.g. `name,category,views` ✅ | `name, category, views` ❌.
+    - You will have a choice to either execute the import script in one go with multiline parameters, or in an interactive way by answering questions line by line.
+      - Here is the command to use with multiline parameters:
+        ```
+        LOCATION=${param:LOCATION}\
+        PROJECT_ID=${param:PROJECT_ID}\
+        ALGOLIA_APP_ID=${param:ALGOLIA_APP_ID}\
+        ALGOLIA_API_KEY=${param:ALGOLIA_API_KEY}\
+        ALGOLIA_INDEX_NAME=${param:ALGOLIA_INDEX_NAME}\
+        COLLECTION_PATH=${param:COLLECTION_PATH}\
+        FIELDS=${param:FIELDS}\
+        TRANSFORM_FUNCTION=${param:TRANSFORM_FUNCTION}\
+        GOOGLE_APPLICATION_CREDENTIALS=</path/to/service/account/key>\
+        npx firestore-algolia-search
+        ```
+        **NOTE**: In the above multiline command, make sure that the `\` is at the end of each line, except for the last.
+
+      - For the interactive way, simply run the following command:
+        ```
+        npx firestore-algolia-search
+        ```
+        Below are the questions that will be asked:
+        ```
+        What is the Region? ${param:LOCATION}
+        What is the Project Id? ${param:PROJECT_ID}
+        What is the Algolia App Id? ${param:ALGOLIA_APP_ID}
+        What is the Algolia Api Key? ${param:ALGOLIA_API_KEY}
+        What is the Algolia Index Name? ${param:ALGOLIA_INDEX_NAME}
+        What is the Collection Path? ${param:COLLECTION_PATH}
+        What are the Fields to extract? ${param:FIELDS}
+        What is the Transform Function? ${param:TRANSFORM_FUNCTION}
+        What is the path to the Google Application Credential File? </path/to/service/account/key>
+        ```
 ### Monitoring
 
 As a best practice, you can [monitor the activity](https://firebase.google.com/docs/extensions/manage-installed-extensions#monitor) of your installed extension, including checks on its health, usage, and logs.
