@@ -5,7 +5,7 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 0.5.15
+version: 0.5.16
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta

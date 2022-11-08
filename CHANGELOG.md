@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.16](https://github.com/algolia/firestore-algolia-search/compare/v0.5.15...v0.5.16) (2022-11-08)
+
+
+### Bug Fixes
+
+* some vulnerabilities issues ([a72ff3d](https://github.com/algolia/firestore-algolia-search/commit/a72ff3d722d52c340abd6da679a1d3befcd6f6be))
+
 ### [0.5.15](https://github.com/algolia/firestore-algolia-search/compare/v0.5.14...v0.5.15) (2022-10-28)
 
 
