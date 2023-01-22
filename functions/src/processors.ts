@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-import { firestore } from 'firebase-admin/lib/firestore';
+
+
+import { firestore } from "firebase-admin";
 import { isValidValue } from './util';
 import DocumentReference = firestore.DocumentReference;
 import GeoPoint = firestore.GeoPoint;

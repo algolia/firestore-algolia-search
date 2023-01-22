@@ -99,7 +99,10 @@ const handleDeleteDocument = async (deleted) => {
         logs.error(e);
     }
 };
-exports.executeIndexOperation = functions.handler.firestore.document
+// export const executeIndexOperation = functions.handler.firestore.document
+//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
+exports.executeIndexOperation = functions.firestore
+    .document(process.env.COLLECTION_PATH)
     .onWrite(async (change, context) => {
     logs.start();
     const eventTimestamp = Date.parse(context.timestamp);

@@ -16,11 +16,11 @@ exports.valueProcessor = exports.dataProcessor = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const firestore_1 = require("firebase-admin/lib/firestore");
+const firebase_admin_1 = require("firebase-admin");
 const util_1 = require("./util");
-var DocumentReference = firestore_1.firestore.DocumentReference;
-var GeoPoint = firestore_1.firestore.GeoPoint;
-var Timestamp = firestore_1.firestore.Timestamp;
+var DocumentReference = firebase_admin_1.firestore.DocumentReference;
+var GeoPoint = firebase_admin_1.firestore.GeoPoint;
+var Timestamp = firebase_admin_1.firestore.Timestamp;
 const processObject = objectVal => {
     const payload = {};
     for (const [key, val] of Object.entries(objectVal)) {

@@ -19,7 +19,6 @@ import algoliaSearch from 'algoliasearch';
 import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { EventContext, Change } from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 
 import config from './config';
 import extract from './extract';
@@ -27,6 +26,7 @@ import * as logs from './logs';
 import { ChangeType, getChangeType, areFieldsUpdated } from './util';
 import { version } from './version';
 import DocumentData = firestore.DocumentData;
+import {DocumentSnapshot} from "firebase-functions/lib/providers/firestore";
 
 const client = algoliaSearch(
   config.algoliaAppId,
@@ -123,8 +123,11 @@ const handleDeleteDocument = async (
   }
 };
 
-export const executeIndexOperation = functions.handler.firestore.document
-  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
+// export const executeIndexOperation = functions.handler.firestore.document
+//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
+export const executeIndexOperation = functions.firestore
+  .document(process.env.COLLECTION_PATH)
+  .onWrite(async (change, context: EventContext): Promise<void> => {
     logs.start();
 
     const eventTimestamp = Date.parse(context.timestamp);

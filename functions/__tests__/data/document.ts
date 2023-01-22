@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin/lib/firestore';
+import { firestore } from "firebase-admin";
 import Timestamp = firestore.Timestamp;
 
 export const testReleaseDate = new Date(1995, 12, 1);

@@ -61,20 +61,22 @@ describe('extension', () => {
     expect(exportedFunctions.executeIndexOperation).toBeInstanceOf(Function);
   });
 
-  test('algolia search client, user agent, and index are initialized', () => {
-    expect(mockedAlgoliasearch).toHaveBeenCalled();
-    expect(mockedAlgoliasearch).toHaveBeenCalledWith(
-      defaultEnvironment.ALGOLIA_APP_ID,
-      defaultEnvironment.ALGOLIA_API_KEY,
-    );
-    expect(mockedAddAlgoliaAgent).toHaveBeenCalled();
-    expect(mockedAddAlgoliaAgent).toHaveBeenCalledWith(
-      'firestore_integration',
-      version
-    );
-    expect(mockedInitIndex).toHaveBeenCalled();
-    expect(mockedInitIndex).toHaveBeenCalledWith(
-      defaultEnvironment.ALGOLIA_INDEX_NAME
-    );
+  describe('extension.executeIndexOperation', () => {
+    test('algolia search client, user agent, and index are initialized', () => {
+      expect(mockedAlgoliasearch).toHaveBeenCalled();
+      expect(mockedAlgoliasearch).toHaveBeenCalledWith(
+        defaultEnvironment.ALGOLIA_APP_ID,
+        defaultEnvironment.ALGOLIA_API_KEY,
+      );
+      expect(mockedAddAlgoliaAgent).toHaveBeenCalled();
+      expect(mockedAddAlgoliaAgent).toHaveBeenCalledWith(
+        'firestore_integration',
+        version
+      );
+      expect(mockedInitIndex).toHaveBeenCalled();
+      expect(mockedInitIndex).toHaveBeenCalledWith(
+        defaultEnvironment.ALGOLIA_INDEX_NAME
+      );
+    });
   });
 });
