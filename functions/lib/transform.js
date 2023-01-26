@@ -26,7 +26,7 @@ exports.default = async (payload) => {
                 body: JSON.stringify({ data: payload }),
                 headers: { 'Content-Type': 'application/json' },
             });
-            const data = await (response === null || response === void 0 ? void 0 : response.json());
+            const data = await response?.json();
             return data.result;
         }
         catch (e) {
