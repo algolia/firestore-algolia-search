@@ -60,7 +60,7 @@ resources:
       # LOCATION is a user-configured parameter value specified by the user
       # during installation.
       location: ${LOCATION}
-      runtime: nodejs10
+      runtime: nodejs18
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}/{documentID}
