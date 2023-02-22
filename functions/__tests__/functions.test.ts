@@ -10,7 +10,7 @@ describe('extension', () => {
   let config;
   beforeEach(() => {
     restoreEnv = mockedEnv(defaultEnvironment);
-    config = require('../src/config').default;
+    config = globalThis.config;
   });
 
   test('functions are exported', () => {

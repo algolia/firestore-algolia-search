@@ -1,4 +1,5 @@
 import * as functionsTestInit from 'firebase-functions-test';
+import {executeIndexOperation as ref} from "../../src";
 
 export const mockedAddAlgoliaAgent = jest.fn();
 
@@ -31,11 +32,10 @@ export const mockSearchModule = () => {
   return mockedAlgoliaSearch;
 };
 
-export function mockSearchModuleFactory() {
-  return mockSearchModule;
-}
-
 export const mockIndexerResult = (document, data) => {
+  console.log('mockIndexerResult');
   const indexer = mockIndexer();
+
+  console.log('indexer', indexer);
   return indexer(document, data);
 };

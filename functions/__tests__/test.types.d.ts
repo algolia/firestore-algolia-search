@@ -13,7 +13,7 @@ declare global {
         documentSnapshot: any
       ) => jest.MockedFunction<any>;
       mockSearchModule: () => jest.MockedFunction<any>;
-      mockIndexer: jest.MockedFunction<any>;
+      mockIndexer: any;
       mockedAddAlgoliaAgent: jest.MockedFunction<any>;
       mockedInitIndex: jest.MockedFunction<any>;
       mockLogger: jest.MockedFunction<any>;

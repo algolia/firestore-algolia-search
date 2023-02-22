@@ -3,22 +3,28 @@ import {
   mockDocumentSnapshotFactory,
   mockFirestoreUpdate,
   mockFirestoreTransaction,
-  mockLogger
+  mockLogger,
+  makeChange
 } from "./mocks/firestore";
 import {
   mockIndexer,
   mockedInitIndex,
   mockedAddAlgoliaAgent,
   mockSearchModule,
+  mockIndexerResult,
 } from "./mocks/search";
 
 globalThis.config = () => require("../src/config").default;
 
 globalThis.snapshot = snapshot;
 
+globalThis.makeChange = makeChange;
+
 globalThis.mockDocumentSnapshotFactory = mockDocumentSnapshotFactory;
 
 globalThis.mockIndexer = mockIndexer;
+
+globalThis.mockIndexerResult = mockIndexerResult;
 
 globalThis.mockedAddAlgoliaAgent = mockedAddAlgoliaAgent;
 
