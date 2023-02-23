@@ -1,6 +1,6 @@
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
-import testDocument, {testReleaseDate} from './data/document';
+import testDocument, {documentID, testReleaseDate} from './data/document';
 import {mockedPartialUpdateObject} from "./mocks/search";
 
 let restoreEnv;
@@ -28,8 +28,8 @@ describe('extension', () => {
     });
 
     test('functions runs with a create', async () => {
-      const beforeSnapshot = globalThis.snapshot({}, 'document/1');
-      const afterSnapshot = globalThis.snapshot(testDocument, 'document/1');
+      const beforeSnapshot = globalThis.snapshot({}, documentID);
+      const afterSnapshot = globalThis.snapshot(testDocument, documentID);
 
       const documentChange = globalThis.makeChange(
         beforeSnapshot,

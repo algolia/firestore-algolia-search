@@ -1,6 +1,8 @@
 import { firestore } from "firebase-admin";
 import Timestamp = firestore.Timestamp;
 
+export const documentID = 'document/1';
+
 export const testReleaseDate = new Date(1995, 12, 1);
 
 export default {
