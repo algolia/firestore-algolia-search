@@ -17,5 +17,8 @@
       "enabled": true,
       "port": 4000
     }
+  },
+  "extensions": {
+    "firestore-algolia-search": "."
   }
 }
