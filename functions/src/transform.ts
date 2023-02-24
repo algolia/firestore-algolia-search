@@ -22,9 +22,9 @@ import * as logs from './logs';
 export default async payload => {
   if (config.transformFunction) {
     try {
-      const response = await fetch(`https://${config.location}-${config.projectId}.cloudfunctions.net/${config.transformFunction}`, {
+      const response = await fetch(`https://${ config.location }-${ config.projectId }.cloudfunctions.net/${ config.transformFunction }`, {
         method: 'post',
-        body:    JSON.stringify({ data: payload }),
+        body: JSON.stringify({ data: payload }),
         headers: { 'Content-Type': 'application/json' },
       });
       const data = await response?.json();

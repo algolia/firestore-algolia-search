@@ -77,14 +77,14 @@ const processQuery = async querySnapshot => {
     logs.info('Sending rest of the Records to Algolia');
     sentDataToAlgolia(records);
   }
-}
+};
 
 const retrieveDataFromFirestore = async () => {
   const collectionPathParts = config.collectionPath.split('/');
   const collectionPath = collectionPathParts[collectionPathParts.length - 1];
   try {
     const querySnapshot = await database.collectionGroup(collectionPath).get();
-    await processQuery(querySnapshot)
+    await processQuery(querySnapshot);
   } catch (e) {
     console.error('Error occurred during retrieveDataFromFirestore process ', e);
   }
@@ -92,12 +92,12 @@ const retrieveDataFromFirestore = async () => {
 
 const doesPathMatchConfigCollectionPath = (path: string): boolean => {
   const pathSegments = path.split('/');
-  const collectionPathSegments = config.collectionPath.split('/')
+  const collectionPathSegments = config.collectionPath.split('/');
   return collectionPathSegments.every(
     (configSegment, i) => {
       // check if the configured path segment matches the path segment retrieved from firebase
       // if configured path has a placeholder pattern for document id, return true
-      return configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i]
+      return configSegment.match(/{.*?}/) !== null || configSegment === pathSegments[i];
     }
   );
 };

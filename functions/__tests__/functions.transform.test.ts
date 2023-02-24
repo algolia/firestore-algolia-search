@@ -1,8 +1,8 @@
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import fetch, { Response } from 'node-fetch';
-import testDocument, {documentID, testReleaseDate} from './data/document';
-import {mockedPartialUpdateObject} from "./mocks/search";
+import testDocument, { documentID, testReleaseDate } from './data/document';
+import { mockedPartialUpdateObject } from './mocks/search';
 
 jest.mock('node-fetch');
 
@@ -43,15 +43,15 @@ describe('extension', () => {
         'meta': {
           'releaseDate': testReleaseDate.getTime()
         },
-        "hello": "world"
-      }
+        'hello': 'world'
+      };
       const payload = {
         ...responseData,
         'lastmodified': {
           '_operation': 'IncrementSet',
           'value': expect.any(Number)
         }
-      }
+      };
 
       jest.mocked(fetch).mockImplementation(() =>
         Promise.resolve({
@@ -78,7 +78,7 @@ describe('extension', () => {
         payload
       );
 
-      expect(mockedPartialUpdateObject).toBeCalledWith(payload,  { createIfNotExists: true });
+      expect(mockedPartialUpdateObject).toBeCalledWith(payload, { createIfNotExists: true });
     });
   });
 });

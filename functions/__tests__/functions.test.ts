@@ -1,4 +1,3 @@
-import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
 import { version } from '../src/version';
 

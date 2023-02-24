@@ -14,10 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-import { firestore } from "firebase-admin";
+import { firestore } from 'firebase-admin';
 import { isValidValue } from './util';
 import DocumentReference = firestore.DocumentReference;
 import GeoPoint = firestore.GeoPoint;
@@ -25,55 +22,56 @@ import Timestamp = firestore.Timestamp;
 
 const processObject = objectVal => {
   const payload = {};
-  for (const [key, val] of Object.entries(objectVal)) {
-    const [field, value] = processValue(key, val);
+  for (const [ key, val ] of Object.entries(objectVal)) {
+    const [ field, value ] = processValue(key, val);
     if (isValidValue(value)) {
       payload[field] = value;
     }
   }
   return payload;
-}
+};
 
 const processValue = (field, value) => {
+  console.info('processValue', field, value);
   if (value instanceof DocumentReference) {
-    return [field, processDocumentReference(value)];
+    return [ field, processDocumentReference(value) ];
   } else if (value instanceof GeoPoint) {
     // Algolia has a prescribed field name for Geo data.
-    return ['_geoloc', processGeoPoint(value)];
+    return [ '_geoloc', processGeoPoint(value) ];
   } else if (value instanceof Timestamp) {
-    return [field, processTimestamp(value)];
+    return [ field, processTimestamp(value) ];
   } else if (value instanceof Array) {
-    return [field, processArray(value)];
+    return [ field, processArray(value) ];
   } else if (value instanceof Object) {
-    return [field, processObject(value)];
+    return [ field, processObject(value) ];
   }
-  return [field, value]
-}
+  return [ field, value ];
+};
 
 const processArray = (arrayVal: Array<any>) => {
   return arrayVal.map((val, index) => {
     if (val instanceof Object) {
-      const [_, value] = processValue(index, val);
+      const [ _, value ] = processValue(index, val);
       return value;
     }
     return val;
-  })
-}
+  });
+};
 
 const processTimestamp = (timestampVal: Timestamp) => {
   return timestampVal.toDate().getTime();
-}
+};
 
 const processDocumentReference = (referenceVal: DocumentReference) => {
-  return referenceVal.path
-}
+  return referenceVal.path;
+};
 
 const processGeoPoint = (geoPointVal: GeoPoint) => {
   return {
     lat: geoPointVal.latitude,
     lng: geoPointVal.longitude
-  }
-}
+  };
+};
 
 /**
  * The data processor will process the Firestore document.  It will loop through the fields and process the values.
@@ -83,7 +81,7 @@ const processGeoPoint = (geoPointVal: GeoPoint) => {
  */
 export const dataProcessor = data => {
   return processObject(data);
-}
+};
 
 /**
  * The field processor will process the Firestore document field value.
@@ -93,4 +91,4 @@ export const dataProcessor = data => {
  */
 export const valueProcessor = (field, value) => {
   return processValue(field, value);
-}
+};

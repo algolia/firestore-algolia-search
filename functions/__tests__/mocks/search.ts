@@ -1,5 +1,4 @@
 import * as functionsTestInit from 'firebase-functions-test';
-import {executeIndexOperation as ref} from "../../src";
 
 export const mockedAddAlgoliaAgent = jest.fn();
 

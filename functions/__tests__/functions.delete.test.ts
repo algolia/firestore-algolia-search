@@ -1,7 +1,7 @@
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
-import testDocument, {documentID} from './data/document';
-import {mockedDeleteObject} from "./mocks/search";
+import testDocument, { documentID } from './data/document';
+import { mockedDeleteObject } from './mocks/search';
 
 let restoreEnv;
 let functionsTest = functionsTestInit();

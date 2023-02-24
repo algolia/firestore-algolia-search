@@ -1,7 +1,7 @@
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
-import testDocument, {documentID, testReleaseDate} from './data/document';
-import {mockedPartialUpdateObject} from "./mocks/search";
+import testDocument, { documentID, testReleaseDate } from './data/document';
+import { mockedPartialUpdateObject } from './mocks/search';
 
 let restoreEnv;
 let functionsTest = functionsTestInit();
@@ -63,7 +63,7 @@ describe('extension', () => {
           '_operation': 'IncrementSet',
           'value': expect.any(Number)
         }
-      }
+      };
       expect(infoMock).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload
@@ -107,7 +107,7 @@ describe('extension', () => {
           '_operation': 'IncrementSet',
           'value': expect.any(Number)
         }
-      }
+      };
       expect(infoMock).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload

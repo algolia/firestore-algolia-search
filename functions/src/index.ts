@@ -18,15 +18,15 @@
 import algoliaSearch from 'algoliasearch';
 import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { EventContext, Change } from 'firebase-functions';
+import { EventContext } from 'firebase-functions';
+import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
 
 import config from './config';
 import extract from './extract';
-import * as logs from './logs';
-import { ChangeType, getChangeType, areFieldsUpdated } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
+import * as logs from './logs';
 import DocumentData = firestore.DocumentData;
-import {DocumentSnapshot} from "firebase-functions/lib/providers/firestore";
 
 const client = algoliaSearch(
   config.algoliaAppId,

@@ -1,20 +1,20 @@
 import {
-  snapshot,
+  makeChange,
   mockDocumentSnapshotFactory,
-  mockFirestoreUpdate,
   mockFirestoreTransaction,
+  mockFirestoreUpdate,
   mockLogger,
-  makeChange
-} from "./mocks/firestore";
+  snapshot
+} from './mocks/firestore';
 import {
-  mockIndexer,
-  mockedInitIndex,
   mockedAddAlgoliaAgent,
-  mockSearchModule,
+  mockedInitIndex,
+  mockIndexer,
   mockIndexerResult,
-} from "./mocks/search";
+  mockSearchModule,
+} from './mocks/search';
 
-globalThis.config = () => require("../src/config").default;
+globalThis.config = () => require('../src/config').default;
 
 globalThis.snapshot = snapshot;
 

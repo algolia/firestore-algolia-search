@@ -1,4 +1,4 @@
-import { ModuleMocker } from "jest-mock";
+import { ModuleMocker } from 'jest-mock';
 
 declare global {
   namespace NodeJS {

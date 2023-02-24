@@ -12,7 +12,7 @@ describe('extension', () => {
 
   let config;
   beforeEach(() => {
-    restoreEnv = mockedEnv({...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
+    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
     config = require('../src/config').default;
   });
 
@@ -59,7 +59,7 @@ describe('extension', () => {
         }
       };
       expect(infoMock).toBeCalledWith(
-        `Creating new Algolia index for document ${afterSnapshot.id}`,
+        `Creating new Algolia index for document ${ afterSnapshot.id }`,
         payload
       );
       expect(mockSnapshotGet).toBeCalledTimes(1);
@@ -101,7 +101,7 @@ describe('extension', () => {
         }
       };
       expect(infoMock).toBeCalledWith(
-        `Updating existing Algolia index for document ${afterSnapshot.id}`,
+        `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload
       );
       expect(mockSnapshotGet).toBeCalledTimes(1);

@@ -1,6 +1,6 @@
 import * as functionsTestInit from 'firebase-functions-test';
 import document from '../data/document';
-import {logger} from "firebase-functions";
+import { logger } from 'firebase-functions';
 
 export const documentPath = 'document/1';
 
@@ -45,4 +45,4 @@ export const mockLogger = () => {
     info: jest.spyOn(logger, 'info').mockImplementation(),
     error: jest.spyOn(logger, 'error').mockImplementation(),
   };
-}
+};

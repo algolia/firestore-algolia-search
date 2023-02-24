@@ -2,8 +2,8 @@
 const readline = require('readline');
 const rl = readline.createInterface(process.stdin, process.stdout);
 
-rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function(answer) {
-  const value = answer || 'n'
+rl.question(`\nWARNING: The back fill process will index your entire collection which will impact your Search Operation Quota.  Please visit https://www.algolia.com/doc/faq/accounts-billing/how-algolia-count-records-and-operation/ for more details.  Do you want to continue? (y/N): `, function (answer) {
+  const value = answer || 'n';
   if ('y' === value.toLowerCase()) {
     rl.question('What is the Region? ', function (location) {
       if (!location) {
