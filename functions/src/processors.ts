@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { firestore } from 'firebase-admin';
+import { GeoPoint, DocumentReference, Timestamp } from 'firebase-admin/firestore';
 import { isValidValue } from './util';
-import DocumentReference = firestore.DocumentReference;
-import GeoPoint = firestore.GeoPoint;
-import Timestamp = firestore.Timestamp;
 
 const processObject = objectVal => {
   const payload = {};
@@ -32,7 +29,6 @@ const processObject = objectVal => {
 };
 
 const processValue = (field, value) => {
-  console.info('processValue', field, value);
   if (value instanceof DocumentReference) {
     return [ field, processDocumentReference(value) ];
   } else if (value instanceof GeoPoint) {
