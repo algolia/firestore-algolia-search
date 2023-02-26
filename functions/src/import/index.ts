@@ -79,7 +79,7 @@ const processQuery = async querySnapshot => {
   }
 };
 
-const retrieveDataFromFirestore = async () => {
+export const retrieveDataFromFirestore = async () => {
   const collectionPathParts = config.collectionPath.split('/');
   const collectionPath = collectionPathParts[collectionPathParts.length - 1];
   try {

@@ -69,7 +69,7 @@ resources:
     description: Loads all the data from your FireStore database into Algolia
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs14
+      runtime: nodejs16
       availableMemoryMb: 1024
       timeout: 540s
       taskQueueTrigger: { }

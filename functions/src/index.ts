@@ -16,20 +16,21 @@
  */
 
 import algoliaSearch from 'algoliasearch';
-import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { EventContext } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
+import { firestore } from 'firebase-admin';
+import { DocumentData } from 'firebase-admin/firestore';
+import { getExtensions } from 'firebase-admin/extensions';
+import { getFunctions } from 'firebase-admin/functions';
 
 import config from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectSizeInBytes } from './util';
 import { version } from './version';
 import * as logs from './logs';
-import DocumentData = firestore.DocumentData;
-// import { getExtensions } from 'firebase-admin/lib/extensions';
-//
-// const DOCS_PER_INDEXING = 250;
+
+const DOCS_PER_INDEXING = 250;
 
 const client = algoliaSearch(
   config.algoliaAppId,
@@ -151,81 +152,88 @@ export const executeIndexOperation = functions.firestore
     }
   });
 
-// export const executeFullIndexOperation = functions.tasks
-//   .taskQueue()
-//   .onDispatch(async (data: any) => {
-//     const runtime = getExtensions().runtime();
-//     if (!config.doFullIndexing) {
-//       await runtime.setProcessingState(
-//         "PROCESSING_COMPLETE",
-//         'Existing documents were not indexed because "Indexing existing documents?" is configured to false. ' +
-//         "If you want to run a full reindex, reconfigure this instance."
-//       );
-//       return;
-//     }
-//     const offset = (data["offset"] as number) ?? 0;
-//     const pastSuccessCount = (data["successCount"] as number) ?? 0;
-//     const pastErrorCount = (data["errorCount"] as number) ?? 0;
-//     // We also track the start time of the first invocation, so that we can report the full length at the end.
-//     const startTime = (data["startTime"] as number) ?? Date.now();
-//
-//     // const snapshot = await firestore().collection(process.env.COLLECTION_PATH)
-//     //   .offset(offset)
-//     //   .limit(DOCS_PER_INDEXING)
-//     //   .get();
-//     // // Since we will be writing many docs to Firestore, use a BulkWriter for better performance.
-//     // const writer = admin.firestore().bulkWriter();
-//     // const translations = await Promise.allSettled(
-//     //   snapshot.docs.map((doc) => {
-//     //     return handleExistingDocument(doc, writer);
-//     //   })
-//     // );
-//     // // Close the writer to commit the changes to Firestore.
-//     // await writer.close();
-//     // const newSucessCount =
-//     //   pastSuccessCount +
-//     //   translations.filter((p) => p.status === "fulfilled").length;
-//     // const newErrorCount =
-//     //   pastErrorCount +
-//     //   translations.filter((p) => p.status === "rejected").length;
-//     //
-//     // if (snapshot.size == DOCS_PER_BACKFILL) {
-//     //   // Stil have more documents to translate, enqueue another task.
-//     //   logs.enqueueNext(offset + DOCS_PER_BACKFILL);
-//     //   const queue = getFunctions().taskQueue(
-//     //     "fstranslatebackfill",
-//     //     process.env.EXT_INSTANCE_ID
-//     //   );
-//     //   await queue.enqueue({
-//     //     offset: offset + DOCS_PER_BACKFILL,
-//     //     successCount: newSucessCount,
-//     //     errorCount: newErrorCount,
-//     //     startTime: startTime,
-//     //   });
-//     // } else {
-//     //   // No more documents to translate, time to set the processing state.
-//     //   logs.backfillComplete(newSucessCount, newErrorCount);
-//     //   if (newErrorCount == 0) {
-//     //     return await runtime.setProcessingState(
-//     //       "PROCESSING_COMPLETE",
-//     //       `Successfully translated ${newSucessCount} documents in ${
-//     //         Date.now() - startTime
-//     //       }ms.`
-//     //     );
-//     //   } else if (newErrorCount > 0 && newSucessCount > 0) {
-//     //     return await runtime.setProcessingState(
-//     //       "PROCESSING_WARNING",
-//     //       `Successfully translated ${newSucessCount} documents, ${newErrorCount} errors in ${
-//     //         Date.now() - startTime
-//     //       }ms. See function logs for specific error messages.`
-//     //     );
-//     //   }
-//     //   return await runtime.setProcessingState(
-//     //     "PROCESSING_FAILED",
-//     //     `Successfully translated ${newSucessCount} documents, ${newErrorCount} errors in ${
-//     //       Date.now() - startTime
-//     //     }ms. See function logs for specific error messages.`
-//     //   );
-//     // }
-//   });
+export const executeFullIndexOperation = functions.tasks
+  .taskQueue()
+  .onDispatch(async (data: any) => {
+    const runtime = getExtensions().runtime();
+    if (!config.doFullIndexing) {
+      await runtime.setProcessingState(
+        'PROCESSING_COMPLETE',
+        'Existing documents were not indexed because "Indexing existing documents?" is configured to false. ' +
+        'If you want to run a full reindex, reconfigure this instance.'
+      );
+      return;
+    }
+    const offset = (data['offset'] as number) ?? 0;
+    const pastSuccessCount = (data['successCount'] as number) ?? 0;
+    const pastErrorCount = (data['errorCount'] as number) ?? 0;
+    // We also track the start time of the first invocation, so that we can report the full length at the end.
+    const startTime = (data['startTime'] as number) ?? Date.now();
+
+    const snapshot = await firestore().collection(process.env.COLLECTION_PATH)
+      .offset(offset)
+      .limit(DOCS_PER_INDEXING)
+      .get();
+    const records = await Promise.allSettled(
+      snapshot.docs.map((doc) => {
+        return extract(doc, startTime);
+      })
+    );
+
+    const results = await index.saveObjects(records, {
+      autoGenerateObjectIDIfNotExist: true
+    })
+
+    // await index
+    //   .partialUpdateObjects(records, { createIfNotExists: true })
+    //   .then(() => {
+    //     logs.info('Document(s) imported into Algolia');
+    //     //process.exit(1);
+    //   })
+    //   .catch(error => {
+    //     logs.error(error);
+    //   });
+
+    const newSuccessCount = pastSuccessCount + records.length;
+    const newErrorCount = pastErrorCount;
+
+    if (snapshot.size == DOCS_PER_INDEXING) {
+      // Still have more documents to index, enqueue another task.
+      logs.enqueueNext(offset + DOCS_PER_INDEXING);
+      const queue = getFunctions().taskQueue(
+        'executeFullIndexOperation',
+        process.env.EXT_INSTANCE_ID
+      );
+      await queue.enqueue({
+        offset: offset + DOCS_PER_INDEXING,
+        successCount: newSuccessCount,
+        errorCount: newErrorCount,
+        startTime: startTime,
+      });
+    } else {
+      // No more documents to index, time to set the processing state.
+      logs.fullIndexingComplete(newSuccessCount, newErrorCount);
+      if (newErrorCount == 0) {
+        return await runtime.setProcessingState(
+          'PROCESSING_COMPLETE',
+          `Successfully indexed ${ newSuccessCount } documents in ${
+            Date.now() - startTime
+          }ms.`
+        );
+      } else if (newErrorCount > 0 && newSuccessCount > 0) {
+        return await runtime.setProcessingState(
+          'PROCESSING_WARNING',
+          `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
+            Date.now() - startTime
+          }ms. See function logs for specific error messages.`
+        );
+      }
+      return await runtime.setProcessingState(
+        'PROCESSING_FAILED',
+        `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
+          Date.now() - startTime
+        }ms. See function logs for specific error messages.`
+      );
+    }
+  });
 
