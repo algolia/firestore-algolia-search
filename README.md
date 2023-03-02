@@ -1,4 +1,4 @@
-# Search with Algolia
+# Search Firestore with Algolia
 
 **Author**: Algolia (**[https://www.algolia.com](https://www.algolia.com)**)
 

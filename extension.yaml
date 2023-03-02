@@ -11,7 +11,7 @@ version: 0.5.16
 specVersion: v1beta
 
 # Friendly display name for your extension (~3-5 words)
-displayName: Search with Algolia
+displayName: Search Firestore with Algolia
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-
