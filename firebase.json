@@ -1,23 +1,24 @@
 {
-  "functions": {
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint",
-      "npm --prefix \"$RESOURCE_DIR\" run build"
-    ],
-    "source": "functions"
-  },
-  "emulators": {
-    "functions": {
-      "port": 5001
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default"
     },
-    "firestore": {
-      "port": 8080
-    },
-    "ui": {
-      "enabled": true,
-      "port": 4000
+    {
+      "source": "algolia-firestore",
+      "codebase": "algolia-firestore",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
     }
-  },
+  ],
   "extensions": {
     "firestore-algolia-search": "."
   }
