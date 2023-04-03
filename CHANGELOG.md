@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.17](https://github.com/algolia/firestore-algolia-search/compare/v0.5.16...v0.5.17) (2023-04-03)
+
+
+### Features
+
+* add full index ([85ac65c](https://github.com/algolia/firestore-algolia-search/commit/85ac65c19cd308fa92aeef5706cfda6b821f05a0))
+* update firestore libs ([d8263a8](https://github.com/algolia/firestore-algolia-search/commit/d8263a8e8c10b6afcf968a6afa98cec488864e7c))
+
+
+### Bug Fixes
+
+* issues with processor.ts ([737204a](https://github.com/algolia/firestore-algolia-search/commit/737204a0bfeb311f03fc8ece18e5cba716933136))
+* merge dependicies form devDepencies ([fff7993](https://github.com/algolia/firestore-algolia-search/commit/fff799358501867bab840c5d8781b90ab825ab11))
+* update code for full indexing process ([21c633d](https://github.com/algolia/firestore-algolia-search/commit/21c633da6ddc5b81d5a1bad5b0a7de6dd91d60d4))
+* update create test ([5f5e5c4](https://github.com/algolia/firestore-algolia-search/commit/5f5e5c438e3efc1d226c2848700345b651f38e6e))
+
 ### [0.5.16](https://github.com/algolia/firestore-algolia-search/compare/v0.5.15...v0.5.16) (2022-11-08)
 
 
