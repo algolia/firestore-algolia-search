@@ -2,11 +2,7 @@
   "functions": [
     {
       "source": "functions",
-      "codebase": "default"
-    },
-    {
-      "source": "algolia-firestore",
-      "codebase": "algolia-firestore",
+      "codebase": "default",
       "ignore": [
         "node_modules",
         ".git",
