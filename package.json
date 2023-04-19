@@ -6,7 +6,7 @@
   "scripts": {
     "emulator:start": "firebase emulators:start --import=data",
     "release": "standard-version",
-    "prepare": "husky install"
+    "prepare": "husky install && cd functions && npm install"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.4",

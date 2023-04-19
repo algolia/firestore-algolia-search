@@ -32,5 +32,6 @@
     }
   },
   "extensions": {
+    "firestore-algolia-search": "."
   }
 }
