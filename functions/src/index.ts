@@ -174,16 +174,19 @@ export const executeFullIndexOperation = functions.tasks
     const startTime = (data['startTime'] as number) ?? Date.now();
 
     const snapshot = await admin
-      .firestore().collection(process.env.COLLECTION_PATH)
+      .firestore()
+      .collection(process.env.COLLECTION_PATH)
       .offset(offset)
       .limit(DOCS_PER_INDEXING)
       .get();
       
-    const records = await Promise.allSettled(
-      snapshot.docs.map((doc) => {
-        return extract(doc, startTime);
-      })
+    const promises = await Promise.allSettled(
+      snapshot.docs.map((doc) => extract(doc, startTime))
     );
+
+    const records = (promises as any)
+      .filter(v => v.status === "fulfilled")
+      .map(v => v.value)
 
     await index.saveObjects(records, {
       autoGenerateObjectIDIfNotExist: true,

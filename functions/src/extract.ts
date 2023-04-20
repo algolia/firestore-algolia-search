@@ -63,6 +63,7 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
 export default async function extract(snapshot: DocumentSnapshot, timestamp: Number): Promise<any> {
   // Check payload size and make sure its within limits before sending for indexing
   const payload = await getPayload(snapshot);
+
   if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
     if (timestamp === 0) {
       return {
