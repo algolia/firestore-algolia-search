@@ -1,4 +1,4 @@
-'use strict';
+/* eslint-disable import/no-unresolved */
 /*
  * Copyright 2021 Algolia
  *
@@ -61,7 +61,7 @@ const handleCreateDocument = async (
       const data = await extract(snapshot, timestamp);
 
       logs.debug({
-        ...data
+        ...data,
       });
 
       logs.createIndex(snapshot.id, data);
@@ -178,6 +178,7 @@ export const executeFullIndexOperation = functions.tasks
       .offset(offset)
       .limit(DOCS_PER_INDEXING)
       .get();
+      
     const records = await Promise.allSettled(
       snapshot.docs.map((doc) => {
         return extract(doc, startTime);
@@ -185,7 +186,7 @@ export const executeFullIndexOperation = functions.tasks
     );
 
     await index.saveObjects(records, {
-      autoGenerateObjectIDIfNotExist: true
+      autoGenerateObjectIDIfNotExist: true,
     })
 
     const newSuccessCount = pastSuccessCount + records.length;
@@ -208,7 +209,7 @@ export const executeFullIndexOperation = functions.tasks
     } else {
       // No more documents to index, time to set the processing state.
       logs.fullIndexingComplete(newSuccessCount, newErrorCount);
-      if (newErrorCount == 0) {
+      if (newErrorCount === 0) {
         return await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
           `Successfully indexed ${ newSuccessCount } documents in ${

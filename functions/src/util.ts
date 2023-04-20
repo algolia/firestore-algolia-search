@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -54,13 +53,13 @@ export const areFieldsUpdated = (
 
   logs.debug(`fields: ${ fields }`);
   // If fields are not configured, then execute update record.
-  if (fields.length == 0) {
+  if (fields.length === 0) {
     return true;
   }
 
   // If fields are configured, then check the before and after data for the specified fields.
   //  If any changes detected, then execute update record.
-  for (let field of fields) {
+  for (const field of fields) {
     const [ , beforeFieldValue ] = valueProcessor(field, before.get(field));
     const [ , afterFieldValue ] = valueProcessor(field, after.get(field));
     if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {

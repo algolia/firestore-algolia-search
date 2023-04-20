@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -32,21 +31,21 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
     [key: string]: boolean | string | number;
   } = {
     objectID: snapshot.id,
-    path: snapshot.ref.path
+    path: snapshot.ref.path,
   };
 
   const fields = getFields(config);
   if (fields.length === 0) {
     payload = {
       ...dataProcessor(snapshot.data()),
-      ...payload
+      ...payload,
     };
   } else {
 
     // Fields have been defined by user.  Start pulling data from the document to create payload
     // to send to Algolia.
     fields.forEach(item => {
-      let firebaseField = item.replace(trim, '');
+      const firebaseField = item.replace(trim, '');
       const [ field, value ] = valueProcessor(firebaseField, snapshot.get(firebaseField));
 
       if (isValidValue(value)) {
@@ -67,7 +66,7 @@ export default async function extract(snapshot: DocumentSnapshot, timestamp: Num
   if (getObjectSizeInBytes(payload) < PAYLOAD_MAX_SIZE) {
     if (timestamp === 0) {
       return {
-        ...payload
+        ...payload,
       };
     } else {
       return {

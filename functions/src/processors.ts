@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// eslint-disable-next-line import/no-unresolved
 import { GeoPoint, DocumentReference, Timestamp } from 'firebase-admin/firestore';
 import { isValidValue } from './util';
 
@@ -65,7 +65,7 @@ const processDocumentReference = (referenceVal: DocumentReference) => {
 const processGeoPoint = (geoPointVal: GeoPoint) => {
   return {
     lat: geoPointVal.latitude,
-    lng: geoPointVal.longitude
+    lng: geoPointVal.longitude,
   };
 };
 
