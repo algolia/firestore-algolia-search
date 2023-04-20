@@ -4,6 +4,9 @@ This extension listens for changes on the specified collection. If you add a [do
 
 Anytime you update a document, the extension propagates the update to the corresponding Algolia record. If you delete a document, the extension removes the corresponding Algolia record.
 
+#### Important
+
+Upon installation or when the extension's configuration is changed, the documents in the specified collection will be synced to Algolia.
 
 #### Additional setup
 
