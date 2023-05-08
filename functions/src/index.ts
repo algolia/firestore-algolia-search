@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import algoliaSearch from 'algoliasearch';
+import algoliaSearch, { SearchIndex } from 'algoliasearch';
 import * as functions from 'firebase-functions';
 import { EventContext } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
@@ -172,6 +172,18 @@ export const executeFullIndexOperation = functions.tasks
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
     const startTime = (data['startTime'] as number) ?? Date.now();
+    let tempIndexName = (data['tempIndexName'] as string) ?? null;
+    let tempIndex: SearchIndex | null = null;
+
+    // Create a new index if config is set and haven't created one yet.
+    if (config.fullIndexingReplaceAll && !tempIndexName) {
+      const randomSuffix = Math.random().toString(36).substring(7);
+
+      tempIndexName = `${config.algoliaIndexName}_tmp_${randomSuffix}`;
+
+      // Copy main index to new temp index
+      await client.copyIndex(config.algoliaIndexName, tempIndexName);
+    }
 
     const snapshot = await admin
       .firestore()
@@ -179,7 +191,7 @@ export const executeFullIndexOperation = functions.tasks
       .offset(offset)
       .limit(DOCS_PER_INDEXING)
       .get();
-      
+
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))
     );
@@ -188,9 +200,20 @@ export const executeFullIndexOperation = functions.tasks
       .filter(v => v.status === "fulfilled")
       .map(v => v.value)
 
-    await index.saveObjects(records, {
-      autoGenerateObjectIDIfNotExist: true,
-    })
+    if (config.fullIndexingReplaceAll && tempIndexName) {
+      tempIndex = client.initIndex(tempIndexName);
+    }
+
+    if (config.fullIndexingReplaceAll) {
+      // Push records to the temp index.
+      await tempIndex.saveObjects(records, {
+        autoGenerateObjectIDIfNotExist: true,
+      })
+    } else {
+      await index.saveObjects(records, {
+        autoGenerateObjectIDIfNotExist: true,
+      })
+    }
 
     const newSuccessCount = pastSuccessCount + records.length;
     const newErrorCount = pastErrorCount;
@@ -208,11 +231,20 @@ export const executeFullIndexOperation = functions.tasks
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
+        tempIndexName: tempIndexName,
       });
     } else {
       // No more documents to index, time to set the processing state.
       logs.fullIndexingComplete(newSuccessCount, newErrorCount);
       if (newErrorCount === 0) {
+        if (config.fullIndexingReplaceAll) {
+          // Copy the temp index to the main index.
+          await client.copyIndex(tempIndexName, config.algoliaIndexName)
+
+          // Delete the old index.
+          await tempIndex.delete();
+        }
+
         return await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
           `Successfully indexed ${ newSuccessCount } documents in ${
@@ -220,6 +252,14 @@ export const executeFullIndexOperation = functions.tasks
           }ms.`
         );
       } else if (newErrorCount > 0 && newSuccessCount > 0) {
+        if (config.fullIndexingReplaceAll) {
+          // Copy the temp index to the main index.
+          await client.copyIndex(tempIndexName, config.algoliaIndexName)
+
+          // Delete the old index.
+          await tempIndex.delete();
+        }
+
         return await runtime.setProcessingState(
           'PROCESSING_WARNING',
           `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
@@ -227,6 +267,12 @@ export const executeFullIndexOperation = functions.tasks
           }ms. See function logs for specific error messages.`
         );
       }
+
+      if (config.fullIndexingReplaceAll) {
+        // Delete the temp index.
+        await tempIndex.delete();
+      }
+
       return await runtime.setProcessingState(
         'PROCESSING_FAILED',
         `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${

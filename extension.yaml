@@ -160,6 +160,18 @@ params:
       - label: No
         value: false
 
+  - param: DO_REPLACE_ALL_FULL_INDEXING
+    label: Replace all existing documents?
+    description: >
+      Should we use replace all functionality when indexing existing documents?
+    type: select
+    required: true
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
