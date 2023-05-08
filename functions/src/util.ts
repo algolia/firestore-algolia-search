@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -16,7 +15,7 @@
  */
 
 import * as functions from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
 import { Config } from './config';
 import * as logs from './logs';
 import { valueProcessor } from './processors';
@@ -52,17 +51,17 @@ export const areFieldsUpdated = (
 ) => {
   const fields = getFields(config);
 
-  logs.debug(`fields: ${fields}`);
+  logs.debug(`fields: ${ fields }`);
   // If fields are not configured, then execute update record.
-  if (fields.length == 0) {
+  if (fields.length === 0) {
     return true;
   }
 
   // If fields are configured, then check the before and after data for the specified fields.
   //  If any changes detected, then execute update record.
-  for (let field of fields) {
-    const [, beforeFieldValue] = valueProcessor(field, before.get(field));
-    const [, afterFieldValue] = valueProcessor(field, after.get(field));
+  for (const field of fields) {
+    const [ , beforeFieldValue ] = valueProcessor(field, before.get(field));
+    const [ , afterFieldValue ] = valueProcessor(field, after.get(field));
     if (JSON.stringify(beforeFieldValue) !== JSON.stringify(afterFieldValue)) {
       return true;
     }

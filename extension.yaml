@@ -5,7 +5,7 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 0.5.16
+version: 0.5.18
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta
@@ -56,14 +56,23 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       Firestore document-triggered function that creates, updates, or deletes data in Algolia.
-    properties:
-      # LOCATION is a user-configured parameter value specified by the user
+    properties: # LOCATION is a user-configured parameter value specified by the user
       # during installation.
       location: ${LOCATION}
-      runtime: nodejs10
+      runtime: nodejs16
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}/{documentID}
+
+  - name: executeFullIndexOperation
+    type: firebaseextensions.v1beta.function
+    description: Loads all the data from your FireStore database into Algolia
+    properties:
+      location: ${param:LOCATION}
+      runtime: nodejs16
+      availableMemoryMb: 1024
+      timeout: 540s
+      taskQueueTrigger: { }
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
@@ -139,6 +148,18 @@ params:
     type: string
     required: false
 
+  - param: DO_FULL_INDEXING
+    label: Full Index existing documents?
+    description: >
+      Should existing documents in the Firestore collection be indexed as well?
+    type: select
+    required: true
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
@@ -190,3 +211,14 @@ params:
         value: australia-southeast1
     required: true
     immutable: true
+
+lifecycleEvents:
+  onInstall:
+    function: executeFullIndexOperation
+    processingMessage: "Indexing existing documents in ${COLLECTION_PATH}"
+  onUpdate:
+    function: executeFullIndexOperation
+    processingMessage: "Indexing existing documents in ${COLLECTION_PATH}"
+  onConfigure:
+    function: executeFullIndexOperation
+    processingMessage: "Indexing existing documents in ${COLLECTION_PATH}"

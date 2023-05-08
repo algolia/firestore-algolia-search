@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -61,4 +60,12 @@ export const deleteIndex = (id: string) => {
 
 export const fieldNotExist = (field: string) => {
   logger.warn(`The field "${ field }" was specified in the extension config but was not found on collection data.`);
+};
+
+export const fullIndexingComplete = (successCount: number, errorCount: number) => {
+  logger.info(`Finished full indexing data. ${ successCount } translations succeeded, ${ errorCount } errors.`);
+};
+
+export const enqueueNext = (offset: number) => {
+  logger.info(`About to enqueue next task, starting at offset ${ offset }`,);
 };

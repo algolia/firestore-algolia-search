@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2021 Algolia
  *
@@ -25,6 +24,7 @@ const config = {
   forceDataSync: process.env.FORCE_DATA_SYNC,
   transformFunction: process.env.TRANSFORM_FUNCTION,
   projectId: process.env.PROJECT_ID,
+  doFullIndexing: process.env.DO_FULL_INDEXING,
 };
 
 export type Config = typeof config;

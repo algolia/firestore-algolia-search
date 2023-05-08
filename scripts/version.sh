@@ -49,19 +49,19 @@ cd ..
 read -r -p "Please check the created files. Do you want to release? [y/N]" response
 
 case "$response" in
-  [yY][eE][sS]|[yY]) 
+  [yY][eE][sS]|[yY])
     git add .
     git commit -m "v$version"
     git tag "v$version"
 
-    echo "Version updated, now push to github and npm:"
-    echo "${bold}cd functions && git push --follow-tags && npm publish${normal}"
+    echo "Version updated, now push to github:"
+    echo "${bold}cd functions && git push --follow-tags${normal}"
   ;;
   *)
     echo "Canceled release. Once you are done, commit the version manually:"
     echo "${bold}git add . && git commit -m v$version git tag v$version${normal}"
     echo "Then release on npm:"
-    echo "${bold}cd functions && git push --follow-tags && npm publish${normal}"
+    echo "${bold}cd functions && git push --follow-tags${normal}"
   ;;
 esac
 

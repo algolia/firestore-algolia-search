@@ -1,67 +1,24 @@
-import algoliasearch from 'algoliasearch';
 import * as functionsTestInit from 'firebase-functions-test';
 import mockedEnv from 'mocked-env';
-import { mockConsoleInfo } from './__mocks__/console';
-import testDocument, { testReleaseDate } from './data/document';
-
-jest.mock('algoliasearch');
-
-const defaultEnvironment = {
-  PROJECT_ID: 'fake-project',
-  LOCATION: 'us-central1',
-  ALGOLIA_APP_ID: 'algolia-app-id',
-  ALGOLIA_API_KEY: '********',
-  ALGOLIA_INDEX_NAME: 'algolia-index-name',
-  COLLECTION_PATH: 'movies',
-  FIELDS: 'title,awards,meta',
-  FORCE_DATA_SYNC: 'yes'
-};
-
-export const mockExport = (document, data) => {
-  const ref = require('../src/index').executeIndexOperation;
-  let functionsTest = functionsTestInit();
-
-  const wrapped = functionsTest.wrap(ref);
-  return wrapped(document, data);
-};
+import testDocument, { documentID, testReleaseDate } from './data/document';
+import { mockedSaveObject } from './mocks/search';
 
 let restoreEnv;
 let functionsTest = functionsTestInit();
 
 describe('extension', () => {
-  const mockedAlgoliasearch = jest.mocked(algoliasearch, true);
-  const mockedAddAlgoliaAgent = jest.fn();
-
-  const mockedPartialUpdateObject = jest.fn();
-  const mockedSaveObjects = jest.fn();
-  const mockedSaveObject = jest.fn();
-  const mockedDeleteObject = jest.fn();
-  const mockedInitIndex = jest.fn((): {
-    deleteObject: jest.Mock<any, any>;
-    saveObjects: jest.Mock<any, any>;
-    saveObject: jest.Mock<any, any>;
-    partialUpdateObject: jest.Mock<any, any>
-  } => ({
-    saveObjects: mockedSaveObjects,
-    saveObject: mockedSaveObject,
-    deleteObject: mockedDeleteObject,
-    partialUpdateObject: mockedPartialUpdateObject
-  }));
-
-  // @ts-ignore
-  mockedAlgoliasearch.mockReturnValue({
-    addAlgoliaAgent: mockedAddAlgoliaAgent,
-    // @ts-ignore
-    initIndex: mockedInitIndex
-  });
+  globalThis.mockSearchModule();
+  const defaultEnvironment = globalThis.defaultEnvironment;
 
   let config;
   beforeEach(() => {
-    restoreEnv = mockedEnv(defaultEnvironment);
+    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
     config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
+    const logger = globalThis.mockLogger();
+    const infoMock = logger.info;
     let functionsConfig;
 
     beforeEach(async () => {
@@ -71,10 +28,10 @@ describe('extension', () => {
     });
 
     test('functions runs with a create with force data sync.', async () => {
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot({}, 'document/1');
-      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
+      const beforeSnapshot = globalThis.snapshot({}, documentID);
+      const afterSnapshot = globalThis.snapshot(testDocument, documentID);
 
-      const documentChange = functionsTest.makeChange(
+      const documentChange = globalThis.makeChange(
         beforeSnapshot,
         afterSnapshot
       );
@@ -83,12 +40,12 @@ describe('extension', () => {
       afterSnapshot.ref.get = mockSnapshotGet;
 
       const data = {};
-      const callResult = await mockExport(documentChange, data);
+      const callResult = await globalThis.mockIndexerResult(documentChange, data);
 
       expect(callResult).toBeUndefined();
-      expect(mockConsoleInfo).toBeCalledTimes(4);
-      expect(mockConsoleInfo).toBeCalledWith('Initializing extension with configuration', functionsConfig);
-      expect(mockConsoleInfo).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledTimes(4);
+      expect(infoMock).toBeCalledWith('Initializing extension with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,
@@ -101,7 +58,7 @@ describe('extension', () => {
           'releaseDate': testReleaseDate.getTime()
         }
       };
-      expect(mockConsoleInfo).toBeCalledWith(
+      expect(infoMock).toBeCalledWith(
         `Creating new Algolia index for document ${ afterSnapshot.id }`,
         payload
       );
@@ -114,23 +71,23 @@ describe('extension', () => {
         ...testDocument,
         title: 'The Prison'
       };
-      const beforeSnapshot = functionsTest.firestore.makeDocumentSnapshot(testDocument, 'document/1');
-      const afterSnapshot = functionsTest.firestore.makeDocumentSnapshot(afterTestDocument, 'document/1');
+      const beforeSnapshot = globalThis.snapshot(testDocument, documentID);
+      const afterSnapshot = globalThis.snapshot(afterTestDocument, documentID);
 
       const mockSnapshotGet = jest.fn().mockResolvedValue(afterSnapshot);
       afterSnapshot.ref.get = mockSnapshotGet;
 
-      const documentChange = functionsTest.makeChange(
+      const documentChange = globalThis.makeChange(
         beforeSnapshot,
         afterSnapshot
       );
 
       const data = {};
-      const callResult = await mockExport(documentChange, data);
+      const callResult = await globalThis.mockIndexerResult(documentChange, data);
 
       expect(callResult).toBeUndefined();
-      expect(mockConsoleInfo).toBeCalledTimes(3);
-      expect(mockConsoleInfo).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledTimes(3);
+      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,
@@ -143,7 +100,7 @@ describe('extension', () => {
           'releaseDate': testReleaseDate.getTime()
         }
       };
-      expect(mockConsoleInfo).toBeCalledWith(
+      expect(infoMock).toBeCalledWith(
         `Updating existing Algolia index for document ${ afterSnapshot.id }`,
         payload
       );

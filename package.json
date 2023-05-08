@@ -1,12 +1,12 @@
 {
   "name": "firestore-algolia-search",
-  "version": "0.5.16",
+  "version": "0.5.18",
   "description": "",
   "license": "Apache-2.0",
   "scripts": {
-    "emulator:ext:start": "firebase ext:dev:emulators:start --import=data --test-params=test-params.env --project=algolia",
+    "emulator:start": "firebase emulators:start --import=data",
     "release": "standard-version",
-    "prepare": "husky install"
+    "prepare": "husky install && cd functions && npm install"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.4",

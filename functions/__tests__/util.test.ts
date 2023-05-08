@@ -1,5 +1,5 @@
-import { describe, test, expect } from '@jest/globals';
-import { getFields } from '../util';
+import { describe, expect, test } from '@jest/globals';
+import { getFields } from '../src/util';
 
 describe('getFields', () => {
   test('empty string', () => {

@@ -1,4 +1,4 @@
-'use strict';
+/* eslint-disable import/no-unresolved */
 /*
  * Copyright 2021 Algolia
  *
@@ -16,17 +16,21 @@
  */
 
 import algoliaSearch from 'algoliasearch';
-import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { EventContext, Change } from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { EventContext } from 'firebase-functions';
+import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
+import { DocumentData } from 'firebase-admin/firestore';
+import { getExtensions } from 'firebase-admin/extensions';
+import { getFunctions } from 'firebase-admin/functions';
 
 import config from './config';
 import extract from './extract';
-import * as logs from './logs';
-import { ChangeType, getChangeType, areFieldsUpdated } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
-import DocumentData = firestore.DocumentData;
+import * as logs from './logs';
+import * as admin from 'firebase-admin';
+
+const DOCS_PER_INDEXING = 250;
 
 const client = algoliaSearch(
   config.algoliaAppId,
@@ -34,8 +38,10 @@ const client = algoliaSearch(
 );
 
 client.addAlgoliaAgent('firestore_integration', version);
-
 export const index = client.initIndex(config.algoliaIndexName);
+
+// Initialize the Firebase Admin SDK
+admin.initializeApp();
 
 logs.init();
 
@@ -55,7 +61,7 @@ const handleCreateDocument = async (
       const data = await extract(snapshot, timestamp);
 
       logs.debug({
-        ...data
+        ...data,
       });
 
       logs.createIndex(snapshot.id, data);
@@ -123,8 +129,11 @@ const handleDeleteDocument = async (
   }
 };
 
-export const executeIndexOperation = functions.handler.firestore.document
-  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
+// export const executeIndexOperation = functions.handler.firestore.document
+//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
+export const executeIndexOperation = functions.firestore
+  .document(config.collectionPath)
+  .onWrite(async (change, context: EventContext): Promise<void> => {
     logs.start();
 
     const eventTimestamp = Date.parse(context.timestamp);
@@ -144,3 +153,86 @@ export const executeIndexOperation = functions.handler.firestore.document
       }
     }
   });
+
+export const executeFullIndexOperation = functions.tasks
+  .taskQueue()
+  .onDispatch(async (data: any) => {
+    const runtime = getExtensions().runtime();
+    if (!config.doFullIndexing) {
+      await runtime.setProcessingState(
+        'PROCESSING_COMPLETE',
+        'Existing documents were not indexed because "Indexing existing documents?" is configured to false. ' +
+        'If you want to run a full reindex, reconfigure this instance.'
+      );
+      return;
+    }
+
+    const offset = (data['offset'] as number) ?? 0;
+    const pastSuccessCount = (data['successCount'] as number) ?? 0;
+    const pastErrorCount = (data['errorCount'] as number) ?? 0;
+    // We also track the start time of the first invocation, so that we can report the full length at the end.
+    const startTime = (data['startTime'] as number) ?? Date.now();
+
+    const snapshot = await admin
+      .firestore()
+      .collection(process.env.COLLECTION_PATH)
+      .offset(offset)
+      .limit(DOCS_PER_INDEXING)
+      .get();
+      
+    const promises = await Promise.allSettled(
+      snapshot.docs.map((doc) => extract(doc, startTime))
+    );
+
+    const records = (promises as any)
+      .filter(v => v.status === "fulfilled")
+      .map(v => v.value)
+
+    await index.saveObjects(records, {
+      autoGenerateObjectIDIfNotExist: true,
+    })
+
+    const newSuccessCount = pastSuccessCount + records.length;
+    const newErrorCount = pastErrorCount;
+
+    if (snapshot.size === DOCS_PER_INDEXING) {
+      const newOffset = offset + DOCS_PER_INDEXING;
+      // Still have more documents to index, enqueue another task.
+      logs.enqueueNext(newOffset);
+      const queue = getFunctions().taskQueue(
+        'executeFullIndexOperation',
+        process.env.EXT_INSTANCE_ID
+      );
+      await queue.enqueue({
+        offset: newOffset,
+        successCount: newSuccessCount,
+        errorCount: newErrorCount,
+        startTime: startTime,
+      });
+    } else {
+      // No more documents to index, time to set the processing state.
+      logs.fullIndexingComplete(newSuccessCount, newErrorCount);
+      if (newErrorCount === 0) {
+        return await runtime.setProcessingState(
+          'PROCESSING_COMPLETE',
+          `Successfully indexed ${ newSuccessCount } documents in ${
+            Date.now() - startTime
+          }ms.`
+        );
+      } else if (newErrorCount > 0 && newSuccessCount > 0) {
+        return await runtime.setProcessingState(
+          'PROCESSING_WARNING',
+          `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
+            Date.now() - startTime
+          }ms. See function logs for specific error messages.`
+        );
+      }
+      return await runtime.setProcessingState(
+        'PROCESSING_FAILED',
+        `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
+          Date.now() - startTime
+        }ms. See function logs for specific error messages.`
+      );
+    }
+  });
+
