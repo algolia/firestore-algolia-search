@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/algolia/firestore-algolia-search/compare/v0.5.16...v1.1.0) (2023-05-11)
+
+
+### Features
+
+* add full index ([85ac65c](https://github.com/algolia/firestore-algolia-search/commit/85ac65c19cd308fa92aeef5706cfda6b821f05a0))
+* update firestore libs ([d8263a8](https://github.com/algolia/firestore-algolia-search/commit/d8263a8e8c10b6afcf968a6afa98cec488864e7c))
+
+
+### Bug Fixes
+
+* eslint errors ([0bb1b02](https://github.com/algolia/firestore-algolia-search/commit/0bb1b025cadb640cf392ee1f023842e749a642bb))
+* full index ([8d3332e](https://github.com/algolia/firestore-algolia-search/commit/8d3332e3e294d6b23e0373fa8ee5206d72b17cfc))
+* issues with processor.ts ([737204a](https://github.com/algolia/firestore-algolia-search/commit/737204a0bfeb311f03fc8ece18e5cba716933136))
+* merge dependicies form devDepencies ([fff7993](https://github.com/algolia/firestore-algolia-search/commit/fff799358501867bab840c5d8781b90ab825ab11))
+* removing cli.js and algolia-firestore func ref ([7c7a4f2](https://github.com/algolia/firestore-algolia-search/commit/7c7a4f2e15121882a0d3fbd63817108a348cab1b))
+* removing default extension to support mutli devs ([4e83d4f](https://github.com/algolia/firestore-algolia-search/commit/4e83d4f5b50b6c8360649c88c74fe5c5b2fb4ae8))
+* update code for full indexing process ([21c633d](https://github.com/algolia/firestore-algolia-search/commit/21c633da6ddc5b81d5a1bad5b0a7de6dd91d60d4))
+* update create test ([5f5e5c4](https://github.com/algolia/firestore-algolia-search/commit/5f5e5c438e3efc1d226c2848700345b651f38e6e))
+* update json file to work emulator ([0f1e2dd](https://github.com/algolia/firestore-algolia-search/commit/0f1e2dd8d0e6788049ec320af2cc36d13707a926))
+* updating package prepare ([ea62d34](https://github.com/algolia/firestore-algolia-search/commit/ea62d34b3340a30ea1dd6b6f8ebbd5cbd565616f))
+
 ### [0.5.18](https://github.com/algolia/firestore-algolia-search/compare/v0.5.16...v0.5.18) (2023-04-20)
 
 
