@@ -179,7 +179,7 @@ export const executeFullIndexOperation = functions.tasks
       .offset(offset)
       .limit(DOCS_PER_INDEXING)
       .get();
-      
+
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))
     );
@@ -200,7 +200,7 @@ export const executeFullIndexOperation = functions.tasks
       // Still have more documents to index, enqueue another task.
       logs.enqueueNext(newOffset);
       const queue = getFunctions().taskQueue(
-        'executeFullIndexOperation',
+        `locations/${process.env.LOCATION}/functions/executeFullIndexOperation`,
         process.env.EXT_INSTANCE_ID
       );
       await queue.enqueue({
