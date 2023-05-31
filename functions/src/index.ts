@@ -51,7 +51,7 @@ const handleCreateDocument = async (
 ) => {
   try {
     const forceDataSync = config.forceDataSync;
-    if (forceDataSync === 'yes') {
+    if (forceDataSync) {
       const updatedSnapshot = await snapshot.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.createIndex(updatedSnapshot.id, data);
@@ -79,7 +79,7 @@ const handleUpdateDocument = async (
 ) => {
   try {
     const forceDataSync = config.forceDataSync;
-    if (forceDataSync === 'yes') {
+    if (forceDataSync) {
       const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.updateIndex(updatedSnapshot.id, data);
