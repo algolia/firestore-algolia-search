@@ -21,10 +21,10 @@ const config = {
   algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
   collectionPath: process.env.COLLECTION_PATH,
   fields: process.env.FIELDS,
-  forceDataSync: process.env.FORCE_DATA_SYNC,
+  forceDataSync: process.env.FORCE_DATA_SYNC  == 'yes',
   transformFunction: process.env.TRANSFORM_FUNCTION,
   projectId: process.env.PROJECT_ID,
-  doFullIndexing: process.env.DO_FULL_INDEXING,
+  doFullIndexing: process.env.DO_FULL_INDEXING == 'true',
 };
 
 export type Config = typeof config;
