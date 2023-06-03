@@ -167,6 +167,9 @@ export const executeFullIndexOperation = functions.tasks
       return;
     }
 
+    const collectionPath = config.collectionPath.indexOf('/') == -1
+      ? config.collectionPath
+      : config.collectionPath.split('/').pop();
     const offset = (data['offset'] as number) ?? 0;
     const pastSuccessCount = (data['successCount'] as number) ?? 0;
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
@@ -175,7 +178,7 @@ export const executeFullIndexOperation = functions.tasks
 
     const snapshot = await admin
       .firestore()
-      .collection(process.env.COLLECTION_PATH)
+      .collectionGroup(collectionPath)
       .offset(offset)
       .limit(DOCS_PER_INDEXING)
       .get();
@@ -200,8 +203,8 @@ export const executeFullIndexOperation = functions.tasks
       // Still have more documents to index, enqueue another task.
       logs.enqueueNext(newOffset);
       const queue = getFunctions().taskQueue(
-        `locations/${process.env.LOCATION}/functions/executeFullIndexOperation`,
-        process.env.EXT_INSTANCE_ID
+        `locations/${config.location}/functions/executeFullIndexOperation`,
+        config.instanceId
       );
       await queue.enqueue({
         offset: newOffset,
