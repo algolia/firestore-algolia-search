@@ -15,6 +15,7 @@
  */
 
 const config = {
+  instanceId: process.env.EXT_INSTANCE_ID,
   location: process.env.LOCATION,
   algoliaAppId: process.env.ALGOLIA_APP_ID,
   algoliaAPIKey: process.env.ALGOLIA_API_KEY,

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/algolia/firestore-algolia-search/compare/v1.1.1...v1.1.2) (2023-05-31)
+
+
+### Bug Fixes
+
+* boolean for force update and full indexing ([28f2408](https://github.com/algolia/firestore-algolia-search/commit/28f240897dc3a547f0f77ce757ce80b4207dc21f))
+
 ### [1.1.1](https://github.com/algolia/firestore-algolia-search/compare/v1.1.0...v1.1.1) (2023-05-25)
 ### Bug Fixes
 
