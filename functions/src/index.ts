@@ -158,6 +158,8 @@ export const executeFullIndexOperation = functions.tasks
   .taskQueue()
   .onDispatch(async (data: any) => {
     const runtime = getExtensions().runtime();
+    logs.info('config', config);
+    logs.info('config.doFullIndexing', config.doFullIndexing);
     if (!config.doFullIndexing) {
       await runtime.setProcessingState(
         'PROCESSING_COMPLETE',
@@ -167,9 +169,11 @@ export const executeFullIndexOperation = functions.tasks
       return;
     }
 
+    logs.info('config.collectionPath', config.collectionPath);
     const collectionPath = config.collectionPath.indexOf('/') == -1
       ? config.collectionPath
       : config.collectionPath.split('/').pop();
+    logs.info('collectionPath', collectionPath);
     const offset = (data['offset'] as number) ?? 0;
     const pastSuccessCount = (data['successCount'] as number) ?? 0;
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
@@ -186,14 +190,18 @@ export const executeFullIndexOperation = functions.tasks
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))
     );
-
+    logs.info('promises.length', promises.length);
+    (promises as any).forEach(v => logs.info('v', v));
     const records = (promises as any)
       .filter(v => v.status === "fulfilled")
-      .map(v => v.value)
+      .map(v => v.value);
 
-    await index.saveObjects(records, {
+    logs.info('records.length', records.length);
+    const responses = await index.saveObjects(records, {
       autoGenerateObjectIDIfNotExist: true,
-    })
+    });
+    logs.info('responses.objectIDs', responses.objectIDs);
+    logs.info('responses.taskIDs', responses.taskIDs);
 
     const newSuccessCount = pastSuccessCount + records.length;
     const newErrorCount = pastErrorCount;

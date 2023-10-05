@@ -62,6 +62,8 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
   You usually want a location close to your database.
   For help selecting a location, refer to the
   [location selection guide](https://firebase.google.com/docs/functions/locations).
+- Database Id: Enter the database id that contains the collection(s) that you want to monitor?
+  Firebase supports [multiple databases](https://cloud.google.com/blog/products/databases/manage-multiple-firestore-databases-in-a-project) in a project.  In order to use a non default database, enter the database Id.
 
 - Collection Path: What is the path to the Cloud Firestore collection where the extension should monitor for changes?
   For subcollection, the syntax is `parent_collection/{parentId}/target_collection`. (please note, there is not depublication process on subcollections).

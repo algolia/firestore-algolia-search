@@ -55,7 +55,6 @@ If the testing is successful, then publish the Firestore extension and publish t
 ```
 cd functions
 git push --follow-tags
-npm publish
 ```
 
 #### Publish Firestore Extension

@@ -5,7 +5,7 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 1.1.3
+version: 1.1.4
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta
@@ -62,7 +62,7 @@ resources:
       runtime: nodejs16
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_PATH}/{documentID}
+        resource: projects/${PROJECT_ID}/databases/${DATABASE_ID}/documents/${COLLECTION_PATH}/{documentID}
 
   - name: executeFullIndexOperation
     type: firebaseextensions.v1beta.function
@@ -77,6 +77,15 @@ resources:
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
+  - param: DATABASE_ID
+    label: Database ID
+    description: >
+      Enter database that contains the collections that you want to monitor?
+    default: '(default)'
+    example: test
+    required: true
+    immutable: true
+
   - param: COLLECTION_PATH
     label: Collection Path
     description: >
