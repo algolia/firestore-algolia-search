@@ -20,6 +20,7 @@ const config = {
   algoliaAppId: process.env.ALGOLIA_APP_ID,
   algoliaAPIKey: process.env.ALGOLIA_API_KEY,
   algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
+  databaseId: process.env.DATABASE_ID,
   collectionPath: process.env.COLLECTION_PATH,
   fields: process.env.FIELDS,
   forceDataSync: process.env.FORCE_DATA_SYNC  == 'yes',

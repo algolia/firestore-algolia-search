@@ -40,6 +40,7 @@ globalThis.mockLogger = mockLogger;
 
 globalThis.defaultEnvironment = {
   PROJECT_ID: 'fake-project',
+  DATABASE_ID: '(default)',
   LOCATION: 'us-central1',
   ALGOLIA_APP_ID: 'algolia-app-id',
   ALGOLIA_API_KEY: '********',

@@ -19,16 +19,16 @@ import algoliaSearch from 'algoliasearch';
 import * as functions from 'firebase-functions';
 import { EventContext } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
-import { DocumentData } from 'firebase-admin/firestore';
+import { DocumentData, getFirestore } from 'firebase-admin/firestore';
 import { getExtensions } from 'firebase-admin/extensions';
 import { getFunctions } from 'firebase-admin/functions';
+import * as firebase from 'firebase-admin';
 
 import config from './config';
 import extract from './extract';
 import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
 import * as logs from './logs';
-import * as admin from 'firebase-admin';
 
 const DOCS_PER_INDEXING = 250;
 
@@ -40,8 +40,8 @@ const client = algoliaSearch(
 client.addAlgoliaAgent('firestore_integration', version);
 export const index = client.initIndex(config.algoliaIndexName);
 
-// Initialize the Firebase Admin SDK
-admin.initializeApp();
+firebase.initializeApp();
+const firestoreDB = getFirestore(config.databaseId);
 
 logs.init();
 
@@ -170,23 +170,31 @@ export const executeFullIndexOperation = functions.tasks
     }
 
     logs.info('config.collectionPath', config.collectionPath);
-    const collectionPath = config.collectionPath.indexOf('/') == -1
-      ? config.collectionPath
-      : config.collectionPath.split('/').pop();
-    logs.info('collectionPath', collectionPath);
-    const offset = (data['offset'] as number) ?? 0;
+    const cursor = (data['cursor'] as number) ?? 0;
     const pastSuccessCount = (data['successCount'] as number) ?? 0;
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
     const startTime = (data['startTime'] as number) ?? Date.now();
 
-    const snapshot = await admin
-      .firestore()
-      .collectionGroup(collectionPath)
-      .offset(offset)
-      .limit(DOCS_PER_INDEXING)
-      .get();
+    let query: firebase.firestore.Query;
+    query = firestoreDB
+      .collection(config.collectionPath);
 
+    logs.info('Is Collection Group?', config.collectionPath.indexOf('/') !== -1);
+    if (config.collectionPath.indexOf('/') === -1) {
+      query = firestoreDB
+        .collection(config.collectionPath);
+    } else {
+      query = firestoreDB
+        .collectionGroup(config.collectionPath.split('/').pop());
+    }
+
+    query = query.limit(DOCS_PER_INDEXING);
+    if (cursor) {
+      query = query.startAfter(cursor);
+    }
+
+    const snapshot = await query.get();
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))
     );
@@ -207,15 +215,15 @@ export const executeFullIndexOperation = functions.tasks
     const newErrorCount = pastErrorCount;
 
     if (snapshot.size === DOCS_PER_INDEXING) {
-      const newOffset = offset + DOCS_PER_INDEXING;
+      const newCursor = cursor + DOCS_PER_INDEXING;
       // Still have more documents to index, enqueue another task.
-      logs.enqueueNext(newOffset);
+      logs.enqueueNext(newCursor);
       const queue = getFunctions().taskQueue(
         `locations/${config.location}/functions/executeFullIndexOperation`,
         config.instanceId
       );
       await queue.enqueue({
-        offset: newOffset,
+        cursor: newCursor,
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
