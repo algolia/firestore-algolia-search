@@ -31,7 +31,6 @@ import { version } from './version';
 import * as logs from './logs';
 
 const DOCS_PER_INDEXING = 250;
-
 const client = algoliaSearch(
   config.algoliaAppId,
   config.algoliaAPIKey,
@@ -177,8 +176,6 @@ export const executeFullIndexOperation = functions.tasks
     const startTime = (data['startTime'] as number) ?? Date.now();
 
     let query: firebase.firestore.Query;
-    query = firestoreDB
-      .collection(config.collectionPath);
 
     logs.info('Is Collection Group?', config.collectionPath.indexOf('/') !== -1);
     if (config.collectionPath.indexOf('/') === -1) {
@@ -189,7 +186,12 @@ export const executeFullIndexOperation = functions.tasks
         .collectionGroup(config.collectionPath.split('/').pop());
     }
 
-    query = query.limit(DOCS_PER_INDEXING);
+    logs.info('firebase.firestore.FieldPath.documentId()?', firebase.firestore.FieldPath.documentId());
+    query = query
+      .orderBy(firebase.firestore.FieldPath.documentId())
+      .limit(DOCS_PER_INDEXING);
+
+    logs.info('cursor?', cursor);
     if (cursor) {
       query = query.startAfter(cursor);
     }
