@@ -29,6 +29,7 @@ import extract from './extract';
 import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
 import * as logs from './logs';
+import { firestore } from 'firebase-admin';
 
 const DOCS_PER_INDEXING = 250;
 const client = algoliaSearch(
@@ -169,7 +170,7 @@ export const executeFullIndexOperation = functions.tasks
     }
 
     logs.info('config.collectionPath', config.collectionPath);
-    const cursor = (data['cursor'] as number) ?? 0;
+    const cursor = (data['cursor'] as DocumentSnapshot) ?? null;
     const pastSuccessCount = (data['successCount'] as number) ?? 0;
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
@@ -185,11 +186,7 @@ export const executeFullIndexOperation = functions.tasks
       query = firestoreDB
         .collectionGroup(config.collectionPath.split('/').pop());
     }
-
-    logs.info('firebase.firestore.FieldPath.documentId()?', firebase.firestore.FieldPath.documentId());
-    query = query
-      .orderBy(firebase.firestore.FieldPath.documentId())
-      .limit(DOCS_PER_INDEXING);
+    query = query.limit(DOCS_PER_INDEXING);
 
     logs.info('cursor?', cursor);
     if (cursor) {
@@ -217,9 +214,9 @@ export const executeFullIndexOperation = functions.tasks
     const newErrorCount = pastErrorCount;
 
     if (snapshot.size === DOCS_PER_INDEXING) {
-      const newCursor = cursor + DOCS_PER_INDEXING;
+      const newCursor = snapshot.docs[snapshot.size - 1];
       // Still have more documents to index, enqueue another task.
-      logs.enqueueNext(newCursor);
+      logs.enqueueNext(snapshot.size - 1);
       const queue = getFunctions().taskQueue(
         `locations/${config.location}/functions/executeFullIndexOperation`,
         config.instanceId
