@@ -29,7 +29,6 @@ import extract from './extract';
 import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
 import * as logs from './logs';
-import { firestore } from 'firebase-admin';
 
 const DOCS_PER_INDEXING = 250;
 const client = algoliaSearch(
@@ -216,7 +215,7 @@ export const executeFullIndexOperation = functions.tasks
     if (snapshot.size === DOCS_PER_INDEXING) {
       const newCursor = snapshot.docs[snapshot.size - 1];
       // Still have more documents to index, enqueue another task.
-      logs.enqueueNext(snapshot.size - 1);
+      // logs.enqueueNext(snapshot.size - 1);
       const queue = getFunctions().taskQueue(
         `locations/${config.location}/functions/executeFullIndexOperation`,
         config.instanceId
