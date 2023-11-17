@@ -18,11 +18,12 @@
 import algoliaSearch from 'algoliasearch';
 import * as functions from 'firebase-functions';
 import { EventContext } from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
-import { DocumentData, getFirestore } from 'firebase-admin/firestore';
+import { DocumentData, DocumentSnapshot, getFirestore } from 'firebase-admin/firestore';
 import { getExtensions } from 'firebase-admin/extensions';
 import { getFunctions } from 'firebase-admin/functions';
 import * as firebase from 'firebase-admin';
+import { firestore } from 'firebase-admin';
+import FieldPath = firestore.FieldPath;
 
 import config from './config';
 import extract from './extract';
@@ -174,7 +175,6 @@ export const executeFullIndexOperation = functions.tasks
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
     const startTime = (data['startTime'] as number) ?? Date.now();
-
     let query: firebase.firestore.Query;
 
     logs.info('Is Collection Group?', config.collectionPath.indexOf('/') !== -1);
@@ -185,13 +185,15 @@ export const executeFullIndexOperation = functions.tasks
       query = firestoreDB
         .collectionGroup(config.collectionPath.split('/').pop());
     }
+    query = query.orderBy(FieldPath.documentId());
     query = query.limit(DOCS_PER_INDEXING);
 
     logs.info('cursor?', cursor);
     if (cursor) {
-      query = query.startAfter(cursor);
+      query = query.startAfter(cursor.ref);
     }
 
+    logs.info('query', query);
     const snapshot = await query.get();
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))

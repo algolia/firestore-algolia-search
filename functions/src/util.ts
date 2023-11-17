@@ -15,7 +15,7 @@
  */
 
 import * as functions from 'firebase-functions';
-import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
+import { DocumentSnapshot } from 'firebase-admin/firestore';
 import { Config } from './config';
 import * as logs from './logs';
 import { valueProcessor } from './processors';
