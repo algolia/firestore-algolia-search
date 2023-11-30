@@ -170,7 +170,7 @@ export const executeFullIndexOperation = functions.tasks
     }
 
     logs.info('config.collectionPath', config.collectionPath);
-    const cursor = (data['cursor'] as DocumentSnapshot) ?? null;
+    const docId = data['docId'] ?? null;
     const pastSuccessCount = (data['successCount'] as number) ?? 0;
     const pastErrorCount = (data['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
@@ -185,20 +185,25 @@ export const executeFullIndexOperation = functions.tasks
       query = firestoreDB
         .collectionGroup(config.collectionPath.split('/').pop());
     }
-    query = query.orderBy(FieldPath.documentId());
     query = query.limit(DOCS_PER_INDEXING);
 
-    logs.info('cursor?', cursor);
-    if (cursor) {
-      query = query.startAfter(cursor.ref);
+    logs.debug('docId?', docId);
+    if (docId) {
+      let queryCursor = query.where(FieldPath.documentId(), '==', docId);
+      logs.debug('queryCursor?', queryCursor);
+
+      const querySnapshot = await queryCursor.get();
+      logs.debug('querySnapshot?', querySnapshot);
+      logs.debug('querySnapshot.docs?', querySnapshot.docs);
+      querySnapshot.docs.forEach(doc => query = query.startAfter(doc));
     }
 
-    logs.info('query', query);
+    logs.debug('query', query);
     const snapshot = await query.get();
     const promises = await Promise.allSettled(
       snapshot.docs.map((doc) => extract(doc, startTime))
     );
-    logs.info('promises.length', promises.length);
+    logs.debug('promises.length', promises.length);
     (promises as any).forEach(v => logs.info('v', v));
     const records = (promises as any)
       .filter(v => v.status === "fulfilled")
@@ -208,7 +213,7 @@ export const executeFullIndexOperation = functions.tasks
     const responses = await index.saveObjects(records, {
       autoGenerateObjectIDIfNotExist: true,
     });
-    logs.info('responses.objectIDs', responses.objectIDs);
+    logs.debug('responses.objectIDs', responses.objectIDs);
     logs.info('responses.taskIDs', responses.taskIDs);
 
     const newSuccessCount = pastSuccessCount + records.length;
@@ -216,14 +221,12 @@ export const executeFullIndexOperation = functions.tasks
 
     if (snapshot.size === DOCS_PER_INDEXING) {
       const newCursor = snapshot.docs[snapshot.size - 1];
-      // Still have more documents to index, enqueue another task.
-      // logs.enqueueNext(snapshot.size - 1);
       const queue = getFunctions().taskQueue(
         `locations/${config.location}/functions/executeFullIndexOperation`,
         config.instanceId
       );
       await queue.enqueue({
-        cursor: newCursor,
+        docId: newCursor.id,
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
