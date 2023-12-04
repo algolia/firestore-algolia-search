@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/algolia/firestore-algolia-search/compare/v1.1.5...v1.2.0) (2023-12-04)
+
+
+### Features
+
+* implement query cursors ([#182](https://github.com/algolia/firestore-algolia-search/issues/182)) ([c7c17ac](https://github.com/algolia/firestore-algolia-search/commit/c7c17ac3bc4c32d163d02d10d6eb0aad5496a429))
+
 ### [1.1.5](https://github.com/algolia/firestore-algolia-search/compare/v1.1.4...v1.1.5) (2023-11-10)
 
 * refactor: update runtime to node18
