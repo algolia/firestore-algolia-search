@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DocumentSnapshot } from 'firebase-functions/lib/v1/providers/firestore';
+import { DocumentSnapshot } from 'firebase-admin/firestore';
 
 import config from './config';
 import * as logs from './logs';
