@@ -219,7 +219,7 @@ export const executeFullIndexOperation = functions.tasks
     const newSuccessCount = pastSuccessCount + records.length;
     const newErrorCount = pastErrorCount;
 
-    if (snapshot.size === DOCS_PER_INDEXING) {
+    if (snapshot.size >= DOCS_PER_INDEXING) {
       const newCursor = snapshot.docs[snapshot.size - 1];
       const queue = getFunctions().taskQueue(
         `locations/${config.location}/functions/executeFullIndexOperation`,
