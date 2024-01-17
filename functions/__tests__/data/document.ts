@@ -2,10 +2,12 @@ import { firestore } from 'firebase-admin';
 import Timestamp = firestore.Timestamp;
 
 export const documentID = 'document/1';
+export const recordID = 'e90db247-5eef-4bb9-875e-67e291be6356';
 
 export const testReleaseDate = new Date(1995, 12, 1);
 
 export default {
+  'id': recordID,
   'title': 'The Shawshank Redemption',
   'alternative_titles': [
     'En verden udenfor',

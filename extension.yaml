@@ -93,7 +93,7 @@ params:
     default: ''
     example: store
     validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
-    validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "path/to/collection".
+    validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "movies/{id}/actors".
     required: true
     immutable: true
 
@@ -148,6 +148,14 @@ params:
       **Do not use the Admin API key**.
     type: secret
     required: true
+
+  - param: ALT_OBJECT_ID
+    label: Alternative Object Id
+    description: >-
+      Specify an alternative Firestore document property to use for the Algolia record Id.  Use `(path)` if the document path is desired as the Algolia ObjectID.  The default is the Firestore document Id.
+      **If you set this property, make sure to clear out the Algolia Index since the ObjectID will be different resulting in duplicate records.**
+    type: string
+    required: false
 
   - param: TRANSFORM_FUNCTION
     label: Transform Function Name (Experimental)

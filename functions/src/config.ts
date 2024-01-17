@@ -27,6 +27,7 @@ const config = {
   transformFunction: process.env.TRANSFORM_FUNCTION,
   projectId: process.env.PROJECT_ID,
   doFullIndexing: process.env.DO_FULL_INDEXING == 'true',
+  altObjectId: process.env.ALT_OBJECT_ID
 };
 
 export type Config = typeof config;
