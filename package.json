@@ -1,6 +1,6 @@
 {
   "name": "firestore-algolia-search",
-  "version": "1.2.0",
+  "version": "1.2.1-rc.1",
   "description": "",
   "license": "Apache-2.0",
   "scripts": {
