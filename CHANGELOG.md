@@ -11,9 +11,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Add logic to extract JS to use the alternative record id if it is set
 * Add test for this change
 
-
 ## [1.2.0](https://github.com/algolia/firestore-algolia-search/compare/v1.1.5...v1.2.0) (2023-12-04)
-
 
 ### Features
 
