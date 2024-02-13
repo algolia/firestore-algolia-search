@@ -30,7 +30,7 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
   let payload: {
     [key: string]: boolean | string | number;
   } = {
-    objectID: snapshot.id,
+    objectID: config.altObjectId ? config.altObjectId === '(path)' ? snapshot.ref.path : snapshot.get(config.altObjectId) : snapshot.id,
     path: snapshot.ref.path,
   };
 
