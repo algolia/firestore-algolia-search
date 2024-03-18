@@ -6,15 +6,16 @@ All notable changes to this project will be documented in this file. See [standa
 
 * full indexing of more than 250 records ([06c49b1](https://github.com/algolia/firestore-algolia-search/commit/06c49b133a8cb13cb9ff6dab076a64b412f4a3a6))
 
-### [1.2.2](https://github.com/algolia/firestore-algolia-search/compare/v1.2.0...v1.2.2) (2024-03-18)
-
-
-### Bug Fixes
-
-* full indexing of more than 250 records ([06c49b1](https://github.com/algolia/firestore-algolia-search/commit/06c49b133a8cb13cb9ff6dab076a64b412f4a3a6))
-
 ## [1.2.0](https://github.com/algolia/firestore-algolia-search/compare/v1.1.5...v1.2.0) (2023-12-04)
 
+### Features
+
+* Add configuration input to allow users to set a firebase property as objectID in Algolia
+* Update README to reflect changes
+* Add logic to extract JS to use the alternative record id if it is set
+* Add test for this change
+
+## [1.2.0](https://github.com/algolia/firestore-algolia-search/compare/v1.1.5...v1.2.0) (2023-12-04)
 
 ### Features
 

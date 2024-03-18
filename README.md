@@ -91,6 +91,10 @@ Cloud Functions Location: Where do you want to deploy the functions created for 
   where the records will be persisted.
   Refer to [naming your index](https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/#naming-your-index) for more information.
 
+- Alternative Object Id: Are you looking to use another Firestore document property or document path as the Algolia ObjectID?
+  Specify an alternative Firestore document property to use for the Algolia record Id.  Use `(path)` if the document path is desired as the Algolia ObjectID.  The default is the Firestore document Id.
+  **If you set this property, make sure to clear out the Algolia Index since the ObjectID will be different resulting in duplicate records.**
+
 - Transform Function Name (experimental): What is the Firebase Cloud Function Name?
   This is the name of the Firestore Cloud Function for transforming the data before transmitting to Algolia for indexing.
   This function should be deployed to the same Firebase Project and Location as the Firestore/Algolia extension.
