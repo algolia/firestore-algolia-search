@@ -158,7 +158,7 @@ export const executeFullIndexOperation = functions.tasks
   .taskQueue()
   .onDispatch(async (data: any) => {
     const runtime = getExtensions().runtime();
-    logs.info('config', config);
+    logs.init()
     logs.info('config.doFullIndexing', config.doFullIndexing);
     if (!config.doFullIndexing) {
       await runtime.setProcessingState(
