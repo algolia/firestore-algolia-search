@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/algolia/firestore-algolia-search/compare/v1.2.1...v1.2.2) (2024-03-20)
+
+### Bug Fixes
+
+* update logger to obfuscated config to prevent api key from being outputted in logs
+
 ### [1.2.1](https://github.com/algolia/firestore-algolia-search/compare/v1.2.0...v1.2.1) (2024-02-13)
 
 ### Features
