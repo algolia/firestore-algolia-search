@@ -158,7 +158,7 @@ export const executeFullIndexOperation = functions.tasks
   .taskQueue()
   .onDispatch(async (data: any) => {
     const runtime = getExtensions().runtime();
-    logs.info('config', config);
+    logs.init();
     logs.info('config.doFullIndexing', config.doFullIndexing);
     if (!config.doFullIndexing) {
       await runtime.setProcessingState(
@@ -226,7 +226,7 @@ export const executeFullIndexOperation = functions.tasks
         config.instanceId
       );
       await queue.enqueue({
-        docId: newCursor.id,
+        docId: config.collectionPath.indexOf('/') === -1 ? newCursor.id : newCursor.ref.path,
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
