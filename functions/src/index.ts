@@ -226,7 +226,7 @@ export const executeFullIndexOperation = functions.tasks
         config.instanceId
       );
       await queue.enqueue({
-        docId: newCursor.id,
+        docId: newCursor.ref.path,
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
