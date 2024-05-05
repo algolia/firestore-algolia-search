@@ -26,7 +26,7 @@ import { firestore } from 'firebase-admin';
 import FieldPath = firestore.FieldPath;
 
 import config from './config';
-import extract from './extract';
+import extract, { getObjectID } from './extract';
 import { areFieldsUpdated, ChangeType, getChangeType } from './util';
 import { version } from './version';
 import * as logs from './logs';
@@ -122,8 +122,9 @@ const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
   try {
-    logs.deleteIndex(deleted.id);
-    await index.deleteObject(deleted.id);
+    const deletedObjectID = getObjectID(deleted);
+    logs.deleteIndex(deletedObjectID);
+    await index.deleteObject(deletedObjectID);
   } catch (e) {
     logs.error(e);
   }
