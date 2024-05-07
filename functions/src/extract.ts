@@ -20,7 +20,7 @@ import config from './config';
 import * as logs from './logs';
 import { dataProcessor, valueProcessor } from './processors';
 import transform from './transform';
-import { getFields, getObjectSizeInBytes, isValidValue } from './util';
+import { getFields, getObjectID, getObjectSizeInBytes, isValidValue } from './util';
 
 const PAYLOAD_MAX_SIZE = 102400;
 const PAYLOAD_TOO_LARGE_ERR_MSG = 'Record is too large.';
@@ -30,7 +30,7 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
   let payload: {
     [key: string]: boolean | string | number;
   } = {
-    objectID: config.altObjectId ? config.altObjectId === '(path)' ? snapshot.ref.path : snapshot.get(config.altObjectId) : snapshot.id,
+    objectID: getObjectID(config, snapshot),
     path: snapshot.ref.path,
   };
 

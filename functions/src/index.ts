@@ -27,7 +27,7 @@ import FieldPath = firestore.FieldPath;
 
 import config from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectID } from './util';
 import { version } from './version';
 import * as logs from './logs';
 
@@ -122,8 +122,8 @@ const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
   try {
-    logs.deleteIndex(deleted.id);
-    await index.deleteObject(deleted.id);
+    logs.deleteIndex(getObjectID(config, deleted),);
+    await index.deleteObject(getObjectID(config, deleted),);
   } catch (e) {
     logs.error(e);
   }
