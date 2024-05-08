@@ -36,6 +36,10 @@ export const getChangeType = (change: functions.Change<DocumentSnapshot>) => {
   return ChangeType.UPDATE;
 };
 
+export const getObjectID = (config, snapshot: DocumentSnapshot): string => {
+  return config.altObjectId ? config.altObjectId === '(path)' ? snapshot.ref.path : snapshot.get(config.altObjectId) : snapshot.id;
+}
+
 export const getObjectSizeInBytes = (object: [] | {}) => {
   const recordBuffer = Buffer.from(JSON.stringify(object));
   return recordBuffer.byteLength;
