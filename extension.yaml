@@ -5,10 +5,19 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 1.2.4
+version: 1.2.5
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta
+
+tags:
+  [
+    ai,
+    search,
+    semantic-search,
+    vector-search,
+    text-search
+  ]
 
 # Friendly display name for your extension (~3-5 words)
 displayName: Search Firestore with Algolia
@@ -53,7 +62,7 @@ roles:
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
   - name: executeIndexOperation
-    type: firebaseextensions.v1beta.function
+    type: firebaseextensions.v1beta.v2function
     description: >-
       Firestore document-triggered function that creates, updates, or deletes data in Algolia.
     properties: # LOCATION is a user-configured parameter value specified by the user
@@ -65,7 +74,7 @@ resources:
         resource: projects/${PROJECT_ID}/databases/${DATABASE_ID}/documents/${COLLECTION_PATH}/{documentID}
 
   - name: executeFullIndexOperation
-    type: firebaseextensions.v1beta.function
+    type: firebaseextensions.v1beta.v2function
     description: Loads all the data from your FireStore database into Algolia
     properties:
       location: ${param:LOCATION}
