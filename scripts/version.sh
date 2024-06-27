@@ -50,12 +50,12 @@ read -r -p "Please check the created files. Do you want to release? [y/N]" respo
 
 case "$response" in
   [yY][eE][sS]|[yY])
-    git add .
-    git commit -m "v$version"
-    git tag "v$version"
+#    git add .
+#    git commit -m "v$version"
+#    git tag "v$version"
 
-    echo "Version updated, now push to github:"
-    echo "${bold}cd functions && git push --follow-tags${normal}"
+#    echo "Version updated, now push to github:"
+#    echo "${bold}cd functions && git push --follow-tags${normal}"
   ;;
   *)
     echo "Canceled release. Once you are done, commit the version manually:"

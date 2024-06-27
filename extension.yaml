@@ -5,7 +5,7 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 1.2.5
+version: 1.2.6
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta
@@ -74,7 +74,7 @@ resources:
         resource: projects/${PROJECT_ID}/databases/${DATABASE_ID}/documents/${COLLECTION_PATH}/{documentID}
 
   - name: executeFullIndexOperation
-    type: firebaseextensions.v1beta.v2function
+    type: firebaseextensions.v1beta.function
     description: Loads all the data from your FireStore database into Algolia
     properties:
       location: ${param:LOCATION}

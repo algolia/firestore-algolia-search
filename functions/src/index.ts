@@ -16,6 +16,7 @@
  */
 
 import algoliaSearch from 'algoliasearch';
+import * as functionsv2 from 'firebase-functions/v2';
 import * as functions from 'firebase-functions';
 import { EventContext } from 'firebase-functions';
 import { DocumentData, DocumentSnapshot, getFirestore } from 'firebase-admin/firestore';
@@ -129,30 +130,30 @@ const handleDeleteDocument = async (
   }
 };
 
-// export const executeIndexOperation = functions.handler.firestore.document
-//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
-export const executeIndexOperation = functions.firestore
-  .document(config.collectionPath)
-  .onWrite(async (change, context: EventContext): Promise<void> => {
-    logs.start();
+export const executeIndexOperation = functionsv2.firestore.onDocumentUpdatedWithAuthContext(
+  config.collectionPath,
+  async (event
+  ) => {
+  logs.start();
 
-    const eventTimestamp = Date.parse(context.timestamp);
-    const changeType = getChangeType(change);
-    switch (changeType) {
-      case ChangeType.CREATE:
-        await handleCreateDocument(change.after, eventTimestamp);
-        break;
-      case ChangeType.DELETE:
-        await handleDeleteDocument(change.before);
-        break;
-      case ChangeType.UPDATE:
-        await handleUpdateDocument(change.before, change.after, eventTimestamp);
-        break;
-      default: {
-        throw new Error(`Invalid change type: ${ changeType }`);
-      }
+  const change = event.data;
+  const eventTimestamp = Date.parse(event.time);
+  const changeType = getChangeType(change);
+  switch (changeType) {
+    case ChangeType.CREATE:
+      await handleCreateDocument(change.after, eventTimestamp);
+      break;
+    case ChangeType.DELETE:
+      await handleDeleteDocument(change.before);
+      break;
+    case ChangeType.UPDATE:
+      await handleUpdateDocument(change.before, change.after, eventTimestamp);
+      break;
+    default: {
+      throw new Error(`Invalid change type: ${ changeType }`);
     }
-  });
+  }
+});
 
 export const executeFullIndexOperation = functions.tasks
   .taskQueue()
@@ -257,4 +258,3 @@ export const executeFullIndexOperation = functions.tasks
       );
     }
   });
-
