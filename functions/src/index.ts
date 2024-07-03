@@ -177,13 +177,14 @@ export const executeFullIndexOperation = functions.tasks
     const startTime = (data['startTime'] as number) ?? Date.now();
     let query: firebase.firestore.Query;
 
-    logs.info('Is Collection Group?', config.collectionPath.indexOf('/') !== -1);
-    if (config.collectionPath.indexOf('/') === -1) {
-      query = firestoreDB
-        .collection(config.collectionPath);
-    } else {
+    const isCollectionGroup = config.collectionPath.indexOf('/') !== -1;
+    logs.info('Is Collection Group?', isCollectionGroup);
+    if (isCollectionGroup) {
       query = firestoreDB
         .collectionGroup(config.collectionPath.split('/').pop());
+    } else {
+      query = firestoreDB
+        .collection(config.collectionPath);
     }
     query = query.limit(DOCS_PER_INDEXING);
 
@@ -226,7 +227,7 @@ export const executeFullIndexOperation = functions.tasks
         config.instanceId
       );
       await queue.enqueue({
-        docId: newCursor.id,
+        docId: isCollectionGroup ? newCursor.ref.path : newCursor.id,
         successCount: newSuccessCount,
         errorCount: newErrorCount,
         startTime: startTime,
