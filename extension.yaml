@@ -5,10 +5,19 @@
 name: firestore-algolia-search
 
 # Follow semver versioning
-version: 1.2.4
+version: 1.2.5
 
 # Version of the Firebase Extensions specification
 specVersion: v1beta
+
+tags:
+  [
+    ai,
+    search,
+    semantic-search,
+    vector-search,
+    text-search
+  ]
 
 # Friendly display name for your extension (~3-5 words)
 displayName: Search Firestore with Algolia

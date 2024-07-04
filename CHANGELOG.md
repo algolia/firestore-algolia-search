@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.5](https://github.com/algolia/firestore-algolia-search/compare/v1.2.2...v1.2.5) (2024-06-17)
+
+
+### Bug Fixes
+
+* Handled Alt Object ID for Delete ([#211](https://github.com/algolia/firestore-algolia-search/issues/211)) ([5bfc57d](https://github.com/algolia/firestore-algolia-search/commit/5bfc57d5643579a077b6b73c1eaf3695f5f0cb27))
+
 ### [1.2.4](https://github.com/algolia/firestore-algolia-search/compare/v1.2.2...v1.2.4) (2024-05-07)
 
 
