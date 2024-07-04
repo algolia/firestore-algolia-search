@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.7](https://github.com/algolia/firestore-algolia-search/compare/v1.2.6...v1.2.7) (2024-07-04)
+
+
+### Bug Fixes
+
+* revert back to Gen1 Cloud function ([7e21306](https://github.com/algolia/firestore-algolia-search/commit/7e213064e1aa7aea966c98c8e627d1dec9d34760))
+
 ### [1.2.6](https://github.com/algolia/firestore-algolia-search/compare/v1.2.2...v1.2.6) (2024-07-04)
 
 
