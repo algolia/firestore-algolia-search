@@ -3,13 +3,19 @@
 ## Supported Versions
 
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.2.2   | :white_check_mark: |
-| 1.2.0   | :x:                |
-| 1.1.5   | :x:                |
-| 1.1.4   | :x:                |
-| < 1.1.3   | :white_check_mark: |
+| Version | Supported         |
+|---------|-------------------|
+| 1.2.8   | :white_check_mark: |
+| 1.2.7   | :x: |
+| 1.2.6   | :x:                  |
+| 1.2.5   | :x:               |
+| 1.2.4   | :x:               |
+| 1.2.3   | :x:               |
+| 1.2.2   | :x:               |
+| 1.2.0   | :x:               |
+| 1.1.5   | :x:               |
+| 1.1.4   | :x:               |
+| < 1.1.3 | :x: |
 
 ## Reporting a Vulnerability
 
