@@ -10,7 +10,14 @@ version: 1.2.9
 # Version of the Firebase Extensions specification
 specVersion: v1beta
 
-tags: [ai, search, semantic-search, vector-search, text-search]
+tags:
+  [
+    ai,
+    search,
+    semantic-search,
+    vector-search,
+    text-search
+  ]
 
 # Friendly display name for your extension (~3-5 words)
 displayName: Search Firestore with Algolia
@@ -19,7 +26,7 @@ displayName: Search Firestore with Algolia
 description: >-
   Enables full text search of your Cloud Firestore data with Algolia.
 
-license: Apache-2.0 # https://spdx.org/licenses/
+license: Apache-2.0  # https://spdx.org/licenses/
 
 author:
   authorName: Algolia
@@ -74,7 +81,7 @@ resources:
       runtime: nodejs22
       availableMemoryMb: 1024
       timeout: 540s
-      taskQueueTrigger: {}
+      taskQueueTrigger: { }
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
@@ -83,7 +90,7 @@ params:
     label: Database ID
     description: >
       Enter database that contains the collections that you want to monitor?
-    default: "(default)"
+    default: '(default)'
     example: test
     required: true
     immutable: true
@@ -92,7 +99,7 @@ params:
     label: Collection Path
     description: >
       What is the path to the Cloud Firestore collection where the extension should monitor for changes?
-    default: ""
+    default: ''
     example: store
     validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
     validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "movies/{id}/actors".
@@ -105,8 +112,8 @@ params:
       This can be a comma separated list or left blank to index all fields.
       For performance reasons, [record size is limited](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/in-depth/index-and-records-size-and-usage-limitations/#record-size-limits).
       If you're receiving errors that your records are too large, refer to the [reducing record size documentation](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/).
-    default: ""
-    example: "name,category,price,sales"
+    default: ''
+    example: 'name,category,price,sales'
     required: false
 
   - param: FORCE_DATA_SYNC
