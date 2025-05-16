@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.10](https://github.com/algolia/firestore-algolia-search/compare/v1.2.8...v1.2.10) (2025-05-16)
+
+
+### Bug Fixes
+
+* downgrade to nodejs20 to resolve algolia firestore extension installation ([4b24726](https://github.com/algolia/firestore-algolia-search/commit/4b24726d93eb4d5242c332f4d7a4a641563c8c99))
+
 ### [1.2.9](https://github.com/algolia/firestore-algolia-search/compare/v1.2.8...v1.2.9) (2025-03-21)
 
 ### Added
