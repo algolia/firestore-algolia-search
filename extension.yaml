@@ -145,7 +145,7 @@ params:
     description: >-
       This is the Algolia application you want to index your data to.
       You can find your credentials including application ID on your Algolia dashboard,
-      under the [API keys tab](https://www.algolia.com/api-keys).
+      under the [API keys tab](https://dashboard.algolia.com/account/api-keys).
     type: string
     required: true
 
