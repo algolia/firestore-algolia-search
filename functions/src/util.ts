@@ -76,3 +76,20 @@ export const areFieldsUpdated = (
 export const isValidValue = (value) => {
   return typeof value !== undefined && value !== null;
 };
+
+/**
+ * Determines if a collection path represents a collection group query.
+ *
+ * Collection group queries use wildcard syntax like "users/{userId}/posts" to query
+ * all subcollections with a given name across the database.
+ *
+ * Specific paths like "organizations/acme/members" should NOT be treated as collection
+ * groups, as they reference a specific subcollection under a specific document.
+ *
+ * @param collectionPath - The configured collection path
+ * @returns true if the path contains wildcard patterns (e.g., {userId}), false otherwise
+ */
+export const isCollectionGroupPath = (collectionPath: string): boolean => {
+  // Check for wildcard patterns like {userId}, {docId}, etc.
+  return /\{[^}]+\}/.test(collectionPath);
+};

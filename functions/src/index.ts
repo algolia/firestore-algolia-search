@@ -27,7 +27,7 @@ import FieldPath = firestore.FieldPath;
 
 import config from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType, getObjectID } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath } from './util';
 import { version } from './version';
 import * as logs from './logs';
 
@@ -177,7 +177,18 @@ export const executeFullIndexOperation = functions.tasks
     const startTime = (data['startTime'] as number) ?? Date.now();
     let query: firebase.firestore.Query;
 
-    const isCollectionGroup = config.collectionPath.indexOf('/') !== -1;
+    // Determine if this is a collection group query by checking for wildcard patterns.
+    //
+    // Collection group patterns contain wildcards like {docId}:
+    //   - "users/{userId}/posts" → queries all "posts" subcollections across all users
+    //   - "organizations/{orgId}/members" → queries all "members" subcollections
+    //
+    // Specific paths do NOT contain wildcards:
+    //   - "posts" → top-level collection
+    //   - "organizations/acme/members" → specific subcollection under a specific document
+    //
+    // The previous logic incorrectly treated any path with '/' as a collection group.
+    const isCollectionGroup = isCollectionGroupPath(config.collectionPath);
     logs.info('Is Collection Group?', isCollectionGroup);
     if (isCollectionGroup) {
       query = firestoreDB
