@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.11](https://github.com/algolia/firestore-algolia-search/compare/v1.2.8...v1.2.11) (2026-03-24)
+
+
+### Bug Fixes
+
+* correctly detect collection group vs specific subcollection paths ([64503e5](https://github.com/algolia/firestore-algolia-search/commit/64503e55bccf832ac563b67cc172468a56775c7e)), closes [#229](https://github.com/algolia/firestore-algolia-search/issues/229)
+* correctly detect collection group vs specific subcollection paths ([#246](https://github.com/algolia/firestore-algolia-search/issues/246)) ([60da3fa](https://github.com/algolia/firestore-algolia-search/commit/60da3faf3fe01a92204f564e3675ca9bb6eabf71))
+* Update API Keys URL ([#236](https://github.com/algolia/firestore-algolia-search/issues/236)) ([d706b4e](https://github.com/algolia/firestore-algolia-search/commit/d706b4ed516517bc0af0922ad8251baa2c251314))
+
 ### [1.2.10](https://github.com/algolia/firestore-algolia-search/compare/v1.2.8...v1.2.10) (2025-05-16)
 
 
