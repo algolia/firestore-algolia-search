@@ -27,7 +27,7 @@ import FieldPath = firestore.FieldPath;
 
 import config from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType, getObjectID } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath } from './util';
 import { version } from './version';
 import * as logs from './logs';
 
@@ -177,7 +177,7 @@ export const executeFullIndexOperation = functions.tasks
     const startTime = (data['startTime'] as number) ?? Date.now();
     let query: firebase.firestore.Query;
 
-    const isCollectionGroup = config.collectionPath.indexOf('/') !== -1;
+    const isCollectionGroup = isCollectionGroupPath(config.collectionPath);
     logs.info('Is Collection Group?', isCollectionGroup);
     if (isCollectionGroup) {
       query = firestoreDB
