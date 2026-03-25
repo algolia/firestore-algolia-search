@@ -14,51 +14,41 @@ Login to Firebase to get permissions to the Firestore Database.
 firebase login
 ```
 
-### Extension Set up
-Enable the extension tools for extension development.
-```
-firebase --open-sesame extdev
-```
-
 ### Firebase Emulator
 Install the Firestore Emulator to do local development.  This is useful for quick development without the need for a Cloud Firestore instance.
 ```
 firebase init emulators
 ```
-
-For Information on [installing FireBase emulators](https://firebase.google.com/docs/emulator-suite/install_and_configure)
+More information on [installing FireBase emulators](https://firebase.google.com/docs/emulator-suite/install_and_configure)
 
 #### Start Firestore Emulator
 ```
-firebase ext:dev:emulators:start --test-params=test-params.env --project=algolia --import ./data
+firebase emulators:start --project=algolia --import ./data
 ```
-
-
 
 ## Version update
 
 When making changes to firestore, make sure to update the version. This is done by running with the right version:
 
 ```
-npm run release 0.1.x
+npm run release 1.x.x
 ```
 
 After the version has been bumped up, Test out extension on Firestore database
 
 ```
-firebase ext:install ./firestore-algolia-search --project=algolia-b2ebc
+firebase ext:install . --project=algolia-b2ebc
 ```
 
-If the testing is successful, then publish the Firestore extension and publish the npm package
+If the testing is successful, then push the new tags and publish the Firestore extension
 
-#### Publish NPM Package
+#### Push new version tag
 ```
-cd functions
 git push --follow-tags
 ```
 
 #### Publish Firestore Extension
 Make sure the below command is executed in the project root.  Also, `algolia-b2ebc` is the publish project for this extension.
 ```
-firebase ext:dev:publish algolia/firestore-algolia-search --project=algolia-b2ebc
+firebase ext:dev:upload algolia/firestore-algolia-search --project=algolia-b2ebc
 ```
