@@ -35,9 +35,14 @@ export const mockSearchModule = () => {
 };
 
 export const mockIndexerResult = (document, data) => {
-  console.log('mockIndexerResult');
   const indexer = mockIndexer();
-
-  console.log('indexer', indexer);
-  return indexer(document, data);
+  // Convert Gen 1 Change to Gen 2 CloudEvent format for onDocumentWritten
+  const event = {
+    data: {
+      before: document.before,
+      after: document.after,
+    },
+    time: new Date().toISOString(),
+  };
+  return indexer(event);
 };
