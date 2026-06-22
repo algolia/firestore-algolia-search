@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.0](https://github.com/algolia/firestore-algolia-search/compare/v1.2.11...v1.3.0) (2026-06-22)
+
+### Features
+
+* update runtime to nodejs22 [#250](https://github.com/algolia/firestore-algolia-search/pull/250)
+
 ### [1.2.11](https://github.com/algolia/firestore-algolia-search/compare/v1.2.8...v1.2.11) (2026-03-24)
 
 
