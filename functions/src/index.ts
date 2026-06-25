@@ -17,7 +17,7 @@
 
 import algoliaSearch from 'algoliasearch';
 import * as functions from 'firebase-functions';
-import { EventContext } from 'firebase-functions';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { DocumentData, DocumentSnapshot, getFirestore } from 'firebase-admin/firestore';
 import { getExtensions } from 'firebase-admin/extensions';
 import { getFunctions } from 'firebase-admin/functions';
@@ -129,15 +129,21 @@ const handleDeleteDocument = async (
   }
 };
 
-// export const executeIndexOperation = functions.handler.firestore.document
-//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
-export const executeIndexOperation = functions.firestore
-  .document(config.collectionPath)
-  .onWrite(async (change, context: EventContext): Promise<void> => {
+export const executeIndexOperation = onDocumentWritten(
+  {
+    document: `${config.collectionPath}/{documentID}`,
+    database: config.databaseId,
+    region: config.location,
+  },
+  async (event): Promise<void> => {
     logs.start();
 
-    const eventTimestamp = Date.parse(context.timestamp);
-    const changeType = getChangeType(change);
+    const eventTimestamp = Date.parse(event.time);
+    const change = {
+      before: event.data!.before,
+      after: event.data!.after,
+    };
+    const changeType = getChangeType(change as unknown as functions.Change<DocumentSnapshot>);
     switch (changeType) {
       case ChangeType.CREATE:
         await handleCreateDocument(change.after, eventTimestamp);
@@ -149,10 +155,11 @@ export const executeIndexOperation = functions.firestore
         await handleUpdateDocument(change.before, change.after, eventTimestamp);
         break;
       default: {
-        throw new Error(`Invalid change type: ${ changeType }`);
+        throw new Error(`Invalid change type: ${changeType}`);
       }
     }
-  });
+  },
+);
 
 export const executeFullIndexOperation = functions.tasks
   .taskQueue()
