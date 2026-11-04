@@ -1,4 +1,4 @@
-# @algolia/firestore-algolia-search
+# firestore-algolia-search
 
 Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
 2nd Gen Cloud Functions. This is the Function Kit version of the
@@ -8,16 +8,16 @@ Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
 
 ```bash
 cd functions
-npm install @algolia/firestore-algolia-search
+npm install firestore-algolia-search
 ```
 
-Requires Node.js >= 22, `firebase-functions` >= 7.3.0 and `firebase-admin`
+Requires Node.js 24, `firebase-functions` ^7.4.0 and `firebase-admin` ^14.2.0
 (peer dependencies).
 
 Re-export the functions from your `functions/src/index.ts`:
 
 ```ts
-export * from "@algolia/firestore-algolia-search";
+export * from "firestore-algolia-search";
 ```
 
 Then set the parameters below, store the API key as a secret

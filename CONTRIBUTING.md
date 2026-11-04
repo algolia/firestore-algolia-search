@@ -293,3 +293,12 @@ remain).
 project `algolia-b2ebc`. If you get a permissions error, ask a team member to grant you access
 to that project. You may use any project you own for `firebase ext:install` testing, but the
 final publish step requires the registered publisher project.
+
+### Tests run on `firebase-admin` 13 instead of 14
+
+The package supports `firebase-admin` `^14.2.0`, but the test suite runs on `firebase-admin` `^13` (dev dependency).
+`firebase-functions-test` (3.5.0) still calls `admin.firestore()` in `makeDocumentSnapshot`, which was removed in
+`firebase-admin` 14, so the tests fail with `TypeError: (0 , firebase_admin_1.firestore) is not a function` on 14.
+
+See [firebase-functions-test#347](https://github.com/firebase/firebase-functions-test/issues/347).
+Move the dev dependency to `firebase-admin` 14 once that is fixed.
