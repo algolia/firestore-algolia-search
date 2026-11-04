@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as functions from 'firebase-functions';
+import { Change } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-admin/firestore';
 import { Config } from './config';
 import * as logs from './logs';
@@ -26,7 +26,7 @@ export enum ChangeType {
   UPDATE,
 }
 
-export const getChangeType = (change: functions.Change<DocumentSnapshot>) => {
+export const getChangeType = (change: Change<DocumentSnapshot>) => {
   if (!change.after.exists) {
     return ChangeType.DELETE;
   }

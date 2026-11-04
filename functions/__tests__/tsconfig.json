@@ -1,13 +1,20 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "esModuleInterop": false,
+    "rootDir": "..",
+    "declaration": false,
     "outDir": "lib",
-    "target": "es2020"
+    "target": "es2022"
   },
   "files": [
     "test.types.d.ts"
   ],
   "include": [
-    "**/*"
-  ]
+    "**/*",
+    "../src"
+  ],
+  "exclude": []
 }

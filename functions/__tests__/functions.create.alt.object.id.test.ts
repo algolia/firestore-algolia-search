@@ -62,7 +62,8 @@ describe('extension', () => {
   });
 
   test('functions runs with a create with Alt Object ID using document path', async () => {
-    config.altObjectId = '(path)';
+    restoreEnv();
+    restoreEnv = mockedEnv({ ...globalThis.defaultEnvironment, ALT_OBJECT_ID: '(path)' });
 
     const beforeSnapshot = globalThis.snapshot({}, documentID);
     const afterSnapshot = globalThis.snapshot(testDocument, documentID);

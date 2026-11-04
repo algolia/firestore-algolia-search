@@ -14,20 +14,92 @@
  * limitations under the License.
  */
 
+import {
+  defineBoolean,
+  defineSecret,
+  defineString,
+  projectID,
+} from 'firebase-functions/params';
+
+/*
+ * Parameterized configuration (replaces the extension `params`).
+ * Values are provided through `.env` files / CLI prompts at deploy time.
+ */
+export const databaseId = defineString('DATABASE_ID', {
+  default: '(default)',
+  description: 'Firestore database that contains the collection to monitor.',
+});
+
+export const collectionPath = defineString('COLLECTION_PATH', {
+  description:
+    'Path of the Cloud Firestore collection to monitor, e.g. "movies" or "movies/{id}/actors".',
+  input: { text: { validationRegex: '^[^/]+(/[^/]+/[^/]+)*$', validationErrorMessage: 'Firestore collection paths must be an odd number of segments separated by slashes.' } },
+});
+
+export const fields = defineString('FIELDS', {
+  default: '',
+  description:
+    'Comma separated list of fields to index. Leave blank to index all fields.',
+});
+
+export const forceDataSync = defineBoolean('FORCE_DATA_SYNC', {
+  default: false,
+  description:
+    'Re-read the document from Firestore before indexing to mitigate race conditions (adds Firestore reads).',
+});
+
+export const algoliaIndexName = defineString('ALGOLIA_INDEX_NAME', {
+  description: 'Name of the Algolia index where records are persisted.',
+  input: { text: { nonEmpty: true } } as any,
+});
+
+export const algoliaAppId = defineString('ALGOLIA_APP_ID', {
+  description: 'Algolia application ID.',
+  input: { text: { nonEmpty: true } } as any,
+});
+
+export const algoliaApiKey = defineSecret('ALGOLIA_API_KEY');
+
+export const altObjectId = defineString('ALT_OBJECT_ID', {
+  default: '',
+  description:
+    'Alternative Firestore document property to use as the Algolia objectID. Use "(path)" for the document path.',
+});
+
+export const transformFunction = defineString('TRANSFORM_FUNCTION', {
+  default: '',
+  description:
+    'Name of an HTTPS callable function used to transform data before it is saved to Algolia (experimental).',
+});
+
+export const doFullIndexing = defineBoolean('DO_FULL_INDEXING', {
+  default: true,
+  description:
+    'Index existing documents of the collection after each deployment.',
+});
+
+export const location = defineString('LOCATION', {
+  default: 'us-central1',
+  description: 'Cloud Functions region.',
+});
+
+/**
+ * Lazy view over the parameters. `.value()` must not be called at module load
+ * time, so every field is resolved on access.
+ */
 const config = {
-  instanceId: process.env.EXT_INSTANCE_ID,
-  location: process.env.LOCATION,
-  algoliaAppId: process.env.ALGOLIA_APP_ID,
-  algoliaAPIKey: process.env.ALGOLIA_API_KEY,
-  algoliaIndexName: process.env.ALGOLIA_INDEX_NAME,
-  databaseId: process.env.DATABASE_ID,
-  collectionPath: process.env.COLLECTION_PATH,
-  fields: process.env.FIELDS,
-  forceDataSync: process.env.FORCE_DATA_SYNC  == 'yes',
-  transformFunction: process.env.TRANSFORM_FUNCTION,
-  projectId: process.env.PROJECT_ID,
-  doFullIndexing: process.env.DO_FULL_INDEXING == 'true',
-  altObjectId: process.env.ALT_OBJECT_ID
+  get location() { return location.value(); },
+  get algoliaAppId() { return algoliaAppId.value(); },
+  get algoliaAPIKey() { return algoliaApiKey.value(); },
+  get algoliaIndexName() { return algoliaIndexName.value(); },
+  get databaseId() { return databaseId.value(); },
+  get collectionPath() { return collectionPath.value(); },
+  get fields() { return fields.value(); },
+  get forceDataSync() { return forceDataSync.value(); },
+  get transformFunction() { return transformFunction.value(); },
+  get projectId() { return projectID.value(); },
+  get doFullIndexing() { return doFullIndexing.value(); },
+  get altObjectId() { return altObjectId.value(); },
 };
 
 export type Config = typeof config;

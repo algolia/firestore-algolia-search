@@ -12,7 +12,7 @@ describe('extension', () => {
 
   let config;
   beforeEach(() => {
-    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
+    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'true' });
     config = require('../src/config').default;
   });
 
@@ -44,8 +44,8 @@ describe('extension', () => {
 
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(4);
-      expect(infoMock).toBeCalledWith('Initializing extension with configuration', functionsConfig);
-      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Initializing function kit with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Started function execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,
@@ -87,7 +87,7 @@ describe('extension', () => {
 
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(3);
-      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Started function execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,

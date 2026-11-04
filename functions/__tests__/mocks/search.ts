@@ -39,5 +39,12 @@ export const mockIndexerResult = (document, data) => {
   const indexer = mockIndexer();
 
   console.log('indexer', indexer);
-  return indexer(document, data);
+  // `wrap` calls the raw v2 handler (`.run`), which bypasses the V1 compat shim
+  // that production adds, so provide the shimmed `change` and `context` here.
+  return indexer({
+    data: document,
+    change: document,
+    context: { timestamp: new Date().toISOString() },
+    ...(data as object),
+  } as any);
 };

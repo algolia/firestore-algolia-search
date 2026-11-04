@@ -17,17 +17,17 @@
 import { logger } from 'firebase-functions';
 import config from './config';
 
-export const obfuscatedConfig = {
+export const obfuscatedConfig = () => ({
   ...config,
   algoliaAPIKey: '********',
-};
+});
 
 export const init = () => {
-  logger.info('Initializing extension with configuration', obfuscatedConfig);
+  logger.info('Initializing function kit with configuration', obfuscatedConfig());
 };
 
 export const start = () => {
-  logger.info('Started extension execution with configuration', obfuscatedConfig);
+  logger.info('Started function execution with configuration', obfuscatedConfig());
 };
 
 export const warn = (...args: any) => {
@@ -59,7 +59,7 @@ export const deleteIndex = (id: string) => {
 };
 
 export const fieldNotExist = (field: string) => {
-  logger.warn(`The field "${ field }" was specified in the extension config but was not found on collection data.`);
+  logger.warn(`The field "${ field }" was specified in the FIELDS config but was not found on collection data.`);
 };
 
 export const fullIndexingComplete = (successCount: number, errorCount: number) => {

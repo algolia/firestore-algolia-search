@@ -45,7 +45,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(3);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {
@@ -89,7 +89,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(2);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {
