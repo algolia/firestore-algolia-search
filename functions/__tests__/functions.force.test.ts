@@ -10,10 +10,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'true' });
-    config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -24,7 +22,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with a create with force data sync.', async () => {

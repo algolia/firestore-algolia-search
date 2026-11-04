@@ -16,7 +16,7 @@
 
 import { DocumentSnapshot } from 'firebase-admin/firestore';
 
-import config from './config';
+import { fields as fieldsParam } from './config';
 import * as logs from './logs';
 import { dataProcessor, valueProcessor } from './processors';
 import transform from './transform';
@@ -30,11 +30,11 @@ const getPayload = async (snapshot: DocumentSnapshot): Promise<any> => {
   let payload: {
     [key: string]: boolean | string | number;
   } = {
-    objectID: getObjectID(config, snapshot),
+    objectID: getObjectID(snapshot),
     path: snapshot.ref.path,
   };
 
-  const fields = getFields(config);
+  const fields = getFields(fieldsParam.value());
   if (fields.length === 0) {
     payload = {
       ...dataProcessor(snapshot.data()),

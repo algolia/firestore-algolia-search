@@ -15,11 +15,33 @@
  */
 
 import { logger } from 'firebase-functions';
-import config from './config';
+import { projectID } from 'firebase-functions/params';
+import {
+  algoliaAppId,
+  algoliaIndexName,
+  altObjectId,
+  collectionPath,
+  databaseId,
+  doFullIndexing,
+  fields,
+  forceDataSync,
+  location,
+  transformFunction,
+} from './config';
 
 export const obfuscatedConfig = () => ({
-  ...config,
+  location: location.value(),
+  algoliaAppId: algoliaAppId.value(),
   algoliaAPIKey: '********',
+  algoliaIndexName: algoliaIndexName.value(),
+  databaseId: databaseId.value(),
+  collectionPath: collectionPath.value(),
+  fields: fields.value(),
+  forceDataSync: forceDataSync.value(),
+  transformFunction: transformFunction.value(),
+  projectId: projectID.value(),
+  doFullIndexing: doFullIndexing.value(),
+  altObjectId: altObjectId.value(),
 });
 
 export const init = () => {

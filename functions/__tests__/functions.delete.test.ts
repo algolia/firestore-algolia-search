@@ -10,10 +10,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv(defaultEnvironment);
-    config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -24,7 +22,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with a deletion', async () => {

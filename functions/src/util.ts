@@ -16,7 +16,7 @@
 
 import { Change } from 'firebase-functions';
 import { DocumentSnapshot } from 'firebase-admin/firestore';
-import { Config } from './config';
+import { altObjectId, fields as fieldsParam } from './config';
 import * as logs from './logs';
 import { valueProcessor } from './processors';
 
@@ -36,8 +36,9 @@ export const getChangeType = (change: Change<DocumentSnapshot>) => {
   return ChangeType.UPDATE;
 };
 
-export const getObjectID = (config, snapshot: DocumentSnapshot): string => {
-  return config.altObjectId ? config.altObjectId === '(path)' ? snapshot.ref.path : snapshot.get(config.altObjectId) : snapshot.id;
+export const getObjectID = (snapshot: DocumentSnapshot): string => {
+  const altId = altObjectId.value();
+  return altId ? altId === '(path)' ? snapshot.ref.path : snapshot.get(altId) : snapshot.id;
 }
 
 export const getObjectSizeInBytes = (object: [] | {}) => {
@@ -45,15 +46,14 @@ export const getObjectSizeInBytes = (object: [] | {}) => {
   return recordBuffer.byteLength;
 };
 
-export const getFields = (config: Pick<Config, 'fields'>) =>
-  config.fields ? config.fields.split(/[ ,]+/) : [];
+export const getFields = (fields: string) =>
+  fields ? fields.split(/[ ,]+/) : [];
 
 export const areFieldsUpdated = (
-  config: Config,
   before: DocumentSnapshot,
   after: DocumentSnapshot
 ) => {
-  const fields = getFields(config);
+  const fields = getFields(fieldsParam.value());
 
   logs.debug(`fields: ${ fields }`);
   // If fields are not configured, then execute update record.

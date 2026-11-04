@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-import algoliaSearch from 'algoliasearch';
-import type { SearchIndex } from 'algoliasearch';
+import algoliaSearch, { SearchIndex } from 'algoliasearch';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onTaskDispatched } from 'firebase-functions/v2/tasks';
 import { requiresRole } from 'firebase-functions/v2';
@@ -26,7 +25,16 @@ import { DocumentData, DocumentSnapshot, FieldPath, getFirestore, Query } from '
 import { getFunctions } from 'firebase-admin/functions';
 import { getApps, initializeApp } from 'firebase-admin/app';
 
-import config, { algoliaApiKey, collectionPath, databaseId, location } from './config';
+import {
+  algoliaApiKey,
+  algoliaAppId,
+  algoliaIndexName,
+  collectionPath,
+  databaseId,
+  doFullIndexing,
+  forceDataSync,
+  location,
+} from './config';
 import extract from './extract';
 import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath } from './util';
 import { version } from './version';
@@ -43,9 +51,9 @@ let algoliaIndex: SearchIndex | undefined;
 export const getIndex = (): SearchIndex => {
   if (!algoliaIndex) {
     logs.init();
-    const client = algoliaSearch(config.algoliaAppId, config.algoliaAPIKey);
+    const client = algoliaSearch(algoliaAppId.value(), algoliaApiKey.value());
     client.addAlgoliaAgent('firestore_integration', version);
-    algoliaIndex = client.initIndex(config.algoliaIndexName);
+    algoliaIndex = client.initIndex(algoliaIndexName.value());
   }
   return algoliaIndex;
 };
@@ -54,7 +62,7 @@ const getDb = () => {
   if (getApps().length === 0) {
     initializeApp();
   }
-  return getFirestore(config.databaseId);
+  return getFirestore(databaseId.value());
 };
 
 const handleCreateDocument = async (
@@ -62,8 +70,8 @@ const handleCreateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync) {
+    const shouldForceSync = forceDataSync.value();
+    if (shouldForceSync) {
       const updatedSnapshot = await snapshot.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.createIndex(updatedSnapshot.id, data);
@@ -90,15 +98,15 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync) {
+    const shouldForceSync = forceDataSync.value();
+    if (shouldForceSync) {
       const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.updateIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
       await getIndex().saveObject(data);
     } else {
-      if (areFieldsUpdated(config, before, after)) {
+      if (areFieldsUpdated(before, after)) {
         logs.debug('Detected a change, execute indexing');
 
         const beforeData: DocumentData = await before.data();
@@ -134,8 +142,8 @@ const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
   try {
-    logs.deleteIndex(getObjectID(config, deleted),);
-    await getIndex().deleteObject(getObjectID(config, deleted),);
+    logs.deleteIndex(getObjectID(deleted));
+    await getIndex().deleteObject(getObjectID(deleted));
   } catch (e) {
     logs.error(e);
   }
@@ -182,8 +190,8 @@ export const executeFullIndexOperation = onTaskDispatched(
   },
   async ({ data }: { data: any }) => {
     logs.init()
-    logs.info('config.doFullIndexing', config.doFullIndexing);
-    if (!config.doFullIndexing) {
+    logs.info('doFullIndexing', doFullIndexing.value());
+    if (!doFullIndexing.value()) {
       logs.info(
         'Existing documents were not indexed because DO_FULL_INDEXING is false. ' +
         'Set it to true and redeploy to run a full reindex.'
@@ -191,7 +199,8 @@ export const executeFullIndexOperation = onTaskDispatched(
       return;
     }
 
-    logs.info('config.collectionPath', config.collectionPath);
+    const collection = collectionPath.value();
+    logs.info('collectionPath', collection);
     const docId = (data ?? {})['docId'] ?? null;
     const pastSuccessCount = ((data ?? {})['successCount'] as number) ?? 0;
     const pastErrorCount = ((data ?? {})['errorCount'] as number) ?? 0;
@@ -199,20 +208,20 @@ export const executeFullIndexOperation = onTaskDispatched(
     const startTime = ((data ?? {})['startTime'] as number) ?? Date.now();
     let query: Query;
 
-    const isCollectionGroup = isCollectionGroupPath(config.collectionPath);
+    const isCollectionGroup = isCollectionGroupPath(collection);
     logs.info('Is Collection Group?', isCollectionGroup);
     if (isCollectionGroup) {
       query = getDb()
-        .collectionGroup(config.collectionPath.split('/').pop());
+        .collectionGroup(collection.split('/').pop());
     } else {
       query = getDb()
-        .collection(config.collectionPath);
+        .collection(collection);
     }
     query = query.limit(DOCS_PER_INDEXING);
 
     logs.debug('docId?', docId);
     if (docId) {
-      let queryCursor = query.where(FieldPath.documentId(), '==', docId);
+      const queryCursor = query.where(FieldPath.documentId(), '==', docId);
       logs.debug('queryCursor?', queryCursor);
 
       const querySnapshot = await queryCursor.get();
@@ -245,7 +254,7 @@ export const executeFullIndexOperation = onTaskDispatched(
     if (snapshot.size === DOCS_PER_INDEXING) {
       const newCursor = snapshot.docs[snapshot.size - 1];
       const queue = getFunctions().taskQueue(
-        `locations/${config.location}/functions/executeFullIndexOperation`
+        `locations/${location.value()}/functions/executeFullIndexOperation`
       );
       await queue.enqueue({
         docId: isCollectionGroup ? newCursor.ref.path : newCursor.id,

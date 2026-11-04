@@ -18,7 +18,6 @@ import {
   defineBoolean,
   defineSecret,
   defineString,
-  projectID,
 } from 'firebase-functions/params';
 
 /*
@@ -82,25 +81,3 @@ export const location = defineString('LOCATION', {
   default: 'us-central1',
   description: 'Cloud Functions region.',
 });
-
-/**
- * Lazy view over the parameters. `.value()` must not be called at module load
- * time, so every field is resolved on access.
- */
-const config = {
-  get location() { return location.value(); },
-  get algoliaAppId() { return algoliaAppId.value(); },
-  get algoliaAPIKey() { return algoliaApiKey.value(); },
-  get algoliaIndexName() { return algoliaIndexName.value(); },
-  get databaseId() { return databaseId.value(); },
-  get collectionPath() { return collectionPath.value(); },
-  get fields() { return fields.value(); },
-  get forceDataSync() { return forceDataSync.value(); },
-  get transformFunction() { return transformFunction.value(); },
-  get projectId() { return projectID.value(); },
-  get doFullIndexing() { return doFullIndexing.value(); },
-  get altObjectId() { return altObjectId.value(); },
-};
-
-export type Config = typeof config;
-export default config;

@@ -6,10 +6,8 @@ let restoreEnv;
 describe('extension', () => {
   const mockedAlgoliaSearch = globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv(defaultEnvironment);
-    config = globalThis.config;
   });
 
   test('functions are exported', () => {
