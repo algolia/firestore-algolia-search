@@ -1,18 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "node16",
-    "moduleResolution": "node16",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
+    "skipLibCheck": true,
     "noImplicitReturns": true,
     "sourceMap": false,
-    "rootDir": "src",
     "outDir": "lib"
   },
   "compileOnSave": true,
-  "include": ["src"],
-  "exclude": ["node_modules", "lib", "__tests__"]
+  "include": [
+    "src",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
