@@ -6,10 +6,8 @@ let restoreEnv;
 describe('extension', () => {
   const mockedAlgoliaSearch = globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv(defaultEnvironment);
-    config = globalThis.config;
   });
 
   test('functions are exported', () => {
@@ -18,7 +16,9 @@ describe('extension', () => {
   });
 
   describe('extension.executeIndexOperation', () => {
-    test('algolia search client, user agent, and index are initialized', () => {
+    test('algolia search client, user agent, and index are initialized lazily', () => {
+      expect(mockedAlgoliaSearch).not.toHaveBeenCalled();
+      jest.requireActual('../src').getIndex();
       expect(mockedAlgoliaSearch).toHaveBeenCalled();
       expect(mockedAlgoliaSearch).toHaveBeenCalled();
       expect(mockedAlgoliaSearch).toHaveBeenCalledWith(

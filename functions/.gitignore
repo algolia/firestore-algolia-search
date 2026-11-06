@@ -6,3 +6,7 @@ typings/
 private
 
 lib
+
+# Local emulator params and secrets
+.env.local
+.secret.local

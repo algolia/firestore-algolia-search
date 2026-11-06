@@ -36,6 +36,8 @@ module.exports = {
     'import/no-deprecated': 'warn',
     'import/no-extraneous-dependencies': 'error',
     'import/no-unassigned-import': 'warn',
+    // The resolver does not understand package.json `exports` subpaths.
+    'import/no-unresolved': ['error', { ignore: ['^firebase-(admin|functions)/'] }],
     'no-cond-assign': 'error',
     'no-duplicate-case': 'error',
     'no-duplicate-imports': 'error',

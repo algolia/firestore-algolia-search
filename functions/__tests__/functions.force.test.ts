@@ -10,10 +10,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
-    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
-    config = require('../src/config').default;
+    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'true' });
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -24,7 +22,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with a create with force data sync.', async () => {
@@ -44,8 +42,8 @@ describe('extension', () => {
 
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(4);
-      expect(infoMock).toBeCalledWith('Initializing extension with configuration', functionsConfig);
-      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Initializing function kit with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Started function execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,
@@ -87,7 +85,7 @@ describe('extension', () => {
 
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(3);
-      expect(infoMock).toBeCalledWith('Started extension execution with configuration', functionsConfig);
+      expect(infoMock).toBeCalledWith('Started function execution with configuration', functionsConfig);
 
       const payload = {
         'objectID': afterSnapshot.id,

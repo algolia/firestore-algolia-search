@@ -10,10 +10,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv({ ...defaultEnvironment, ALT_OBJECT_ID: 'id' });
-    config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -24,7 +22,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with a create with Alt Object ID', async () => {
@@ -62,7 +60,8 @@ describe('extension', () => {
   });
 
   test('functions runs with a create with Alt Object ID using document path', async () => {
-    config.altObjectId = '(path)';
+    restoreEnv();
+    restoreEnv = mockedEnv({ ...globalThis.defaultEnvironment, ALT_OBJECT_ID: '(path)' });
 
     const beforeSnapshot = globalThis.snapshot({}, documentID);
     const afterSnapshot = globalThis.snapshot(testDocument, documentID);

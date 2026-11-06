@@ -37,37 +37,35 @@ firebase init emulators
 ```
 More information on [installing FireBase emulators](https://firebase.google.com/docs/emulator-suite/install_and_configure)
 
-#### Start Firestore Emulator
-The repo ships an `emulator:start` script that imports the seed data from `data/`:
-```
-npm run emulator:start
-```
-This is equivalent to:
-```
-firebase emulators:start --import=data
-```
-
-#### Testing the extension locally
-1. Install the extension into your local config so the emulator has an instance to run:
+#### Run the functions locally
+The package runs as regular 2nd Gen Functions code, so you don't need to install the Firebase Extension locally.
+1. Build the package so the emulator can load `functions/lib`:
    ```
-   firebase ext:install . --project=<your-project-id>
+   cd functions && npm run compile && cd ..
    ```
-   This writes an instance entry into `firebase.json` and creates
-   `extensions/<instance-id>.env` and `extensions/<instance-id>.secret.local`.
-2. Start the emulator:
+2. Create the params and the secret:
+   ```
+   cp functions/.env.example functions/.env.local     # then fill in the values
+   echo 'ALGOLIA_API_KEY=<your key>' > functions/.secret.local
+   ```
+3. Start the emulator. The repo ships an `emulator:start` script that imports the seed data
+   from `data/`:
    ```
    npm run emulator:start
    ```
-3. Open the Emulator UI (default http://127.0.0.1:4000/firestore) and add, update, or
+   This is equivalent to `firebase emulators:start --import=data`.
+4. Open the Emulator UI (default http://127.0.0.1:4000/firestore) and add, update, or
    delete a document in the collection you configured (e.g. `movies`).
-4. Watch the Functions logs. A successful create looks like:
+5. Watch the Functions logs. A successful create looks like:
    ```
    Creating new Algolia index for document <docId>
-   Finished "<region>-ext-<instance>-executeIndexOperation" in <N>ms
+   Finished "<region>-executeIndexOperation" in <N>ms
    ```
-5. Confirm the record appears in your Algolia index.
+6. Confirm the record appears in your Algolia index.
 
-> **Note:** Even when running in the emulator, the extension sends data to the **real Algolia
+The post-deploy full index (`afterFirstDeploy` / `afterRedeploy`) does not run in the emulator.
+
+> **Note:** Even when running in the emulator, the function sends data to the **real Algolia
 > API**. Use a dedicated test index so you do not pollute production data.
 
 ## Releasing a New Version
@@ -293,3 +291,12 @@ remain).
 project `algolia-b2ebc`. If you get a permissions error, ask a team member to grant you access
 to that project. You may use any project you own for `firebase ext:install` testing, but the
 final publish step requires the registered publisher project.
+
+### Tests run on `firebase-admin` 13 instead of 14
+
+The package supports `firebase-admin` `^14.2.0`, but the test suite runs on `firebase-admin` `^13` (dev dependency).
+`firebase-functions-test` (3.5.0) still calls `admin.firestore()` in `makeDocumentSnapshot`, which was removed in
+`firebase-admin` 14, so the tests fail with `TypeError: (0 , firebase_admin_1.firestore) is not a function` on 14.
+
+See [firebase-functions-test#347](https://github.com/firebase/firebase-functions-test/issues/347).
+Move the dev dependency to `firebase-admin` 14 once that is fixed.

@@ -14,8 +14,6 @@ import {
   mockSearchModule,
 } from './mocks/search';
 
-globalThis.config = () => require('../src/config').default;
-
 globalThis.snapshot = snapshot;
 
 globalThis.makeChange = makeChange;
