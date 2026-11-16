@@ -27,9 +27,26 @@ Then set the parameters below, store the API key as a secret
 firebase deploy --only functions
 ```
 
-The IAM role `roles/datastore.user` is declared in code and granted at deploy
-time. A full indexing run is triggered automatically after the first deploy and
+The IAM roles `roles/datastore.user`, `roles/eventarc.eventReceiver`,
+`roles/run.invoker` and `roles/cloudtasks.enqueuer` are declared in code and
+granted at deploy time. A full indexing run is triggered automatically after the first deploy and
 after every redeploy (when `DO_FULL_INDEXING` is `true`).
+
+> [!NOTE]
+> On the first deploy, the roles above are granted at the same moment the full
+> indexing task is queued. IAM changes can take a few minutes to propagate, so the
+> task may be rejected with a `403`
+> ```
+> The request was not authenticated [...] The IAM principal lacks {run.routes.invoke} permission.
+> ```
+> If you see this in the `executeFullIndexOperation` logs, wait a few minutes and run the
+> lifecycle hook again:
+>
+> ```bash
+> firebase functions:lifecycle:run afterFirstDeploy default   # or: afterRedeploy
+> ```
+>
+> Replace `default` with your codebase name if it is not the default one.
 
 ## Exported functions
 
@@ -62,7 +79,7 @@ after every redeploy (when `DO_FULL_INDEXING` is `true`).
 | Handler signature   | `(change, context)`                              | `({ change, context })` via the V1 destructuring shim            |
 | Configuration       | `extension.yaml` params / `process.env`          | `defineString` / `defineBoolean` / `defineSecret` params         |
 | API key             | `secret` param                                   | `defineSecret("ALGOLIA_API_KEY")`, bound to both functions       |
-| IAM                 | `roles` in `extension.yaml`                      | `requiresRole("roles/datastore.user")`                           |
+| IAM                 | `roles` in `extension.yaml`                      | four `requiresRole(...)` calls (see above)                       |
 | Lifecycle           | `onInstall` / `onUpdate` / `onConfigure`         | `afterFirstDeploy` / `afterRedeploy` running `executeFullIndexOperation` |
 | Processing state    | `runtime.setProcessingState`                     | Logged to Cloud Logging                                          |
 | Task enqueue        | Needs `EXT_INSTANCE_ID`                          | Plain function name                                              |

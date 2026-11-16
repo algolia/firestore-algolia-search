@@ -42,8 +42,11 @@ import * as logs from './logs';
 
 const DOCS_PER_INDEXING = 250;
 
-// Required IAM role (replaces `roles` in extension.yaml): read/write Firestore.
-requiresRole('roles/datastore.user');
+// Required IAM roles.
+requiresRole('roles/datastore.user');          // read/write Firestore
+requiresRole('roles/eventarc.eventReceiver');  // create and receive the Firestore trigger
+requiresRole('roles/run.invoker');             // allow Firebase to call the functions (on document changes and for full indexing)
+requiresRole('roles/cloudtasks.enqueuer');     // needed when full indexing enqueues its next batch
 
 // Algolia client and Firebase Admin are created lazily: parameter values are
 // not available at module load time.
@@ -186,7 +189,10 @@ export const executeFullIndexOperation = onTaskDispatched(
     memory: '1GiB',
     timeoutSeconds: 540,
     cpu: 'gcf_gen1',
-    retryConfig: { maxAttempts: 3 },
+    retryConfig: {
+      maxAttempts: 5,
+      minBackoffSeconds: 10, // To let the time for permissions to propagate on first deploy.
+    },
   },
   async ({ data }: { data: any }) => {
     logs.init()
@@ -277,5 +283,5 @@ export const executeFullIndexOperation = onTaskDispatched(
 
 // Run a full indexing after the first deployment and after every redeploy
 // (replaces `lifecycleEvents` in extension.yaml).
-afterFirstDeploy({ task: { function: 'executeFullIndexOperation' } });
-afterRedeploy({ task: { function: 'executeFullIndexOperation' } });
+afterFirstDeploy({ task: { function: 'executeFullIndexOperation', body: { data: {} } } });
+afterRedeploy({ task: { function: 'executeFullIndexOperation', body: { data: {} } } });
