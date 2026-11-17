@@ -7,6 +7,8 @@ private
 
 lib
 
-# Local emulator params and secrets
-.env.local
+# Local and per-project params and secrets
+.env
+.env.*
+!.env.example
 .secret.local

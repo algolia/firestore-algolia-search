@@ -11,17 +11,13 @@ cd functions
 npm install firestore-algolia-search
 ```
 
-Requires Node.js 24, `firebase-functions` ^7.4.0 and `firebase-admin` ^14.2.0
-(peer dependencies).
-
 Re-export the functions from your `functions/src/index.ts`:
 
 ```ts
 export * from "firestore-algolia-search";
 ```
 
-Then set the parameters below, store the API key as a secret
-(`firebase functions:secrets:set ALGOLIA_API_KEY`) and deploy:
+And deploy:
 
 ```bash
 firebase deploy --only functions
@@ -30,7 +26,7 @@ firebase deploy --only functions
 The IAM roles `roles/datastore.user`, `roles/eventarc.eventReceiver`,
 `roles/run.invoker` and `roles/cloudtasks.enqueuer` are declared in code and
 granted at deploy time. A full indexing run is triggered automatically after the first deploy and
-after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
+after every redeploy if you set `DO_FULL_INDEXING` to `true` (default `false`).
 
 > [!NOTE]
 > On the first deploy, the roles above are granted at the same moment the full
@@ -53,7 +49,8 @@ after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
 | `executeIndexOperation`     | Firestore `onDocumentWritten`             | Creates, updates or deletes the record in Algolia    |
 | `executeFullIndexOperation` | Cloud Tasks `onTaskDispatched`            | Indexes all existing documents, in batches of 250    |
 
-## Configuration (`.env`)
+## Configuration
+### `.env` values
 
 | Param                | Type    | Default       | Description                                                                          |
 | :------------------- | :------ | :------------ | :------------------------------------------------------------------------------------|
@@ -64,12 +61,42 @@ after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
 | `FORCE_DATA_SYNC`    | string  | `false`       | `true` / `false` (`yes` / `no` also accepted). Re-read the document before indexing. |
 | `ALGOLIA_APP_ID`     | string  | _required_    | Algolia application ID.                                                              |
 | `ALGOLIA_INDEX_NAME` | string  | _required_    | Target Algolia index.                                                                |
-| `ALGOLIA_API_KEY`    | secret  | _required_    | Algolia key (`addObject`, `deleteObject`). Do not use the Admin key.                 |
 | `ALT_OBJECT_ID`      | string  | _doc id_      | Document field used as `objectID`; `(path)` uses the document path.                  |
 | `TRANSFORM_FUNCTION` | string  | _none_        | Name of an HTTPS function that transforms records before indexing (experimental).    |
 | `DO_FULL_INDEXING`   | boolean | `false`       | Index existing documents after each deployment.                                      |
 
-## What changed (Extension vs Package)
+### Secrets
+
+- `ALGOLIA_API_KEY`: An Algolia API Key with the following ACLs: `addObject`, `deleteObject`.
+
+## Migrating from the extension
+
+The extension's functions are named `ext-<instance-id>-*`, so they don't clash
+with the ones from this package. Until the extension is uninstalled, both
+copies run and every write is indexed twice.
+
+1. Export the extension's configuration:
+   ```bash
+   firebase ext:export
+   ```
+   Copy the values from `extensions/<instance-id>.env` into `functions/.env`.
+2. Set the Algolia API key. The extension stored it under its own name, so it
+   has to be set again:
+   ```bash
+   firebase functions:secrets:set ALGOLIA_API_KEY
+   ```
+3. Re-export the functions and deploy, as in [Installation](#installation).
+4. Uninstall the extension:
+   ```bash
+   firebase ext:uninstall <instance-id>
+   ```
+
+Leave `DO_FULL_INDEXING=false` if the index is already up to date: records
+keep the same `objectID` as long as `ALT_OBJECT_ID` doesn't change. Set it to
+`true` for one deploy if you need a full resync, for example if the extension
+was uninstalled before the new functions were deployed.
+
+### What changed (Extension vs Package)
 
 | Area                | Extension                                        | Package                                                          |
 | :------------------ | :----------------------------------------------- | :--------------------------------------------------------------- |
@@ -82,7 +109,7 @@ after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
 | Processing state    | `runtime.setProcessingState`                     | Logged to Cloud Logging                                          |
 | Task enqueue        | Needs `EXT_INSTANCE_ID`                          | Plain function name                                              |
 | `DO_FULL_INDEXING`  | Required choice (Yes/No)                         | Default `false`; runs after every redeploy when `true`           |
-| Concurrency/cost    | 1 request per instance                           | `cpu: "gcf_gen1"` keeps single concurrency                       |
+| Concurrency/cost    | 1 request per instance                           | `cpu: "gcf_gen1"` keeps the single concurrency                   |
 
 ## Development
 

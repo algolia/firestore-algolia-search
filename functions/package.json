@@ -26,17 +26,13 @@
     "LICENSE"
   ],
   "engines": {
-    "node": "24"
+    "node": ">=22"
   },
   "dependencies": {
     "algoliasearch": "^4.23.3",
     "firebase-admin": "^14.2.0",
     "firebase-functions": "^7.4.0",
     "node-fetch": "^2.7.0"
-  },
-  "peerDependencies": {
-    "firebase-admin": "^14.2.0",
-    "firebase-functions": "^7.4.0"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.24.1",

@@ -41,12 +41,12 @@ export const fields = defineString('FIELDS', {
     'Comma separated list of fields to index. Leave blank to index all fields.',
 });
 
-// `yes` / `no`, as in the extension (a boolean param would turn `yes` into false).
+// Declared as string so existing extension configs (`yes` / `no`) continue to work (a boolean param would turn `yes` into false).
 export const forceDataSync = defineString('FORCE_DATA_SYNC', {
-  default: 'no',
+  default: 'false',
   description:
-    'Re-read the document from Firestore before indexing to mitigate race conditions. "true" is also accepted as "yes".',
-  input: { select: { options: [{ value: 'no' }, { value: 'yes' }] } },
+    'Re-read the document from Firestore before indexing to mitigate race conditions. "yes" is also accepted as "true".',
+  input: { select: { options: [{ value: 'false' }, { value: 'true' }] } },
 });
 
 export const algoliaIndexName = defineString('ALGOLIA_INDEX_NAME', {
