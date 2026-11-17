@@ -78,7 +78,17 @@ Below is the full end-to-end process for releasing a new version of the extensio
 - You have access to the **`algolia-b2ebc`** Firebase project (the registered publisher project for the `algolia` Extensions publisher). If you don't have access, ask a team member to add you via [Firebase Console](https://console.firebase.google.com/) > `algolia-b2ebc` > Project Settings > Users and permissions.
 - You have committed all your changes following [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `fix:`, `feat:`, `chore:`)
 
-### Step 1 — Bump the version
+### Step 1 — Test the extension on a Firebase project
+
+Install the extension against a real Firebase project to verify everything works:
+
+```bash
+firebase deploy --only functions --project=algolia-b2ebc
+```
+
+Once deployed, verify the extension works by adding/updating/deleting documents in the configured collection and checking your Algolia index.
+
+### Step 2 — Bump the version
 
 Run the release script with your target version:
 
@@ -111,40 +121,6 @@ This uses `standard-version` and will automatically:
 3. **Create a release commit** (e.g. `chore(release): 1.4.0`)
 4. **Create a git tag** (e.g. `v1.4.0`)
 
-### Step 2 — Test the extension on a Firebase project
-
-Install the extension locally against a real Firebase project to verify everything works:
-
-```bash
-firebase ext:install . --project=algolia-b2ebc
-```
-
-This will:
-
-1. **Check project permissions** — Verify your IAM policy is correct and required APIs (`firebaseextensions.googleapis.com`) are enabled.
-2. **Upload the extension source code** — Package and upload your local extension code.
-3. **Show a summary for review** — Display the extension name, version, license, resources (Cloud Functions), external services, required APIs, and IAM roles. You will be prompted to confirm with `Continue? (Y/n)`.
-4. **Create a new extension instance** — You'll be asked to name the instance (e.g. `firestore-algolia-search-xxxx`).
-5. **Configure the extension** — You'll be prompted to enter values for each parameter:
-   - **Database ID**: The Firestore database to monitor (default: `(default)`)
-   - **Collection Path**: The Firestore collection path to watch (e.g. `movies`)
-   - **Indexable Fields** *(optional)*: Comma-separated list of fields to index, or leave blank for all fields
-   - **Force Data Sync** *(optional)*: Whether to force a re-read from Firestore before sending to Algolia (`No` / `Yes`)
-   - **Algolia Index Name**: The name of the target Algolia index (e.g. `movies`)
-   - **Algolia Application Id**: Your Algolia App ID (found at [API keys tab](https://dashboard.algolia.com/account/api-keys))
-   - **Algolia API Key**: A dedicated API key with `addObject`, `deleteObject`, `listIndexes`, `deleteIndex`, `editSettings`, and `settings` permissions. **Do not use the Admin API key.** You'll be asked where to store the secret (select `Google Cloud Secret Manager`).
-   - **Alternative Object Id** *(optional)*: Use a different document property or `(path)` as the Algolia objectID
-   - **Transform Function Name** *(optional)*: A Cloud Function name for data transformation before indexing
-   - **Full Index existing documents?**: Whether to index all existing documents on install (`Yes` / `No`)
-   - **Cloud Functions location**: The region to deploy to (e.g. `us-central1`, `europe-west1`)
-
-6. **Deploy the extension** — Cloud Functions, Task Queues, and Secret Manager resources will be created.
-
-Once deployed, verify the extension works by adding/updating/deleting documents in the configured collection and checking your Algolia index.
-
-> You can also validate purely locally with the Firestore Emulator before deploying — see
-> [Testing the extension locally](#testing-the-extension-locally).
-
 ### Step 3 — Push the release to GitHub
 
 After testing is successful, push the release commit and tag:
@@ -155,7 +131,18 @@ git push --follow-tags
 
 This pushes both the release commit (e.g. `chore(release): 1.4.0`) and the version tag (e.g. `v1.4.0`) to the remote.
 
-### Step 4 — Publish the Firebase Extension
+### Step 4 — Publish the function kit on npm
+
+```bash
+cd functions
+npm publish
+```
+
+### Deprecated — Publish the Firebase Extension
+
+> [!NOTE]
+> The Firebase Extensions Hub is being deprecated.
+> Those instructions are kept for reference until the legacy extension code is fully cleaned up.
 
 From the **project root**, upload the extension to the Firebase Extensions Hub:
 
@@ -178,13 +165,13 @@ After this command succeeds, the new version will be available on the [Firebase 
 npm run release -- --release-as <version>
 
 # 2. Test locally (real project or emulator)
-firebase ext:install . --project=algolia-b2ebc
+firebase deploy --only functions --project=algolia-b2ebc
 
 # 3. Push to GitHub
 git push --follow-tags
 
 # 4. Publish
-firebase ext:dev:upload algolia/firestore-algolia-search --project=algolia-b2ebc
+cd functions && npm publish
 ```
 
 ## Troubleshooting

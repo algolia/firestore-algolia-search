@@ -81,5 +81,5 @@ export const doFullIndexing = defineBoolean('DO_FULL_INDEXING', {
 
 export const location = defineString('LOCATION', {
   default: 'us-central1',
-  description: 'Cloud Functions region.',
+  description: 'Cloud Functions region. Where do you want to deploy the functions created for this extension?',
 });
