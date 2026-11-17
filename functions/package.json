@@ -1,6 +1,6 @@
 {
-  "name": "firestore-algolia-search",
-  "version": "1.3.0",
+  "name": "@algolia/firestore-search",
+  "version": "2.0.0",
   "description": "Index Cloud Firestore collection to Algolia (2nd Gen Cloud Functions kit)",
   "scripts": {
     "build": "npm run clean && npm test && npm run compile",
@@ -25,6 +25,9 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },

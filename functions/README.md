@@ -1,4 +1,4 @@
-# firestore-algolia-search
+# @algolia/firestore-search
 
 Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
 2nd Gen Cloud Functions. This is the Function Kit version of the
@@ -9,7 +9,7 @@ Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
 Requires `firebase-tools` 15.32.0 or later.
 
 ```bash
-firebase functions:kits:install --package firestore-algolia-search --project <project-id>
+firebase functions:kits:install --package @algolia/firestore-search --project <project-id>
 ```
 
 The CLI asks for a kit instance ID and prompts for the
