@@ -16,9 +16,9 @@
  */
 
 import algoliaSearch, { SearchIndex } from 'algoliasearch';
-import { onDocumentWritten } from 'firebase-functions/v2/firestore';
-import { onTaskDispatched } from 'firebase-functions/v2/tasks';
-import { requiresRole } from 'firebase-functions/v2';
+import { onDocumentWritten } from 'firebase-functions/firestore';
+import { onTaskDispatched } from 'firebase-functions/tasks';
+import { requiresRole } from 'firebase-functions';
 import { afterFirstDeploy, afterRedeploy } from 'firebase-functions/lifecycle';
 import { expr } from 'firebase-functions/params';
 import { DocumentData, DocumentSnapshot, FieldPath, getFirestore, Query } from 'firebase-admin/firestore';
@@ -160,20 +160,24 @@ export const executeIndexOperation = onDocumentWritten(
     secrets: [algoliaApiKey],
     cpu: 'gcf_gen1',
   },
-  async ({ change, context }): Promise<void> => {
+  async (event): Promise<void> => {
     logs.start();
 
-    const eventTimestamp = Date.parse(context.timestamp);
-    const changeType = getChangeType(change as any);
+    const change = event.data;
+    if (!change) {
+      throw new Error('Event has no document data');
+    }
+    const eventTimestamp = Date.parse(event.time);
+    const changeType = getChangeType(change);
     switch (changeType) {
       case ChangeType.CREATE:
-        await handleCreateDocument(change.after as DocumentSnapshot, eventTimestamp);
+        await handleCreateDocument(change.after, eventTimestamp);
         break;
       case ChangeType.DELETE:
-        await handleDeleteDocument(change.before as DocumentSnapshot);
+        await handleDeleteDocument(change.before);
         break;
       case ChangeType.UPDATE:
-        await handleUpdateDocument(change.before as DocumentSnapshot, change.after as DocumentSnapshot, eventTimestamp);
+        await handleUpdateDocument(change.before, change.after, eventTimestamp);
         break;
       default: {
         throw new Error(`Invalid change type: ${ changeType }`);

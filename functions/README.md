@@ -79,7 +79,7 @@ Follow [Migrate from an extension to a function kit](https://firebase.google.com
 | Area                | Extension                                        | Package                                                          |
 | :------------------ | :----------------------------------------------- | :--------------------------------------------------------------- |
 | Triggers            | 1st Gen `firestore.document().onWrite`, `taskQueue` | 2nd Gen `onDocumentWritten`, `onTaskDispatched`               |
-| Handler signature   | `(change, context)`                              | `({ change, context })` via the V1 destructuring shim            |
+| Handler signature   | `(change, context)`                              | `(event)`: `event.data` is the before/after change, `event.time` |
 | Configuration       | `extension.yaml` params / `process.env`          | `defineString` / `defineBoolean` / `defineSecret` params         |
 | API key             | `secret` param                                   | `defineSecret("ALGOLIA_API_KEY")`, bound to both functions       |
 | IAM                 | `roles` in `extension.yaml`                      | four `requiresRole(...)` calls (see above)                       |
