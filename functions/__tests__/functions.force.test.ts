@@ -11,7 +11,7 @@ describe('extension', () => {
   const defaultEnvironment = globalThis.defaultEnvironment;
 
   beforeEach(() => {
-    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'true' });
+    restoreEnv = mockedEnv({ ...defaultEnvironment, FORCE_DATA_SYNC: 'yes' });
   });
 
   describe('functions.executeIndexOperation', () => {

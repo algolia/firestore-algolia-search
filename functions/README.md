@@ -30,12 +30,12 @@ firebase deploy --only functions
 The IAM roles `roles/datastore.user`, `roles/eventarc.eventReceiver`,
 `roles/run.invoker` and `roles/cloudtasks.enqueuer` are declared in code and
 granted at deploy time. A full indexing run is triggered automatically after the first deploy and
-after every redeploy (when `DO_FULL_INDEXING` is `true`).
+after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
 
 > [!NOTE]
 > On the first deploy, the roles above are granted at the same moment the full
 > indexing task is queued. IAM changes can take a few minutes to propagate, so the
-> task may be rejected with a `403`
+> task may be rejected with a `403`:
 > ```
 > The request was not authenticated [...] The IAM principal lacks {run.routes.invoke} permission.
 > ```
@@ -57,19 +57,19 @@ after every redeploy (when `DO_FULL_INDEXING` is `true`).
 
 ## Configuration (`.env`)
 
-| Param                | Type    | Default       | Description                                                                                          |
-| :------------------- | :------ | :------------ | :--------------------------------------------------------------------------------------------------- |
-| `LOCATION`           | string  | `us-central1` | Functions region.                                                                                    |
-| `DATABASE_ID`        | string  | `(default)`   | Firestore database to monitor.                                                                       |
-| `COLLECTION_PATH`    | string  | _required_    | Collection to monitor, e.g. `movies` or `users/{userId}/posts` (collection group).                   |
-| `FIELDS`             | string  | _all_         | Comma separated list of fields to index.                                                             |
-| `FORCE_DATA_SYNC`    | boolean | `false`       | Re-read the document before indexing (extra Firestore reads).                                        |
-| `ALGOLIA_INDEX_NAME` | string  | _required_    | Target Algolia index.                                                                                |
-| `ALGOLIA_APP_ID`     | string  | _required_    | Algolia application ID.                                                                              |
-| `ALGOLIA_API_KEY`    | secret  | _required_    | Algolia key (`addObject`, `deleteObject`, `listIndexes`, `deleteIndex`, `editSettings`, `settings`). Do not use the Admin key. |
-| `ALT_OBJECT_ID`      | string  | _doc id_      | Document field used as `objectID`; `(path)` uses the document path.                                  |
-| `TRANSFORM_FUNCTION` | string  | _none_        | Name of an HTTPS function that transforms records before indexing (experimental).                    |
-| `DO_FULL_INDEXING`   | boolean | `true`        | Index existing documents after each deployment.                                                      |
+| Param                | Type    | Default       | Description                                                                          |
+| :------------------- | :------ | :------------ | :------------------------------------------------------------------------------------|
+| `LOCATION`           | string  | `us-central1` | Functions region.                                                                    |
+| `DATABASE_ID`        | string  | `(default)`   | Firestore database to monitor.                                                       |
+| `COLLECTION_PATH`    | string  | _required_    | Collection to monitor, e.g. `movies` or `users/{userId}/posts` (collection group).   |
+| `FIELDS`             | string  | _all_         | Comma separated list of fields to index.                                             |
+| `FORCE_DATA_SYNC`    | string  | `false`       | `true` / `false` (`yes` / `no` also accepted). Re-read the document before indexing. |
+| `ALGOLIA_APP_ID`     | string  | _required_    | Algolia application ID.                                                              |
+| `ALGOLIA_INDEX_NAME` | string  | _required_    | Target Algolia index.                                                                |
+| `ALGOLIA_API_KEY`    | secret  | _required_    | Algolia key (`addObject`, `deleteObject`). Do not use the Admin key.                 |
+| `ALT_OBJECT_ID`      | string  | _doc id_      | Document field used as `objectID`; `(path)` uses the document path.                  |
+| `TRANSFORM_FUNCTION` | string  | _none_        | Name of an HTTPS function that transforms records before indexing (experimental).    |
+| `DO_FULL_INDEXING`   | boolean | `false`       | Index existing documents after each deployment.                                      |
 
 ## What changed (Extension vs Package)
 
@@ -80,10 +80,10 @@ after every redeploy (when `DO_FULL_INDEXING` is `true`).
 | Configuration       | `extension.yaml` params / `process.env`          | `defineString` / `defineBoolean` / `defineSecret` params         |
 | API key             | `secret` param                                   | `defineSecret("ALGOLIA_API_KEY")`, bound to both functions       |
 | IAM                 | `roles` in `extension.yaml`                      | four `requiresRole(...)` calls (see above)                       |
-| Lifecycle           | `onInstall` / `onUpdate` / `onConfigure`         | `afterFirstDeploy` / `afterRedeploy` running `executeFullIndexOperation` |
+| Lifecycle           | `onInstall` / `onUpdate` / `onConfigure`         | `afterFirstDeploy` / `afterRedeploy`                             |
 | Processing state    | `runtime.setProcessingState`                     | Logged to Cloud Logging                                          |
 | Task enqueue        | Needs `EXT_INSTANCE_ID`                          | Plain function name                                              |
-| `FORCE_DATA_SYNC`   | `yes` / `no`                                     | `true` / `false`                                                 |
+| `DO_FULL_INDEXING`  | Required choice (Yes/No)                         | Default `false`; runs after every redeploy when `true`           |
 | Concurrency/cost    | 1 request per instance                           | `cpu: "gcf_gen1"` keeps single concurrency                       |
 
 ## Development

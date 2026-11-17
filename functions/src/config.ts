@@ -41,10 +41,12 @@ export const fields = defineString('FIELDS', {
     'Comma separated list of fields to index. Leave blank to index all fields.',
 });
 
-export const forceDataSync = defineBoolean('FORCE_DATA_SYNC', {
-  default: false,
+// `yes` / `no`, as in the extension (a boolean param would turn `yes` into false).
+export const forceDataSync = defineString('FORCE_DATA_SYNC', {
+  default: 'no',
   description:
-    'Re-read the document from Firestore before indexing to mitigate race conditions (adds Firestore reads).',
+    'Re-read the document from Firestore before indexing to mitigate race conditions (adds Firestore reads). "true" is also accepted as "yes".',
+  input: { select: { options: [{ value: 'no' }, { value: 'yes' }] } },
 });
 
 export const algoliaIndexName = defineString('ALGOLIA_INDEX_NAME', {
@@ -72,9 +74,9 @@ export const transformFunction = defineString('TRANSFORM_FUNCTION', {
 });
 
 export const doFullIndexing = defineBoolean('DO_FULL_INDEXING', {
-  default: true,
+  default: false,
   description:
-    'Index existing documents of the collection after each deployment.',
+    'Index existing documents of the collection after each deployment. Replaces all records with the data in Firestore.',
 });
 
 export const location = defineString('LOCATION', {

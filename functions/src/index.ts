@@ -36,7 +36,7 @@ import {
   location,
 } from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath, isEnabled } from './util';
 import { version } from './version';
 import * as logs from './logs';
 
@@ -73,7 +73,7 @@ const handleCreateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const shouldForceSync = forceDataSync.value();
+    const shouldForceSync = isEnabled(forceDataSync.value());
     if (shouldForceSync) {
       const updatedSnapshot = await snapshot.ref.get();
       const data = await extract(updatedSnapshot, 0);
@@ -101,7 +101,7 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const shouldForceSync = forceDataSync.value();
+    const shouldForceSync = isEnabled(forceDataSync.value());
     if (shouldForceSync) {
       const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);

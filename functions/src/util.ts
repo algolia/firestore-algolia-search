@@ -73,6 +73,10 @@ export const areFieldsUpdated = (
   return false;
 };
 
+/** Accepts  `true` and `yes` (extension value), so old configs keep working. */
+export const isEnabled = (value: string | undefined): boolean =>
+  ['true', 'yes'].includes((value ?? '').trim().toLowerCase());
+
 export const isValidValue = (value) => {
   return typeof value !== undefined && value !== null;
 };
