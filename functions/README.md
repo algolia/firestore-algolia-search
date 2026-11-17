@@ -43,10 +43,8 @@ after every redeploy, when `DO_FULL_INDEXING` is `true` (default `false`).
 > lifecycle hook again:
 >
 > ```bash
-> firebase functions:lifecycle:run afterFirstDeploy default   # or: afterRedeploy
+> firebase functions:lifecycle:run afterFirstDeploy CODEBASE_NAME   # or: afterRedeploy
 > ```
->
-> Replace `default` with your codebase name if it is not the default one.
 
 ## Exported functions
 

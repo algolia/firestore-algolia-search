@@ -45,7 +45,7 @@ export const fields = defineString('FIELDS', {
 export const forceDataSync = defineString('FORCE_DATA_SYNC', {
   default: 'no',
   description:
-    'Re-read the document from Firestore before indexing to mitigate race conditions (adds Firestore reads). "true" is also accepted as "yes".',
+    'Re-read the document from Firestore before indexing to mitigate race conditions. "true" is also accepted as "yes".',
   input: { select: { options: [{ value: 'no' }, { value: 'yes' }] } },
 });
 
@@ -76,7 +76,7 @@ export const transformFunction = defineString('TRANSFORM_FUNCTION', {
 export const doFullIndexing = defineBoolean('DO_FULL_INDEXING', {
   default: false,
   description:
-    'Index existing documents of the collection after each deployment. Replaces all records with the data in Firestore.',
+    'Index existing documents of the collection after each deployment.',
 });
 
 export const location = defineString('LOCATION', {
