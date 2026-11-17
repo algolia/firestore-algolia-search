@@ -6,21 +6,17 @@ Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
 
 ## Installation
 
-```bash
-cd functions
-npm install firestore-algolia-search
-```
-
-Re-export the functions from your `functions/src/index.ts`:
-
-```ts
-export * from "firestore-algolia-search";
-```
-
-And deploy:
+Requires `firebase-tools` 15.32.0 or later.
 
 ```bash
-firebase deploy --only functions
+firebase functions:kits:install --package firestore-algolia-search --project <project-id>
+```
+
+The CLI asks for a kit instance ID and prompts for the
+[configuration](#configuration) values. Then deploy the kit:
+
+```bash
+firebase deploy --only functions:<kit-instance-id> --project <project-id>
 ```
 
 The IAM roles `roles/datastore.user`, `roles/eventarc.eventReceiver`,
@@ -39,7 +35,7 @@ after every redeploy if you set `DO_FULL_INDEXING` to `true` (default `false`).
 > lifecycle hook again:
 >
 > ```bash
-> firebase functions:lifecycle:run afterFirstDeploy CODEBASE_NAME   # or: afterRedeploy
+> firebase functions:lifecycle:run afterFirstDeploy <kit-instance-id>   # or: afterRedeploy
 > ```
 
 ## Exported functions
@@ -71,30 +67,12 @@ after every redeploy if you set `DO_FULL_INDEXING` to `true` (default `false`).
 
 ## Migrating from the extension
 
-The extension's functions are named `ext-<instance-id>-*`, so they don't clash
-with the ones from this package. Until the extension is uninstalled, both
-copies run and every write is indexed twice.
+Follow [Migrate from an extension to a function kit](https://firebase.google.com/docs/extensions/users/migrate) guide.
 
-1. Export the extension's configuration:
-   ```bash
-   firebase ext:export
-   ```
-   Copy the values from `extensions/<instance-id>.env` into `functions/.env`.
-2. Set the Algolia API key. The extension stored it under its own name, so it
-   has to be set again:
-   ```bash
-   firebase functions:secrets:set ALGOLIA_API_KEY
-   ```
-3. Re-export the functions and deploy, as in [Installation](#installation).
-4. Uninstall the extension:
-   ```bash
-   firebase ext:uninstall <instance-id>
-   ```
-
-Leave `DO_FULL_INDEXING=false` if the index is already up to date: records
-keep the same `objectID` as long as `ALT_OBJECT_ID` doesn't change. Set it to
-`true` for one deploy if you need a full resync, for example if the extension
-was uninstalled before the new functions were deployed.
+- Until the extension is uninstalled, it and the kit both index every write.
+- Keep `DO_FULL_INDEXING=false` if the Algolia index is already up to date:
+  records keep the same `objectID` as long as `ALT_OBJECT_ID` doesn't change.
+  Set it to `true` for one deploy if you need a full resync.
 
 ### What changed (Extension vs Package)
 
