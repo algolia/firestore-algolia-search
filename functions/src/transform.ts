@@ -15,13 +15,15 @@
  */
 
 import fetch from 'node-fetch';
-import config from './config';
+import { location, transformFunction } from './config';
+import { projectID } from 'firebase-functions/params';
 import * as logs from './logs';
 
 export default async payload => {
-  if (config.transformFunction) {
+  const functionName = transformFunction.value();
+  if (functionName) {
     try {
-      const response = await fetch(`https://${ config.location }-${ config.projectId }.cloudfunctions.net/${ config.transformFunction }`, {
+      const response = await fetch(`https://${ location.value() }-${ projectID.value() }.cloudfunctions.net/${ functionName }`, {
         method: 'post',
         body: JSON.stringify({ data: payload }),
         headers: { 'Content-Type': 'application/json' },

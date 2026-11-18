@@ -10,10 +10,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv({ ...defaultEnvironment, FIELDS: '' });
-    config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -24,7 +22,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with an update on non indexable field', async () => {
@@ -45,7 +43,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(3);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {
@@ -90,7 +88,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(2);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {
@@ -142,7 +140,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(2);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {
@@ -185,7 +183,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(2);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       const payload = {

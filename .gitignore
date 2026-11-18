@@ -108,6 +108,8 @@ test-params.env
 .idea
 .vscode
 *.iml
+.agents
+.claude
 
 .firebaserc
 extensions

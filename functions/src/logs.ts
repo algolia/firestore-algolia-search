@@ -15,19 +15,41 @@
  */
 
 import { logger } from 'firebase-functions';
-import config from './config';
+import { projectID } from 'firebase-functions/params';
+import {
+  algoliaAppId,
+  algoliaIndexName,
+  altObjectId,
+  collectionPath,
+  databaseId,
+  doFullIndexing,
+  fields,
+  forceDataSync,
+  location,
+  transformFunction,
+} from './config';
 
-export const obfuscatedConfig = {
-  ...config,
+export const obfuscatedConfig = () => ({
+  location: location.value(),
+  algoliaAppId: algoliaAppId.value(),
   algoliaAPIKey: '********',
-};
+  algoliaIndexName: algoliaIndexName.value(),
+  databaseId: databaseId.value(),
+  collectionPath: collectionPath.value(),
+  fields: fields.value(),
+  forceDataSync: forceDataSync.value(),
+  transformFunction: transformFunction.value(),
+  projectId: projectID.value(),
+  doFullIndexing: doFullIndexing.value(),
+  altObjectId: altObjectId.value(),
+});
 
 export const init = () => {
-  logger.info('Initializing extension with configuration', obfuscatedConfig);
+  logger.info('Initializing function kit with configuration', obfuscatedConfig());
 };
 
 export const start = () => {
-  logger.info('Started extension execution with configuration', obfuscatedConfig);
+  logger.info('Started function execution with configuration', obfuscatedConfig());
 };
 
 export const warn = (...args: any) => {
@@ -59,7 +81,7 @@ export const deleteIndex = (id: string) => {
 };
 
 export const fieldNotExist = (field: string) => {
-  logger.warn(`The field "${ field }" was specified in the extension config but was not found on collection data.`);
+  logger.warn(`The field "${ field }" was specified in the FIELDS config but was not found on collection data.`);
 };
 
 export const fullIndexingComplete = (successCount: number, errorCount: number) => {

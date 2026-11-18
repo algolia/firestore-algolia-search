@@ -13,10 +13,8 @@ describe('extension', () => {
   globalThis.mockSearchModule();
   const defaultEnvironment = globalThis.defaultEnvironment;
 
-  let config;
   beforeEach(() => {
     restoreEnv = mockedEnv({ ...defaultEnvironment, TRANSFORM_FUNCTION: 'helloWorld' });
-    config = require('../src/config').default;
   });
 
   describe('functions.executeIndexOperation', () => {
@@ -27,7 +25,7 @@ describe('extension', () => {
     beforeEach(async () => {
       jest.clearAllMocks();
       functionsTest = functionsTestInit();
-      functionsConfig = config;
+      functionsConfig = require('../src/logs').obfuscatedConfig();
     });
 
     test('functions runs with a create with transform function', async () => {
@@ -70,7 +68,7 @@ describe('extension', () => {
       expect(callResult).toBeUndefined();
       expect(infoMock).toBeCalledTimes(3);
       expect(infoMock).toBeCalledWith(
-        'Started extension execution with configuration',
+        'Started function execution with configuration',
         functionsConfig
       );
       expect(infoMock).toBeCalledWith(

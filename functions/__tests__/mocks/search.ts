@@ -39,5 +39,9 @@ export const mockIndexerResult = (document, data) => {
   const indexer = mockIndexer();
 
   console.log('indexer', indexer);
-  return indexer(document, data);
+  return indexer({
+    data: document,
+    time: new Date().toISOString(),
+    ...(data as object),
+  } as any);
 };

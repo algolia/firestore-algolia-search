@@ -1,0 +1,97 @@
+# @algolia/firestore-search
+
+Index a Cloud Firestore collection into [Algolia](https://algolia.com) using
+2nd Gen Cloud Functions. This is the Function Kit version of the
+`firestore-algolia-search` Firebase Extension.
+
+## Installation
+
+Requires `firebase-tools` 15.32.0 or later.
+
+```bash
+firebase functions:kits:install --package @algolia/firestore-search --project <project-id>
+```
+
+The CLI asks for a kit instance ID and prompts for the
+[configuration](#configuration) values. Then deploy the kit:
+
+```bash
+firebase deploy --only functions:<kit-instance-id> --project <project-id>
+```
+
+The IAM roles `roles/datastore.user`, `roles/eventarc.eventReceiver`,
+`roles/run.invoker` and `roles/cloudtasks.enqueuer` are declared in code and
+granted at deploy time. A full indexing run is triggered automatically after the first deploy and
+after every redeploy if you set `DO_FULL_INDEXING` to `true` (default `false`).
+
+> [!NOTE]
+> On the first deploy, the roles above are granted at the same moment the full
+> indexing task is queued. IAM changes can take a few minutes to propagate, so the
+> task may be rejected with a `403`:
+> ```
+> The request was not authenticated [...] The IAM principal lacks {run.routes.invoke} permission.
+> ```
+> If you see this in the `executeFullIndexOperation` logs, wait a few minutes and run the
+> lifecycle hook again:
+>
+> ```bash
+> firebase functions:lifecycle:run afterFirstDeploy <kit-instance-id>   # or: afterRedeploy
+> ```
+
+## Exported functions
+
+| Function                    | Trigger                                   | Purpose                                              |
+| :-------------------------- | :---------------------------------------- | :--------------------------------------------------- |
+| `executeIndexOperation`     | Firestore `onDocumentWritten`             | Creates, updates or deletes the record in Algolia    |
+| `executeFullIndexOperation` | Cloud Tasks `onTaskDispatched`            | Indexes all existing documents, in batches of 250    |
+
+## Configuration
+### `.env` values
+
+| Param                | Type    | Default       | Description                                                                          |
+| :------------------- | :------ | :------------ | :------------------------------------------------------------------------------------|
+| `LOCATION`           | string  | `us-central1` | Functions region.                                                                    |
+| `DATABASE_ID`        | string  | `(default)`   | Firestore database to monitor.                                                       |
+| `COLLECTION_PATH`    | string  | _required_    | Collection to monitor, e.g. `movies` or `users/{userId}/posts` (collection group).   |
+| `FIELDS`             | string  | _all_         | Comma separated list of fields to index.                                             |
+| `FORCE_DATA_SYNC`    | string  | `false`       | `true` / `false` (`yes` / `no` also accepted). Re-read the document before indexing. |
+| `ALGOLIA_APP_ID`     | string  | _required_    | Algolia application ID.                                                              |
+| `ALGOLIA_INDEX_NAME` | string  | _required_    | Target Algolia index.                                                                |
+| `ALT_OBJECT_ID`      | string  | _doc id_      | Document field used as `objectID`; `(path)` uses the document path.                  |
+| `TRANSFORM_FUNCTION` | string  | _none_        | Name of an HTTPS function that transforms records before indexing (experimental).    |
+| `DO_FULL_INDEXING`   | boolean | `false`       | Index existing documents after each deployment.                                      |
+
+### Secrets
+
+- `ALGOLIA_API_KEY`: An Algolia API Key with the following ACLs: `addObject`, `deleteObject`.
+
+## Migrating from the extension
+
+Follow [Migrate from an extension to a function kit](https://firebase.google.com/docs/extensions/users/migrate) guide.
+
+- Until the extension is uninstalled, it and the kit both index every write.
+- Keep `DO_FULL_INDEXING=false` if the Algolia index is already up to date:
+  records keep the same `objectID` as long as `ALT_OBJECT_ID` doesn't change.
+  Set it to `true` for one deploy if you need a full resync.
+
+### What changed (Extension vs Package)
+
+| Area                | Extension                                        | Package                                                          |
+| :------------------ | :----------------------------------------------- | :--------------------------------------------------------------- |
+| Triggers            | 1st Gen `firestore.document().onWrite`, `taskQueue` | 2nd Gen `onDocumentWritten`, `onTaskDispatched`               |
+| Handler signature   | `(change, context)`                              | `(event)`: `event.data` is the before/after change, `event.time` |
+| Configuration       | `extension.yaml` params / `process.env`          | `defineString` / `defineBoolean` / `defineSecret` params         |
+| API key             | `secret` param                                   | `defineSecret("ALGOLIA_API_KEY")`, bound to both functions       |
+| IAM                 | `roles` in `extension.yaml`                      | four `requiresRole(...)` calls (see above)                       |
+| Lifecycle           | `onInstall` / `onUpdate` / `onConfigure`         | `afterFirstDeploy` / `afterRedeploy`                             |
+| Processing state    | `runtime.setProcessingState`                     | Logged to Cloud Logging                                          |
+| Task enqueue        | Needs `EXT_INSTANCE_ID`                          | Plain function name                                              |
+| `DO_FULL_INDEXING`  | Required choice (Yes/No)                         | Default `false`; runs after every redeploy when `true`           |
+| Concurrency/cost    | 1 request per instance                           | `cpu: "gcf_gen1"` keeps the single concurrency                   |
+
+## Development
+
+```bash
+npm test         # jest
+npm run compile  # tsc -> lib/
+```

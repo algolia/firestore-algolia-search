@@ -15,48 +15,71 @@
  * limitations under the License.
  */
 
-import algoliaSearch from 'algoliasearch';
-import * as functions from 'firebase-functions';
-import { EventContext } from 'firebase-functions';
-import { DocumentData, DocumentSnapshot, getFirestore } from 'firebase-admin/firestore';
-import { getExtensions } from 'firebase-admin/extensions';
+import algoliaSearch, { SearchIndex } from 'algoliasearch';
+import { onDocumentWritten } from 'firebase-functions/firestore';
+import { onTaskDispatched } from 'firebase-functions/tasks';
+import { requiresRole } from 'firebase-functions';
+import { afterFirstDeploy, afterRedeploy } from 'firebase-functions/lifecycle';
+import { expr } from 'firebase-functions/params';
+import { DocumentData, DocumentSnapshot, FieldPath, getFirestore, Query } from 'firebase-admin/firestore';
 import { getFunctions } from 'firebase-admin/functions';
-import * as firebase from 'firebase-admin';
-import { firestore } from 'firebase-admin';
-import FieldPath = firestore.FieldPath;
+import { getApps, initializeApp } from 'firebase-admin/app';
 
-import config from './config';
+import {
+  algoliaApiKey,
+  algoliaAppId,
+  algoliaIndexName,
+  collectionPath,
+  databaseId,
+  doFullIndexing,
+  forceDataSync,
+  location,
+} from './config';
 import extract from './extract';
-import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath } from './util';
+import { areFieldsUpdated, ChangeType, getChangeType, getObjectID, isCollectionGroupPath, isEnabled } from './util';
 import { version } from './version';
 import * as logs from './logs';
 
 const DOCS_PER_INDEXING = 250;
-const client = algoliaSearch(
-  config.algoliaAppId,
-  config.algoliaAPIKey,
-);
 
-client.addAlgoliaAgent('firestore_integration', version);
-export const index = client.initIndex(config.algoliaIndexName);
+// Required IAM roles.
+requiresRole('roles/datastore.user');          // read/write Firestore
+requiresRole('roles/eventarc.eventReceiver');  // create and receive the Firestore trigger
+requiresRole('roles/run.invoker');             // allow Firebase to call the functions (on document changes and for full indexing)
+requiresRole('roles/cloudtasks.enqueuer');     // needed when full indexing enqueues its next batch
 
-firebase.initializeApp();
-const firestoreDB = getFirestore(config.databaseId);
+// Algolia client and Firebase Admin are created lazily: parameter values are
+// not available at module load time.
+let algoliaIndex: SearchIndex | undefined;
+export const getIndex = (): SearchIndex => {
+  if (!algoliaIndex) {
+    logs.init();
+    const client = algoliaSearch(algoliaAppId.value(), algoliaApiKey.value());
+    client.addAlgoliaAgent('firestore_integration', version);
+    algoliaIndex = client.initIndex(algoliaIndexName.value());
+  }
+  return algoliaIndex;
+};
 
-logs.init();
+const getDb = () => {
+  if (getApps().length === 0) {
+    initializeApp();
+  }
+  return getFirestore(databaseId.value());
+};
 
 const handleCreateDocument = async (
   snapshot: DocumentSnapshot,
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync) {
+    const shouldForceSync = isEnabled(forceDataSync.value());
+    if (shouldForceSync) {
       const updatedSnapshot = await snapshot.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.createIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
-      await index.saveObject(data);
+      await getIndex().saveObject(data);
     } else {
       const data = await extract(snapshot, timestamp);
 
@@ -65,7 +88,7 @@ const handleCreateDocument = async (
       });
 
       logs.createIndex(snapshot.id, data);
-      await index.partialUpdateObject(data, { createIfNotExists: true });
+      await getIndex().partialUpdateObject(data, { createIfNotExists: true });
     }
   } catch (e) {
     logs.error(e);
@@ -78,15 +101,15 @@ const handleUpdateDocument = async (
   timestamp: Number
 ) => {
   try {
-    const forceDataSync = config.forceDataSync;
-    if (forceDataSync) {
+    const shouldForceSync = isEnabled(forceDataSync.value());
+    if (shouldForceSync) {
       const updatedSnapshot = await after.ref.get();
       const data = await extract(updatedSnapshot, 0);
       logs.updateIndex(updatedSnapshot.id, data);
       logs.info('force sync data: execute saveObject');
-      await index.saveObject(data);
+      await getIndex().saveObject(data);
     } else {
-      if (areFieldsUpdated(config, before, after)) {
+      if (areFieldsUpdated(before, after)) {
         logs.debug('Detected a change, execute indexing');
 
         const beforeData: DocumentData = await before.data();
@@ -98,7 +121,7 @@ const handleUpdateDocument = async (
           const data = await extract(after, timestamp);
           logs.updateIndex(after.id, data);
           logs.debug('execute partialUpdateObject');
-          await index.partialUpdateObject(data, { createIfNotExists: true });
+          await getIndex().partialUpdateObject(data, { createIfNotExists: true });
         }
         // if an attribute was removed, then use save object of the record.
         else {
@@ -109,7 +132,7 @@ const handleUpdateDocument = async (
 
           logs.updateIndex(after.id, data);
           logs.debug('execute saveObject');
-          await index.saveObject(data);
+          await getIndex().saveObject(data);
         }
       }
     }
@@ -122,21 +145,29 @@ const handleDeleteDocument = async (
   deleted: DocumentSnapshot,
 ) => {
   try {
-    logs.deleteIndex(getObjectID(config, deleted),);
-    await index.deleteObject(getObjectID(config, deleted),);
+    logs.deleteIndex(getObjectID(deleted));
+    await getIndex().deleteObject(getObjectID(deleted));
   } catch (e) {
     logs.error(e);
   }
 };
 
-// export const executeIndexOperation = functions.handler.firestore.document
-//   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext): Promise<void> => {
-export const executeIndexOperation = functions.firestore
-  .document(config.collectionPath)
-  .onWrite(async (change, context: EventContext): Promise<void> => {
+export const executeIndexOperation = onDocumentWritten(
+  {
+    document: expr`${ collectionPath }/{documentID}`,
+    database: databaseId,
+    region: location,
+    secrets: [algoliaApiKey],
+    cpu: 'gcf_gen1',
+  },
+  async (event): Promise<void> => {
     logs.start();
 
-    const eventTimestamp = Date.parse(context.timestamp);
+    const change = event.data;
+    if (!change) {
+      throw new Error('Event has no document data');
+    }
+    const eventTimestamp = Date.parse(event.time);
     const changeType = getChangeType(change);
     switch (changeType) {
       case ChangeType.CREATE:
@@ -152,45 +183,55 @@ export const executeIndexOperation = functions.firestore
         throw new Error(`Invalid change type: ${ changeType }`);
       }
     }
-  });
+  }
+);
 
-export const executeFullIndexOperation = functions.tasks
-  .taskQueue()
-  .onDispatch(async (data: any) => {
-    const runtime = getExtensions().runtime();
+export const executeFullIndexOperation = onTaskDispatched(
+  {
+    region: location,
+    secrets: [algoliaApiKey],
+    memory: '1GiB',
+    timeoutSeconds: 540,
+    cpu: 'gcf_gen1',
+    retryConfig: {
+      maxAttempts: 5,
+      minBackoffSeconds: 10, // To let the time for permissions to propagate on first deploy.
+    },
+  },
+  async ({ data }: { data: any }) => {
     logs.init()
-    logs.info('config.doFullIndexing', config.doFullIndexing);
-    if (!config.doFullIndexing) {
-      await runtime.setProcessingState(
-        'PROCESSING_COMPLETE',
-        'Existing documents were not indexed because "Indexing existing documents?" is configured to false. ' +
-        'If you want to run a full reindex, reconfigure this instance.'
+    logs.info('doFullIndexing', doFullIndexing.value());
+    if (!doFullIndexing.value()) {
+      logs.info(
+        'Existing documents were not indexed because DO_FULL_INDEXING is false. ' +
+        'Set it to true and redeploy to run a full reindex.'
       );
       return;
     }
 
-    logs.info('config.collectionPath', config.collectionPath);
-    const docId = data['docId'] ?? null;
-    const pastSuccessCount = (data['successCount'] as number) ?? 0;
-    const pastErrorCount = (data['errorCount'] as number) ?? 0;
+    const collection = collectionPath.value();
+    logs.info('collectionPath', collection);
+    const docId = (data ?? {})['docId'] ?? null;
+    const pastSuccessCount = ((data ?? {})['successCount'] as number) ?? 0;
+    const pastErrorCount = ((data ?? {})['errorCount'] as number) ?? 0;
     // We also track the start time of the first invocation, so that we can report the full length at the end.
-    const startTime = (data['startTime'] as number) ?? Date.now();
-    let query: firebase.firestore.Query;
+    const startTime = ((data ?? {})['startTime'] as number) ?? Date.now();
+    let query: Query;
 
-    const isCollectionGroup = isCollectionGroupPath(config.collectionPath);
+    const isCollectionGroup = isCollectionGroupPath(collection);
     logs.info('Is Collection Group?', isCollectionGroup);
     if (isCollectionGroup) {
-      query = firestoreDB
-        .collectionGroup(config.collectionPath.split('/').pop());
+      query = getDb()
+        .collectionGroup(collection.split('/').pop());
     } else {
-      query = firestoreDB
-        .collection(config.collectionPath);
+      query = getDb()
+        .collection(collection);
     }
     query = query.limit(DOCS_PER_INDEXING);
 
     logs.debug('docId?', docId);
     if (docId) {
-      let queryCursor = query.where(FieldPath.documentId(), '==', docId);
+      const queryCursor = query.where(FieldPath.documentId(), '==', docId);
       logs.debug('queryCursor?', queryCursor);
 
       const querySnapshot = await queryCursor.get();
@@ -211,7 +252,7 @@ export const executeFullIndexOperation = functions.tasks
       .map(v => v.value);
 
     logs.info('records.length', records.length);
-    const responses = await index.saveObjects(records, {
+    const responses = await getIndex().saveObjects(records, {
       autoGenerateObjectIDIfNotExist: true,
     });
     logs.debug('responses.objectIDs', responses.objectIDs);
@@ -223,8 +264,7 @@ export const executeFullIndexOperation = functions.tasks
     if (snapshot.size === DOCS_PER_INDEXING) {
       const newCursor = snapshot.docs[snapshot.size - 1];
       const queue = getFunctions().taskQueue(
-        `locations/${config.location}/functions/executeFullIndexOperation`,
-        config.instanceId
+        `locations/${location.value()}/functions/executeFullIndexOperation`
       );
       await queue.enqueue({
         docId: isCollectionGroup ? newCursor.ref.path : newCursor.id,
@@ -235,27 +275,17 @@ export const executeFullIndexOperation = functions.tasks
     } else {
       // No more documents to index, time to set the processing state.
       logs.fullIndexingComplete(newSuccessCount, newErrorCount);
+      const elapsed = Date.now() - startTime;
       if (newErrorCount === 0) {
-        return await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          `Successfully indexed ${ newSuccessCount } documents in ${
-            Date.now() - startTime
-          }ms.`
-        );
-      } else if (newErrorCount > 0 && newSuccessCount > 0) {
-        return await runtime.setProcessingState(
-          'PROCESSING_WARNING',
-          `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
-            Date.now() - startTime
-          }ms. See function logs for specific error messages.`
-        );
+        logs.info(`Successfully indexed ${ newSuccessCount } documents in ${ elapsed }ms.`);
+      } else {
+        logs.warn(`Indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${ elapsed }ms.`);
       }
-      return await runtime.setProcessingState(
-        'PROCESSING_FAILED',
-        `Successfully indexed ${ newSuccessCount } documents, ${ newErrorCount } errors in ${
-          Date.now() - startTime
-        }ms. See function logs for specific error messages.`
-      );
     }
-  });
+  }
+);
 
+// Run a full indexing after the first deployment and after every redeploy
+// (replaces `lifecycleEvents` in extension.yaml).
+afterFirstDeploy({ task: { function: 'executeFullIndexOperation', body: { data: {} } } });
+afterRedeploy({ task: { function: 'executeFullIndexOperation', body: { data: {} } } });

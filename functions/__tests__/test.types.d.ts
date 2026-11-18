@@ -3,7 +3,6 @@ import { ModuleMocker } from 'jest-mock';
 declare global {
   namespace NodeJS {
     interface Global {
-      config: () => ModuleMocker;
       snapshot: (
         input?: { input?: any; changed?: number; notTheInput?: string },
         path?: string

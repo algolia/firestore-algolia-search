@@ -6,3 +6,9 @@ typings/
 private
 
 lib
+
+# Local and per-project params and secrets
+.env
+.env.*
+!.env.example
+.secret.local
